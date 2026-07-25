@@ -1,0 +1,16 @@
+# Invalid on purpose: `punkte` is not part of the exercise format.
+# Content is code — an invented field must fail in CI.
+[exercise]
+id = "01-unbekanntes-feld"
+titel = "Feld erfunden"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+punkte = 10
+
+[[check]]
+id = "datei"
+type = "file_exists"
+path = "abgabe/datei.txt"
+hint_de = "Diese Übung darf gar nicht laden."

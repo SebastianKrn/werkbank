@@ -1,0 +1,15 @@
+# Invalid on purpose: the id does not match the folder name, so `wb check <id>`
+# and the folder on disk would disagree.
+[exercise]
+id = "99-ganz-andere-id"
+titel = "ID passt nicht zum Ordner"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "datei"
+type = "file_exists"
+path = "abgabe/datei.txt"
+hint_de = "Diese Übung darf gar nicht laden."

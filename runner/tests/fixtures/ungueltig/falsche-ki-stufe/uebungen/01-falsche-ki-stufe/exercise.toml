@@ -1,0 +1,15 @@
+# Invalid on purpose: ki_stufe and stufe both carry values outside the format.
+[exercise]
+id = "01-falsche-ki-stufe"
+titel = "KI-Stufe erfunden"
+modul = "ungueltig"
+schwierigkeit = 5
+zeit_minuten = 0
+ki_stufe = "manchmal"
+
+[[check]]
+id = "datei"
+type = "file_exists"
+stufe = "extra"
+path = "abgabe/datei.txt"
+hint_de = "Diese Übung darf gar nicht laden."

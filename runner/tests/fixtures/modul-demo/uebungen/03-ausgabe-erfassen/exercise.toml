@@ -1,0 +1,29 @@
+[exercise]
+id = "03-ausgabe-erfassen"
+titel = "Eine Ausgabe erfassen"
+modul = "demo"
+schwierigkeit = 2
+zeit_minuten = 20
+ki_stufe = "frei"
+lb_relevant = false
+
+[[check]]
+id = "ordnerliste-vorhanden"
+type = "file_exists"
+path = "abgabe/ordnerliste.txt"
+hint_de = "Tippe: wb erfasse ordnerliste 03-ausgabe-erfassen"
+
+[[check]]
+id = "ordnerliste-ist-vollstaendig"
+type = "file_matches"
+path = "abgabe/ordnerliste.txt"
+pattern = '(?i)(Einträge|Eintraege)'
+hint_de = "Die Datei sieht unvollständig aus. Erfasse die Ordnerliste noch einmal."
+
+[[check]]
+id = "homelab-vergleich"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 2
+hint_de = "Nur mit eigenem Labor: Vergleiche die Ordnerliste mit einem zweiten Gerät."

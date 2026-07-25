@@ -1,0 +1,15 @@
+# Invalid on purpose: only optional checks — a learner would pass without work.
+[exercise]
+id = "01-ohne-basis-check"
+titel = "Nur Bonus"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "bonus-datei"
+type = "file_exists"
+stufe = "bonus"
+path = "abgabe/datei.txt"
+hint_de = "Diese Übung darf gar nicht laden."

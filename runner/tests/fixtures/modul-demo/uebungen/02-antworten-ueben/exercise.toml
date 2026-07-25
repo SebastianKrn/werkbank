@@ -1,0 +1,36 @@
+[exercise]
+id = "02-antworten-ueben"
+titel = "Fragen beantworten"
+modul = "demo"
+schwierigkeit = 1
+zeit_minuten = 15
+ki_stufe = "danach"
+lb_relevant = true
+
+[[check]]
+id = "alle-fragen-beantwortet"
+type = "alle_antworten"
+keys = ["werkzeug", "gelernt"]
+hint_de = "Trage in abgabe/antworten.toml beide Einträge ein: werkzeug und gelernt."
+
+[[check]]
+id = "pruefsumme-stimmt-ueberein"
+type = "werte_gleich"
+key_a = "pruefsumme_vorher"
+key_b = "pruefsumme_nachher"
+hint_de = "Schreibe dieselbe Prüfsumme zweimal: einmal vor dem Kopieren, einmal danach."
+
+# Fixture note: the accepted plaintext for this hash lives only in the private
+# solutions repository, never here (CLAUDE.md rule 6). The check is expected to
+# stay open in the integration tests.
+[[check]]
+id = "lieblingsbefehl"
+type = "antwort"
+stufe = "bonus"
+key = "lieblingsbefehl"
+salt = "demo:02"
+expect_hash = [
+  "eb99e465c70de5da9a8f046df3962d5f21ef66232a52823e3ba7ad4d9922a868",
+  "a24379a6de52b55af354d6f673d83d327599f736c84257445ef4c37a1b93efc8",
+]
+hint_de = "Welchen Befehl benutzt du, um den Inhalt eines Ordners anzuzeigen?"

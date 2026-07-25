@@ -1,0 +1,15 @@
+# Invalid on purpose: the pattern does not compile.
+[exercise]
+id = "01-kaputte-regex"
+titel = "Muster mit Tippfehler"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "muster"
+type = "file_matches"
+path = "abgabe/datei.txt"
+pattern = '([a-z'
+hint_de = "Diese Übung darf gar nicht laden."

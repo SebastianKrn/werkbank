@@ -1,0 +1,25 @@
+# Invalid on purpose: `pattern` has no meaning for a file_exists check, and
+# `min` has no meaning for an antwort check.
+[exercise]
+id = "01-feld-passt-nicht"
+titel = "Feld gehört nicht zum Typ"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "datei"
+type = "file_exists"
+path = "abgabe/datei.txt"
+pattern = "irgendwas"
+hint_de = "Diese Übung darf gar nicht laden."
+
+[[check]]
+id = "frage"
+type = "antwort"
+key = "farbe"
+salt = "demo:x"
+expect_hash = ["0000000000000000000000000000000000000000000000000000000000000000"]
+min = 3
+hint_de = "Diese Übung darf gar nicht laden."

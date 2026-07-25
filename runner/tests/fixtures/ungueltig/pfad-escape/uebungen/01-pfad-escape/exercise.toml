@@ -1,0 +1,14 @@
+# Invalid on purpose: the path leaves the exercise folder (SPEC §2).
+[exercise]
+id = "01-pfad-escape"
+titel = "Pfad zeigt nach draußen"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "escape"
+type = "file_exists"
+path = "../../../etc/passwd"
+hint_de = "Diese Übung darf gar nicht laden."

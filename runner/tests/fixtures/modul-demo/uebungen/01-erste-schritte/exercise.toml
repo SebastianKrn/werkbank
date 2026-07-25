@@ -1,0 +1,29 @@
+[exercise]
+id = "01-erste-schritte"
+titel = "Deine erste Notiz"
+modul = "demo"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+lb_relevant = true
+vertiefung = ["https://learn.microsoft.com/training/"]
+
+[[check]]
+id = "notiz-vorhanden"
+type = "file_exists"
+path = "abgabe/notiz.txt"
+hint_de = "Lege im Ordner \"abgabe\" eine Datei mit dem Namen notiz.txt an."
+
+[[check]]
+id = "notiz-hat-drei-zeilen"
+type = "datei_zeilen_min"
+path = "abgabe/notiz.txt"
+min = 3
+hint_de = "Schreibe drei Zeilen: Was hast du gemacht? Was hat geklappt? Was ist noch offen?"
+
+[[check]]
+id = "extra-notiz"
+type = "file_exists"
+stufe = "bonus"
+path = "abgabe/extra.txt"
+hint_de = "Freiwillig: Schreibe in abgabe/extra.txt, was dich heute überrascht hat."
