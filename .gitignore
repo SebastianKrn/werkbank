@@ -1,0 +1,9 @@
+/target
+/dist
+.werkbank/
+bericht.txt
+bericht.json
+
+# never in this repo (see CLAUDE.md rule 5/6)
+*.pdf
+/loesungen/

@@ -1,0 +1,7 @@
+# Deterministic bytes on every machine. Encoding tolerance is a runtime feature
+# of `wb`, not something the repository should have to guess about.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.zip binary
