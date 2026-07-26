@@ -12,6 +12,20 @@ Do not commit filled-in protocols (they contain machine details).
 
 **Who:** Sebastian. Roughly 2–3 hours including one full exercise pass.
 
+**What you need:** the current pre-release ZIP from
+<https://github.com/SebastianKrn/werkbank/releases> — at time of writing
+`v0.1.0-rc1`, `werkbank-geraetetechnik-v0.1.0-rc1.zip`. Download it **through a
+browser on the VM**. Copying it from this repository or over a shared folder
+skips the Mark-of-the-Web, which is half of what Part A tests.
+
+Verify it before you start:
+
+```powershell
+Get-FileHash .\werkbank-geraetetechnik-v0.1.0-rc1.zip -Algorithm SHA256
+```
+
+and compare against `SHA256SUMS.txt`, attached to the same release.
+
 **Rule while testing:** you are not allowed to help yourself. If a step needs
 knowledge that is not in `START_HIER.md` or the exercise text, that is a
 finding — write it down instead of working around it.
@@ -199,5 +213,30 @@ mechanical question.** Anything that breaks that is a blocker.
 - [ ] Findings that are not fixed are written into `docs/MILESTONES.md` so they
       are visible on pilot day rather than rediscovered in front of learners
 
-Then, and only then, M3 item 2 (external beta) starts — see
-`trainer/BETA_FEEDBACK.md` for the sheet the beta tester fills in.
+Then, and only then, M3b item 2 (external beta) starts.
+
+---
+
+## When you are done
+
+**Bring back**, so the next working session can act without re-deriving anything:
+
+1. The filled-in copy of this protocol — or just Part F, the findings table.
+   Paste it into the session; do not commit it.
+2. For every finding: which part, what you expected, what actually happened, and
+   the **exact German wording** if a dialog or a CLI message was involved. A
+   paraphrase is not enough to fix a string.
+3. Which of the nine presets in Part C produced unusable output, and what the
+   capture file contained instead.
+4. Your own timings per exercise. The handbook's 4-block plan rests on the
+   estimates in `START_HIER.md`, and those are guesses until you have measured
+   them once.
+
+**Then, in order:** blockers get fixed and a new tag cut (`v0.1.0-rc2`), the
+protocol's Parts A and B get re-run against that ZIP, and only a clean re-run
+releases the module to the external beta.
+
+**For the beta tester** (M3b item 2), send three things and nothing else: the
+release link, `trainer/BETA_FEEDBACK.md`, and the instruction to ask no
+questions. Answering one question by hand destroys the measurement — the
+question is whether the module carries someone alone.

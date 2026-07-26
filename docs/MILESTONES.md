@@ -66,12 +66,18 @@ Open at the end of M2 (carried into M3):
 
 Found while writing the protocol, unfixed by design: **seven of nine capture presets have never been executed anywhere.** Tests run only `ordnerliste` and `ipconfig`; `bitlocker` and `schutz` are `unix: None` and cannot run on the Linux dev box at all. Protocol Part C exists to close this. No pre-emptive fixes were written — guessing at Windows behaviour without evidence is how the protocol gets invalidated before it runs.
 
-### M3b — Dry runs (human)
+### M3b — Dry runs (human) — **next**
 
-1. Test protocol run (docs/TESTPROTOKOLL.md) on a fresh Windows account — fix everything found.
-2. External beta: 42-friend runs the module solo, remote, no help; collect where he got stuck + quote; fix top findings.
-3. Sebastian dry-teaches one exercise to Raphael (role play) — handbook gaps fixed.
-4. Freeze: tag v0.1.0, build final pilot ZIP, print one-pagers.
+Nothing here can be done by a coding session. Each item needs a person, a real
+Windows VM, or another human being. They are strictly in order: item 2 is
+worthless if item 1 found a blocker.
+
+1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against the current pre-release ZIP. Instrument: `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut `v0.1.0-rc2`, re-run Parts A and B against it.
+2. [ ] **External beta.** 42-friend, solo and remote. Send exactly three things: the release link, `trainer/BETA_FEEDBACK.md`, and the instruction to ask nobody. Answering one question by hand destroys the measurement. Blocked on item 1 being clean.
+3. [ ] **Dry-teach.** Sebastian teaches one exercise to Raphael as role play; handbook gaps fixed in `trainer/HANDBUCH_GERAETETECHNIK.md`. Combine with Raphael's outstanding 30-min curriculum review (open since M2).
+4. [ ] **Freeze.** Bump `runner/Cargo.toml` to `0.1.0` if it moved, tag `v0.1.0`, verify the published ZIP, print `trainer/AUSTEILEN_A4.md` one-pagers. The tag is the whole freeze procedure — see README "Releasing" and ADR 0006.
+
+Current pre-release: **v0.1.0-rc1** (2026-07-26), <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc1> — verified only on Linux. No human has yet run it on Windows.
 
 DoD: beta tester finished ≥ 6/8 exercises without mechanical help; ZIP frozen ≥ 3 days before pilot date (and the pilot itself completes before the LB date).
 
