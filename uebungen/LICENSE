@@ -1,0 +1,53 @@
+Werkbank exercise content
+Copyright (c) 2026 Sebastian Kern
+
+Licensed under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International licence
+(CC BY-NC-SA 4.0).
+
+    Human-readable summary:  https://creativecommons.org/licenses/by-nc-sa/4.0/
+    Full legal code:         https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+    SPDX identifier:         CC-BY-NC-SA-4.0
+
+The licence, not this file, is authoritative. What follows is orientation only.
+
+What this covers
+----------------
+
+Everything under `uebungen/` — exercise texts (`AUFGABE.md`), check
+definitions (`exercise.toml`), and any material shipped with an exercise. The
+same licence covers `trainer/` (see `trainer/LICENSE`).
+
+The runner in `runner/` is licensed differently: MIT OR Apache-2.0, see
+`LICENSE-MIT` and `LICENSE-APACHE`.
+
+You may
+-------
+
+  - use these exercises in your own teaching, including inside an institution,
+  - copy, translate and adapt them,
+  - build further modules on this format,
+
+as long as you
+
+  - name the source (attribution),
+  - do not use them commercially,
+  - publish adaptations under the same licence (ShareAlike).
+
+Suggested attribution:
+
+    Übungen aus „Werkbank" von Sebastian Kern,
+    https://github.com/SebastianKrn/werkbank, CC BY-NC-SA 4.0
+
+Not covered
+-----------
+
+  - Solutions. They are not part of this repository (see CLAUDE.md rule 6).
+  - Third-party material referenced under `vertiefung`. Those links point at
+    Microsoft Learn, CompTIA and similar sources, which carry their own terms.
+    Werkbank links to them and never reproduces them.
+  - Examination documents of any training institution. None are contained here.
+
+Content note: all example data (company names, hostnames, file contents) is
+invented for teaching purposes. Any resemblance to a real organisation is
+coincidental.

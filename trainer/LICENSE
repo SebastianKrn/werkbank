@@ -1,0 +1,20 @@
+Werkbank trainer material
+Copyright (c) 2026 Sebastian Kern
+
+Licensed under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International licence
+(CC BY-NC-SA 4.0).
+
+    Human-readable summary:  https://creativecommons.org/licenses/by-nc-sa/4.0/
+    Full legal code:         https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+    SPDX identifier:         CC-BY-NC-SA-4.0
+
+Same terms as the exercise content (`uebungen/LICENSE`): use it, adapt it,
+teach with it, name the source, no commercial use, share adaptations alike.
+
+`trainer/` is deliberately excluded from the learner ZIP (ADR 0004) — that is a
+didactic decision, not a licence restriction. Trainers are welcome to this
+material.
+
+It contains no solutions. Those live in the private `werkbank-loesungen`
+repository (CLAUDE.md rule 6).

@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.74"
 description = "Werkbank practice runner: declarative exercise checks with German learner feedback"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/stoicera/werkbank"
+repository = "https://github.com/SebastianKrn/werkbank"
 publish = false
 
 [[bin]]
