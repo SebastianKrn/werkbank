@@ -1,0 +1,30 @@
+# Vorlage für deine Antworten — Übung 02
+#
+# Kopiere diese Datei nach abgabe\antworten.toml und fülle die
+# Anführungszeichen aus. Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+#   Copy-Item "uebungen\02-was-steckt-in-der-kiste\material\antworten-vorlage.toml" "$a\antworten.toml"
+
+# Deine Inventur — die Werte deiner eigenen Maschine.
+# Diese Antworten prüft wb nur auf Vollständigkeit; gelesen werden sie im Unterricht.
+
+# Wie viele Kerne hat der Prozessor? (hardware.txt: NumberOfCores)
+kerne = ""
+
+# Wie viel Arbeitsspeicher in GB? (hardware.txt: TotalPhysicalMemory, geteilt durch 1GB)
+ram_gb = ""
+
+# Uefi oder Bios? (firmware.txt: BiosFirmwareType)
+firmware_typ = ""
+
+# GPT oder MBR? (firmware.txt oder datentraeger.txt: PartitionStyle)
+partitionsstil = ""
+
+# Woran erkennst du, dass das eine virtuelle Maschine ist? Ein Satz.
+vm_indiz = ""
+
+# Wissensfrage, für alle gleich: Welcher Partitionsstil gehört zu UEFI?
+passt_zu_uefi = ""
+
+# Bonus: Warum steht bei MediaType in einer VM oft "Unspecified"?
+medientyp_erklaerung = ""

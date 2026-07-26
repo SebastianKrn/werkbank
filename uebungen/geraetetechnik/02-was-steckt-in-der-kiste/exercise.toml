@@ -1,0 +1,81 @@
+[exercise]
+id = "02-was-steckt-in-der-kiste"
+titel = "Was steckt in der Kiste?"
+modul = "geraetetechnik"
+schwierigkeit = 1
+zeit_minuten = 30
+ki_stufe = "danach"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/module/cimcmdlets/get-ciminstance",
+  "https://learn.microsoft.com/de-de/windows-server/storage/disk-management/initialize-new-disks",
+]
+
+[[check]]
+id = "hardware-erfasst"
+type = "file_exists"
+path = "abgabe/hardware.txt"
+hint_de = "Tippe: .\\wb erfasse hardware 02"
+
+[[check]]
+id = "prozessor-sichtbar"
+type = "file_matches"
+path = "abgabe/hardware.txt"
+pattern = '(?i)NumberOfCores'
+hint_de = "In hardware.txt fehlt der Prozessor-Teil. Erfasse die Abfrage noch einmal: .\\wb erfasse hardware 02"
+
+[[check]]
+id = "firmware-erfasst"
+type = "file_matches"
+path = "abgabe/firmware.txt"
+pattern = '(?i)BiosFirmwareType'
+hint_de = "Tippe: .\\wb erfasse firmware 02 — danach steht in firmware.txt eine Zeile mit BiosFirmwareType."
+
+[[check]]
+id = "datentraeger-erfasst"
+type = "file_matches"
+path = "abgabe/datentraeger.txt"
+pattern = '(?i)PartitionStyle'
+hint_de = "Tippe: .\\wb erfasse datentraeger 02 — danach steht in datentraeger.txt eine Zeile mit PartitionStyle."
+
+# Machine-specific values: presence only, the trainer reads them (ADR 0005).
+[[check]]
+id = "inventur-notiert"
+type = "alle_antworten"
+keys = ["kerne", "ram_gb", "firmware_typ", "partitionsstil", "vm_indiz"]
+hint_de = "In abgabe\\antworten.toml fehlen noch Einträge. Kopiere die Vorlage aus material\\ und fülle alle fünf Werte aus — die Zahlen liest du aus hardware.txt und firmware.txt ab."
+
+# Closed vocabulary: the same for every learner, so a hash is fair (ADR 0005).
+[[check]]
+id = "passt-zu-uefi"
+type = "antwort"
+key = "passt_zu_uefi"
+salt = "wb1:gt:02"
+expect_hash = [
+  "e2b0594286bbe467b99689b436cd7188e2a585f064d3f3aca111644baf89e05e",
+  "2fc230f8360e7800bfb81f0c36d57b759d3790e80ad3bb7fa4682779ddc11a37",
+  "f1b346a624f617e4dddfa3be4c633f4735fba2001791860fb018067f00fe8847",
+]
+hint_de = "Welcher Partitionsstil gehört technisch zu UEFI? Es gibt nur zwei Möglichkeiten: MBR oder GPT. Der ältere gehört zum BIOS."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Räume die Notiz weg und beweise es: Remove-Item C:\\wb\\inventur-notiz.txt -Force , dann Test-Path C:\\wb\\inventur-notiz.txt | Out-File \"$a\\aufraeumen.txt\""
+
+[[check]]
+id = "medientyp-erklaert"
+type = "alle_antworten"
+stufe = "bonus"
+keys = ["medientyp_erklaerung"]
+hint_de = "Bonus: Trage bei medientyp_erklaerung ein, warum in einer VM bei MediaType oft Unspecified steht."
+
+[[check]]
+id = "homelab-vergleich"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 3
+hint_de = "Nur mit eigenem Labor: Frage echte Hardware ab und schreibe 3 Unterschiede zur VM in abgabe\\homelab.txt."
