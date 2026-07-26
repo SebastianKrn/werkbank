@@ -61,3 +61,50 @@ jobs:
 
       - name: Content lint (Gerätetechnik module)
         run: cargo run --quiet -- intern lint ../uebungen
+
+      # The learner ZIP is assembled by scripts/paket.sh, which the release
+      # pipeline also calls. Building it here on every run means a packaging
+      # bug surfaces in a pull request instead of on freeze day. The debug
+      # binary is enough — this step proves the assembly rules, not the build.
+      - name: Package smoke test
+        if: runner.os == 'Linux'
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          scripts/paket.sh geraetetechnik v0.0.0-ci \
+              --wb-linux runner/target/debug/wb \
+              --erlaube-ohne-windows
+
+          fehler=0
+          pruefe() {  # pruefe <beschreibung> <erwartet> <tatsaechlich>
+              if [ "$2" = "$3" ]; then
+                  echo "ok    $1"
+              else
+                  echo "FEHLT $1: erwartet '$2', bekommen '$3'"
+                  fehler=1
+              fi
+          }
+
+          pruefe "START_HIER.md packaged" 1 \
+              "$(grep -c '^werkbank-geraetetechnik/START_HIER.md$' dist/MANIFEST.txt)"
+          pruefe "VERSION.txt packaged" 1 \
+              "$(grep -c '^werkbank-geraetetechnik/VERSION.txt$' dist/MANIFEST.txt)"
+          pruefe "all eight exercises packaged" 8 \
+              "$(grep -c 'exercise.toml$' dist/MANIFEST.txt)"
+          pruefe "content licence travels along" 1 \
+              "$(grep -c '^werkbank-geraetetechnik/uebungen/LICENSE$' dist/MANIFEST.txt)"
+          pruefe "no trainer material" 0 \
+              "$(grep -ci 'trainer/' dist/MANIFEST.txt || true)"
+          pruefe "no solutions" 0 \
+              "$(grep -ci 'loesung' dist/MANIFEST.txt || true)"
+          pruefe "no dotfiles" 0 \
+              "$(grep -c '/\.' dist/MANIFEST.txt || true)"
+
+          # The abgabe/ folders hold only .gitkeep, which is stripped — but a
+          # learner needs them to exist. Empty directories survive only as zip
+          # directory entries, so check the archive itself, not the staging tree.
+          pruefe "abgabe folders survive zipping" 8 \
+              "$(unzip -Z1 dist/werkbank-geraetetechnik-v0.0.0-ci.zip \
+                  | grep -c 'abgabe/$' || true)"
+
+          exit $fehler
