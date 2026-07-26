@@ -1,6 +1,6 @@
 # CLAUDE.md — werkbank
 
-> Copy this file into the root of the new repo `stoicera/werkbank`. Copy `PRD.md`, `SPEC.md`, `MILESTONES.md` into `docs/`.
+> Repo: `SebastianKrn/werkbank` (public). Product docs live in `docs/` — `PRD.md`, `SPEC.md`, `MILESTONES.md`, `TESTPROTOKOLL.md`, `adr/`.
 
 ## What this is
 

@@ -151,7 +151,7 @@ Each `AUFGABE.md`: goal in one sentence → steps → deliverable definition →
 ## 6. Repository Layout
 
 ```
-werkbank/                      (public repo: stoicera/werkbank)
+werkbank/                      (public repo: SebastianKrn/werkbank)
 ├── CLAUDE.md
 ├── README.md                  (English; what/why/quickstart, screenshots)
 ├── docs/                      (PRD.md, SPEC.md, MILESTONES.md, ADRs)
@@ -160,9 +160,9 @@ werkbank/                      (public repo: stoicera/werkbank)
 │   └── tests/ (integration: fixture exercises under tests/fixtures/)
 ├── uebungen/geraetetechnik/…  (exercise folders as in §3)
 ├── trainer/                   (handbook + authoring docs; excluded from learner ZIP)
-├── tools/                     (hash-antwort if not a wb subcommand)
+├── scripts/paket.sh           (learner ZIP assembly — the only copy; ADR 0006)
 ├── justfile                   (build, lint, test, package)
-└── .github/workflows/ci.yml
+└── .github/workflows/         (ci.yml, release.yml)
 
 werkbank-loesungen/            (private repo; mirrors exercise IDs)
 ```
@@ -180,7 +180,7 @@ werkbank-loesungen/            (private repo; mirrors exercise IDs)
 - `cargo fmt --check`, `clippy -D warnings`, `cargo test` (unit: each check type incl. encoding fallbacks UTF-8/UTF-16LE/CP850, path-escape rejection, answer normalization; integration: run `wb check`/`status`/`bericht` against fixture exercises via `assert_cmd`).
 - `wb intern lint` over `uebungen/` in CI (content is code).
 - One CI job runs the full learner happy path on `windows-latest` (this is the platform that matters) + `ubuntu-latest`.
-- Manual test protocol in `docs/TESTPROTOKOLL.md` for M3: fresh Windows user account, no admin, execute START_HIER flow end-to-end.
+- Manual test protocol in `docs/TESTPROTOKOLL.md` for M3: fresh Windows user account in a learner-administered VM (the M0 environment — admin exists inside the VM, and exercises 03–07 need it), execute the START_HIER flow end-to-end.
 
 ## 9. Out of Scope (MVP) — restated for the coding agent
 

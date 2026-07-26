@@ -7,8 +7,14 @@ Diese Seite reicht für den Anfang.
 
 **1. Entpacken**
 
+Hast du die ZIP-Datei aus dem Internet geladen? Dann zuerst einmal freigeben:
+Rechtsklick auf die ZIP-Datei → „Eigenschaften" → ganz unten „Zulassen"
+ankreuzen → „OK". Windows markiert alles, was aus dem Internet kommt. Wenn du
+das *vor* dem Entpacken machst, ist Ruhe. Machst du es danach, fragt Windows
+bei jeder einzelnen Datei nach.
+
+Dann entpacken: Rechtsklick auf die ZIP-Datei → „Alle extrahieren" → nach `C:\`.
 Der Ordner muss auf die Festplatte, nicht in den ZIP-Vorschau-Ordner.
-Rechtsklick auf die ZIP-Datei → „Alle extrahieren" → nach `C:\` entpacken.
 Du hast dann den Ordner `C:\werkbank-geraetetechnik`.
 
 **2. PowerShell im Ordner öffnen**
@@ -105,7 +111,8 @@ Die Übungen 03 bis 07 bauen aufeinander auf. Mach sie in der Reihenfolge.
 |---|---|
 | `.\wb` wird nicht gefunden | Du bist im falschen Ordner. `cd C:\werkbank-geraetetechnik`, dann `dir` — liegt `wb.exe` da? |
 | „Die Datei kann nicht ausgeführt werden" | Der Ordner liegt noch im ZIP. Richtig entpacken (Schritt 1). |
-| Windows warnt vor unbekannter Herkunft | Auf „Weitere Informationen" → „Trotzdem ausführen". Die Datei kommt von deinem Trainer. |
+| Blaues Fenster: „Der Computer wurde durch Windows geschützt" | Auf „Weitere Informationen" → „Trotzdem ausführen". Das ist keine Virenmeldung. Windows kennt den Absender nicht, weil `wb` kein gekauftes Zertifikat hat — für ein Übungsprogramm ist das normal. Die Datei kommt von deinem Trainer. |
+| Die Warnung kommt bei jeder Datei wieder | Die ZIP-Datei war beim Entpacken noch gesperrt. Ordner löschen, ZIP-Datei freigeben (Schritt 1), neu entpacken. |
 | „Zugriff verweigert" | PowerShell als Administrator öffnen. |
 | `wb` findet keine Übungen | Du bist zu weit weg vom Ordner. Geh in `C:\werkbank-geraetetechnik` zurück. |
 | Nach VM-Neustart fehlt Laufwerk `S:` | Virtuelle Platten werden nicht automatisch angesteckt. Steht in Übung 06 unter „Vorher". |
