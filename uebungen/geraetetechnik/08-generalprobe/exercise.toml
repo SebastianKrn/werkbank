@@ -1,0 +1,79 @@
+[exercise]
+id = "08-generalprobe"
+titel = "Generalprobe"
+modul = "geraetetechnik"
+schwierigkeit = 3
+zeit_minuten = 60
+ki_stufe = "ohne"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.host/start-transcript",
+  "https://learn.microsoft.com/de-de/powershell/module/storage/remove-storagepool",
+]
+
+[[check]]
+id = "protokoll-geschrieben"
+type = "datei_zeilen_min"
+path = "abgabe/protokoll.txt"
+min = 12
+hint_de = "Schreib deinen Weg durch Teil 1 mit — mindestens 12 Zeilen in abgabe\\protokoll.txt. Bequem geht das mit Start-Transcript -Path \"$a\\protokoll.txt\" am Anfang und Stop-Transcript am Ende."
+
+[[check]]
+id = "eigener-hash-beweis"
+type = "werte_gleich"
+key_a = "probe_hash_vorher"
+key_b = "probe_hash_nachher"
+hint_de = "Trage in antworten.toml beide Fingerabdrücke deiner eigenen Datei ein — einmal vor dem Löschen, einmal nach dem Zurückholen. Sie müssen gleich sein. Sind sie es nicht, ist die Datei nicht dieselbe: schau nach, ob du wirklich dieselbe Datei gehasht hast."
+
+[[check]]
+id = "reflexion-beantwortet"
+type = "alle_antworten"
+keys = ["reflexion_1", "reflexion_2", "reflexion_3", "reflexion_4", "reflexion_5"]
+hint_de = "Es fehlen noch Antworten auf die fünf Fragen aus Teil 2. Zwei bis vier Sätze je Frage, in eigenen Worten."
+
+[[check]]
+id = "abschluss-liste"
+type = "file_exists"
+path = "abgabe/ordnerliste.txt"
+hint_de = "Tippe zum Abschluss: .\\wb erfasse ordnerliste 08"
+
+[[check]]
+id = "arbeitsordner-weg"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Der Arbeitsordner muss weg sein: Remove-Item C:\\wb -Recurse -Force , dann Test-Path C:\\wb | Out-File \"$a\\aufraeumen.txt\" — in der Datei muss False stehen."
+
+[[check]]
+id = "speicherpool-abgebaut"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?m)^\s*0\s*$'
+hint_de = "Es fehlt der Beweis, dass der Speicherpool abgebaut ist. Nach Remove-VirtualDisk und Remove-StoragePool: (Get-StoragePool -FriendlyName wb-pool -ErrorAction SilentlyContinue | Measure-Object).Count | Out-File \"$a\\aufraeumen.txt\" -Append — dort muss 0 stehen."
+
+[[check]]
+id = "wichtigster-schritt"
+type = "antwort"
+key = "wichtigster_schritt"
+salt = "wb1:gt:08"
+expect_hash = [
+  "c41342001ae3789978812c506e7450e084852ea4337a410e85e45c2af416fdaa",
+  "d93a19744a73e168792af35730e207d8fa1eb4cf47e6f7c992726df527026ce0",
+  "0fe124f5fdfb1a6d63cab1144a795510be0877b7df677d8244ba8d7acbf56597",
+]
+hint_de = "Welchen Schritt vergessen bei Prüfungen die meisten — und kostet sie Punkte? Ein Wort. Du hast ihn in jeder der acht Übungen gemacht."
+
+[[check]]
+id = "smb-freigabe"
+type = "alle_antworten"
+stufe = "bonus"
+keys = ["smb_freigabe"]
+hint_de = "Bonus: Gib deinen Probe-Ordner im Netzwerk frei und trage bei smb_freigabe ein, welchen Befehl du benutzt hast und wer zugreifen darf."
+
+[[check]]
+id = "homelab-anderes-system"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 3
+hint_de = "Nur mit eigenem Labor: Mach die Generalprobe auf einem anderen System (Linux mit mdadm, rsync, sha256sum, cryptsetup) und schreibe 3 Zeilen in abgabe\\homelab.txt."

@@ -1,0 +1,77 @@
+[exercise]
+id = "06-die-platte-stirbt"
+titel = "Die Platte stirbt"
+modul = "geraetetechnik"
+schwierigkeit = 3
+zeit_minuten = 40
+ki_stufe = "danach"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/module/storage/repair-virtualdisk",
+  "https://learn.microsoft.com/de-de/windows-server/storage/storage-spaces/storage-spaces-states",
+]
+
+[[check]]
+id = "ausfall-dokumentiert"
+type = "file_matches"
+path = "abgabe/spiegel-defekt.txt"
+pattern = '(?i)(Degraded|Warning|Incomplete|Lost Communication|InService|Beeinträchtigt|Unvollständig|Warnung|Fehlerhaft)'
+hint_de = "In spiegel-defekt.txt steht noch kein Ausfall. Zieh zuerst die Platte ab (Dismount-DiskImage -ImagePath C:\\wb\\platten\\platte2.vhdx), warte 15 Sekunden und erfasse dann den Zustand von Pool, virtuellem Datenträger und Platten."
+
+[[check]]
+id = "daten-gerettet"
+type = "file_exists"
+path = "abgabe/datei-lesbar.txt"
+hint_de = "Zeige, dass die Daten trotz Ausfall lesbar sind: Copy-Item S:\\backup\\firma\\vertraege\\vertrag-001.txt C:\\wb\\rettung.txt , dann Get-Content C:\\wb\\rettung.txt | Out-File \"$a\\datei-lesbar.txt\""
+
+[[check]]
+id = "reparatur-erfasst"
+type = "file_exists"
+path = "abgabe/spiegel-repariert.txt"
+hint_de = "Häng die Platte wieder an (Mount-DiskImage), starte Repair-VirtualDisk und halte den Zustand danach fest: Get-VirtualDisk | Format-List FriendlyName,HealthStatus,OperationalStatus | Out-File \"$a\\spiegel-repariert.txt\""
+
+[[check]]
+id = "spiegel-wieder-gesund"
+type = "file_matches"
+path = "abgabe/spiegel-repariert.txt"
+pattern = '(?i)(Healthy|Fehlerfrei)'
+hint_de = "Der Spiegel ist noch nicht wieder gesund. Steht bei OperationalStatus InService, läuft die Reparatur noch — warte ein paar Minuten, prüfe mit Get-VirtualDisk und erfasse erst dann neu."
+
+[[check]]
+id = "weiterlesen-moeglich"
+type = "antwort"
+key = "weiterlesen_moeglich"
+salt = "wb1:gt:06"
+expect_hash = [
+  "e68341a93364f8e8b43c4e48d4c7f713118fba9dc9cdfec43eafae3f833b94ae",
+  "d1887aeea276561b0e42a129956778f2cd1cff3654009f12de66bef4e5e94a12",
+]
+hint_de = "Konntest du die Datei auf S: lesen, während eine Platte fehlte? Ja oder nein — genau das hast du in Schritt 3 ausprobiert."
+
+[[check]]
+id = "zweiter-ausfall-bedacht"
+type = "alle_antworten"
+keys = ["zweiter_ausfall"]
+hint_de = "Trage bei zweiter_ausfall ein, was passiert wäre, wenn während der Reparatur auch die zweite Platte ausgefallen wäre."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Räume die Rettungskopie weg und beweise es: Remove-Item C:\\wb\\rettung.txt -Force , dann Test-Path C:\\wb\\rettung.txt | Out-File \"$a\\aufraeumen.txt\""
+
+[[check]]
+id = "reparatur-beobachtet"
+type = "alle_antworten"
+stufe = "bonus"
+keys = ["repair_beobachtung"]
+hint_de = "Bonus: Beobachte die Reparatur mit der while-Schleife aus der Aufgabe und trage bei repair_beobachtung ein, was du gesehen hast."
+
+[[check]]
+id = "homelab-andere-technik"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 2
+hint_de = "Nur mit eigenem Labor: Simuliere den Ausfall in einem anderen RAID-System und schreibe 2 Zeilen in abgabe\\homelab.txt."

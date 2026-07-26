@@ -1,0 +1,13 @@
+# Vorlage für deine Antworten — Übung 06
+#
+#   Copy-Item "uebungen\06-die-platte-stirbt\material\antworten-vorlage.toml" "$a\antworten.toml"
+
+# Konntest du die Datei auf S: lesen, während eine Platte fehlte? (ja / nein)
+weiterlesen_moeglich = ""
+
+# Was wäre passiert, wenn während der Reparatur auch die zweite Platte
+# ausgefallen wäre?
+zweiter_ausfall = ""
+
+# Bonus: Was hast du bei der Reparatur beobachtet? Wie lange, welche Zustände?
+repair_beobachtung = ""
