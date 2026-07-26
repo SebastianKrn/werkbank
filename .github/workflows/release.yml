@@ -1,0 +1,217 @@
+name: Release
+
+# Builds the pilot ZIP from a tag and publishes it as a GitHub Release (SPEC §5).
+#
+# This is the only path that produces a classroom-ready ZIP, because it is the
+# only place where a Windows binary exists: the development machine is Linux and
+# cannot cross-compile wb.exe (ADR 0006).
+#
+#   git tag v0.1.0-rc1 && git push origin v0.1.0-rc1
+#
+# Tags containing "-rc" are published as pre-releases. workflow_dispatch runs
+# everything except publishing — use it to test the pipeline itself.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  MODUL: geraetetechnik
+
+jobs:
+  # A wb that reports a different version than the ZIP it ships in costs a
+  # debugging hour on exactly the day nobody has one.
+  guard:
+    name: version guard
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              version="v0.0.0-dispatch"
+              echo "Dry run — no tag, no version guard, nothing published."
+          else
+              version="${GITHUB_REF#refs/tags/}"
+              crate="$(grep -m1 '^version' runner/Cargo.toml | cut -d'"' -f2)"
+              # v0.1.0-rc1 -> 0.1.0, so a release candidate may share the
+              # crate version of the release it is a candidate for.
+              tag_version="${version#v}"
+              tag_version="${tag_version%%-*}"
+              if [ "$tag_version" != "$crate" ]; then
+                  echo "Tag ${version} does not match runner/Cargo.toml version ${crate}." >&2
+                  echo "Bump the crate version or fix the tag — they must agree." >&2
+                  exit 1
+              fi
+              echo "Tag ${version} matches crate version ${crate}."
+          fi
+
+          case "$version" in
+              *-rc*) prerelease=true ;;
+              *)     prerelease=false ;;
+          esac
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${prerelease}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: build (${{ matrix.os }})
+    needs: guard
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-latest
+            binary: wb.exe
+            artifact: wb-windows
+          - os: ubuntu-latest
+            binary: wb
+            artifact: wb-linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release binary
+        working-directory: runner
+        run: cargo build --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: runner/target/release/${{ matrix.binary }}
+          if-no-files-found: error
+
+  package:
+    name: package and verify
+    needs: [guard, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wb-linux
+          path: eingang/linux
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wb-windows
+          path: eingang/windows
+
+      - name: Build the learner ZIP
+        run: |
+          set -euo pipefail
+          # Artifact upload does not preserve the executable bit.
+          chmod +x eingang/linux/wb
+          scripts/paket.sh "$MODUL" "${{ needs.guard.outputs.version }}" \
+              --wb-linux eingang/linux/wb \
+              --wb-windows eingang/windows/wb.exe
+
+      # Verify the artifact that will actually be handed out, not the tree it
+      # was built from. This is the last automated gate before a human carries
+      # this ZIP into a classroom.
+      - name: Verify the published artifact
+        run: |
+          set -euo pipefail
+          zip="dist/werkbank-${MODUL}-${{ needs.guard.outputs.version }}.zip"
+
+          pruef="$(mktemp -d)"
+          unzip -q "$zip" -d "$pruef"
+          cd "$pruef/werkbank-${MODUL}"
+
+          test -f wb.exe || { echo "wb.exe missing from the ZIP." >&2; exit 1; }
+          echo "wb.exe present: $(stat -c%s wb.exe) bytes"
+
+          # Parsing rather than grepping also proves --json emits valid JSON.
+          uebungen="$(./wb status --json |
+              python3 -c 'import json,sys; print(len(json.load(sys.stdin)["uebungen"]))')"
+          if [ "$uebungen" -ne 8 ]; then
+              echo "Expected 8 exercises in the packaged module, found ${uebungen}." >&2
+              exit 1
+          fi
+          echo "Unpacked ZIP runs and reports 8 exercises."
+
+          ./wb intern lint uebungen
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pilot-zip
+          path: |
+            dist/werkbank-${{ env.MODUL }}-${{ needs.guard.outputs.version }}.zip
+            dist/MANIFEST.txt
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+  release:
+    name: publish release
+    needs: [guard, package]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: pilot-zip
+          path: dist
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.guard.outputs.version }}
+        run: |
+          set -euo pipefail
+          # Quoted delimiter: the body is German prose full of backticks and
+          # Windows backslashes, and none of it should meet the shell.
+          if [ "${{ needs.guard.outputs.prerelease }}" = "true" ]; then
+              cat > hinweise.md <<'VORAB'
+          **Testversion.** Noch nicht für den Unterricht — erst nach dem
+          Testprotokoll (docs/TESTPROTOKOLL.md).
+
+          VORAB
+          else
+              : > hinweise.md
+          fi
+
+          cat >> hinweise.md <<'EOF'
+          ## Für Lernende
+
+          ZIP herunterladen, nach `C:\` entpacken, dann in der PowerShell:
+
+          ```powershell
+          cd C:\werkbank-geraetetechnik
+          .\wb status
+          ```
+
+          Alles Weitere steht in `START_HIER.md` im ZIP.
+
+          Warnt Windows vor unbekannter Herkunft? Das ist normal — die Datei ist
+          nicht signiert. In `START_HIER.md` steht unter „Wenn etwas nicht geht",
+          wie du weiterkommst.
+
+          ## Inhalt
+
+          Acht Übungen Gerätetechnik, der Runner `wb.exe` (Windows) und `wb` (Linux).
+          Kein Installer, kein Internet nötig, keine Daten verlassen deinen Rechner.
+
+          Prüfsummen in `SHA256SUMS.txt`, Dateiliste in `MANIFEST.txt`.
+          EOF
+
+          args=(--title "Werkbank Gerätetechnik ${VERSION}" --notes-file hinweise.md)
+          if [ "${{ needs.guard.outputs.prerelease }}" = "true" ]; then
+              args+=(--prerelease)
+          fi
+
+          gh release create "$VERSION" "${args[@]}" \
+              "dist/werkbank-${MODUL}-${VERSION}.zip" \
+              dist/SHA256SUMS.txt \
+              dist/MANIFEST.txt
