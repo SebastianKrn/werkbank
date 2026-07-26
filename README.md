@@ -21,9 +21,11 @@ The exercise format and the runner are the product. The first module
 
 ## Status
 
-Milestone **M2 — Gerätetechnik content**. The runner is done (M1) and the pilot
-module ships eight exercises under `uebungen/geraetetechnik/`. Next is M3: test
-protocol on a fresh Windows account, external beta, freeze the pilot ZIP.
+Milestone **M3a — freeze machinery**. The runner is done (M1), the pilot module
+ships eight exercises under `uebungen/geraetetechnik/` (M2), and a tag now
+produces a classroom-ready ZIP containing `wb.exe`. Next is M3b, which needs a
+human and a real Windows VM: the manual test protocol
+(`docs/TESTPROTOKOLL.md`), an external beta, then the pilot freeze.
 See `docs/MILESTONES.md`.
 
 ## The pilot module
@@ -159,6 +161,33 @@ just ci             # everything the pipeline checks
 
 Requires stable Rust. `just` is convenience only — CI runs the same cargo
 commands directly.
+
+## Releasing
+
+The classroom ZIP is built from a tag, because that is the only place a Windows
+binary exists — the development machine is Linux and does not cross-compile
+`wb.exe` (ADR 0006).
+
+```sh
+git tag v0.1.0-rc1 && git push origin v0.1.0-rc1
+```
+
+That builds both binaries, assembles the ZIP through `scripts/paket.sh`, unpacks
+the result and runs it, then publishes a GitHub Release. Tags containing `-rc`
+publish as pre-releases. The tag must agree with the version in
+`runner/Cargo.toml`, or the pipeline refuses.
+
+`just package geraetetechnik --erlaube-ohne-windows` builds a Linux-only ZIP for
+local testing. It is useless in a classroom, which is why the waiver has to be
+spelled out.
+
+**Never hand-assemble a ZIP.** `scripts/paket.sh` is the only copy of the rules
+for what must and must not reach a learner — a second copy is one that will
+eventually disagree.
+
+Before any ZIP goes to a class, run `docs/TESTPROTOKOLL.md` on a real Windows
+VM. CI proves the archive is well-formed; it cannot prove that `manage-bde`
+prints what we think it prints.
 
 ## Licence
 
