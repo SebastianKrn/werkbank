@@ -55,17 +55,22 @@ lives in `trainer/` and never reaches the learner ZIP.
 ```
 $ wb status
 
-Werkbank — Modul demo
+Werkbank — Modul geraetetechnik
 
-  ✅   01-erste-schritte    Deine erste Notiz      LB  Basis 2/2 · Bonus 0/1
-  🔨   02-antworten-ueben   Fragen beantworten     LB  Basis 1/2 · Bonus 0/1
-  ⬜   03-ausgabe-erfassen  Eine Ausgabe erfassen      Basis 0/2 · Homelab 0/1
+  ✅   01-dein-server-deine-firma   Dein Server, deine Firma   LB  Basis 5/5 · Bonus 1/1 · Homelab 1/1
+  🔨   02-was-steckt-in-der-kiste   Was steckt in der Kiste?   LB  Basis 4/7 · Bonus 0/1 · Homelab 0/1
+  ⬜   03-zwei-platten-ein-spiegel  Zwei Platten, ein Spiegel  LB  Basis 0/9 · Bonus 0/1 · Homelab 0/1
+  ⬜   04-fingerabdruck-und-backup  Fingerabdruck & Backup     LB  Basis 0/7 · Bonus 0/2 · Homelab 0/1
+  ⬜   05-daten-weg-und-zurueck     Daten weg — und zurück     LB  Basis 0/6 · Bonus 0/1 · Homelab 0/1
+  ⬜   06-die-platte-stirbt         Die Platte stirbt          LB  Basis 0/7 · Bonus 0/1 · Homelab 0/1
+  ⬜   07-tresor-zu-tresor-auf      Tresor zu, Tresor auf      LB  Basis 0/8 · Bonus 0/2 · Homelab 0/1
+  ⬜   08-generalprobe              Generalprobe               LB  Basis 0/7 · Bonus 0/1 · Homelab 0/1
 
-Fortschritt: 1 von 3 Übungen bestanden
-Davon prüfungsrelevant (LB): 1 von 2 bestanden
-[######--------------] 33 %
+Fortschritt: 1 von 8 Übungen bestanden
+Davon prüfungsrelevant (LB): 1 von 8 bestanden
+[##------------------] 12 %
 
-Dein nächster Schritt:  wb check 02-antworten-ueben
+Dein nächster Schritt:  wb check 02-was-steckt-in-der-kiste
 ```
 
 Add `--ascii` if a console renders the symbols poorly.

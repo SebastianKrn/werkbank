@@ -86,16 +86,20 @@ Copy-Item "uebungen\02-was-steckt-in-der-kiste\material\antworten-vorlage.toml" 
 notepad "$a\antworten.toml"
 ```
 
-Jede Antwort steht in Anführungszeichen. Beispiel für die Form (nicht abschreiben,
-das sind nicht deine Werte):
+Jede Antwort steht in **einfachen** Anführungszeichen. Beispiel für die Form
+(nicht abschreiben, das sind nicht deine Werte):
 
 ```toml
-kerne = "2"
-ram_gb = "4"
-firmware_typ = "Uefi"
-partitionsstil = "GPT"
-vm_indiz = "..."
+kerne = '2'
+ram_gb = '4'
+firmware_typ = 'Uefi'
+partitionsstil = 'GPT'
+vm_indiz = '...'
 ```
+
+Warum einfache Anführungszeichen? In einfachen darfst du alles schreiben — auch
+Pfade wie `C:\wb\firma`. In doppelten wäre der Backslash `\` ein Sonderzeichen,
+und die ganze Datei wäre kaputt. Das gilt in allen Übungen.
 
 Bei `vm_indiz`: **Woran erkennst du, dass das eine virtuelle Maschine ist und
 kein echter Server?** Ein Satz reicht. Schau dir dazu in `hardware.txt` die

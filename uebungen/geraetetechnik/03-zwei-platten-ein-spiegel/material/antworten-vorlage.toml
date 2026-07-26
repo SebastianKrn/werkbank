@@ -1,15 +1,26 @@
 # Vorlage für deine Antworten — Übung 03
 #
 #   Copy-Item "uebungen\03-zwei-platten-ein-spiegel\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
 
 # Wie heißt die Schutzart, die du gebaut hast? (ein Wort, steht in spiegel.txt)
-resilienz = ""
+resilienz = ''
 
 # Wie oft liegt jede Datei auf dem Spiegel? (Zahl, steht in spiegel.txt)
-datenkopien = ""
+datenkopien = ''
 
 # Warum setzt eine Firma einen Spiegel ein? Zwei Sätze, dein eigener Gedanke.
-warum_raid1 = ""
+warum_raid1 = ''
 
 # Bonus: Wie viele Platten braucht das Parity-Verfahren mindestens?
-parity_mindestplatten = ""
+parity_mindestplatten = ''

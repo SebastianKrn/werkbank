@@ -124,6 +124,12 @@ hier ist die Kurzfassung für den laufenden Unterricht.
   Frage kommt garantiert.
 
 **Übung 02**
+- **Anführungszeichen in `antworten.toml`:** Antworten gehören in *einfache*
+  Anführungszeichen (`schluessel = 'antwort'`). Schreibt jemand einen Pfad in
+  doppelte (`"C:\wb"`), ist der Backslash ein Sonderzeichen und die **ganze
+  Datei** unlesbar — dann fallen alle Antwort-Checks der Übung gleichzeitig aus.
+  Die Vorlagen in `material/` sind schon richtig vorbereitet; `wb` nennt in dem
+  Fall die Lösung im Hinweis. Trotzdem: einmal in Einheit 1 laut sagen.
 - `NumberOfCores` vs. `NumberOfLogicalProcessors` — die klassische Verwechslung.
   Kein Fehler im Check (Presence), aber ein gutes Gespräch.
 - `MediaType : Unspecified` in der VM. Kein Defekt, steht in der Aufgabe.

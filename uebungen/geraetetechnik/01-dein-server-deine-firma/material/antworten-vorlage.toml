@@ -1,9 +1,17 @@
 # Vorlage für deine Antworten — Übung 01
 #
-# Kopiere diese Datei nach abgabe\antworten.toml und fülle die
-# Anführungszeichen aus. Zeilen mit # sind Notizen und werden nicht geprüft.
-#
 #   Copy-Item "uebungen\01-dein-server-deine-firma\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
 
 # Bonus: Mit welchem Cmdlet hast du die Ordner angelegt?
-cmdlet_ordner = ""
+cmdlet_ordner = ''

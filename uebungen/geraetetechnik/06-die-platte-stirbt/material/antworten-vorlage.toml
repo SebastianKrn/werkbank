@@ -1,13 +1,24 @@
 # Vorlage für deine Antworten — Übung 06
 #
 #   Copy-Item "uebungen\06-die-platte-stirbt\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
 
 # Konntest du die Datei auf S: lesen, während eine Platte fehlte? (ja / nein)
-weiterlesen_moeglich = ""
+weiterlesen_moeglich = ''
 
 # Was wäre passiert, wenn während der Reparatur auch die zweite Platte
 # ausgefallen wäre?
-zweiter_ausfall = ""
+zweiter_ausfall = ''
 
 # Bonus: Was hast du bei der Reparatur beobachtet? Wie lange, welche Zustände?
-repair_beobachtung = ""
+repair_beobachtung = ''

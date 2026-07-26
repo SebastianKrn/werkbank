@@ -1,16 +1,27 @@
 # Vorlage für deine Antworten — Übung 04
 #
 #   Copy-Item "uebungen\04-fingerabdruck-und-backup\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
 
 # Wie nennt man ein Backup, das nur die Änderungen sichert? (ein Wort)
-zweiter_lauf = ""
+zweiter_lauf = ''
 
 # Der 64-stellige Hash aus hash-vorher.txt. Kopiere ihn genau — du brauchst ihn
 # in Übung 05 wieder.
-hash_notiert = ""
+hash_notiert = ''
 
 # Bonus: Ändert sich der Hash, wenn du ein Zeichen änderst? (ja / nein)
-hash_aendert_sich = ""
+hash_aendert_sich = ''
 
 # Bonus: Der Hash der geänderten Kopie.
-hash_nach_aenderung = ""
+hash_nach_aenderung = ''

@@ -166,6 +166,11 @@ Sprache:
 - Anfänger tippen keine langen Pfade. Deshalb `$a` in jeder Übung, und deshalb
   liegt in `material/` eine `antworten-vorlage.toml` zum Kopieren: das verhindert
   TOML-Syntaxfehler, den häufigsten mechanischen Frust.
+- **Vorlagen benutzen einfache Anführungszeichen** (`schluessel = 'antwort'`).
+  In doppelten ist `\` ein Escape-Zeichen: eine Antwort wie `"C:\wb"` macht die
+  *ganze* Datei unlesbar und lässt alle Antwort-Checks der Übung auf einmal
+  ausfallen. Das ist in einem Modul, in dem Pfade und Befehle die Antwort *sind*,
+  kein Randfall. Neue Vorlagen deshalb genauso anlegen.
 - Hinweise (`hint_de`) sagen **wohin schauen**, nie **was eintragen**. Ein guter
   Hinweis nennt den Befehl, mit dem der Lernende es selbst herausfindet.
 
