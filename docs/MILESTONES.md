@@ -32,13 +32,26 @@ DoD: CI green on windows-latest + ubuntu-latest; `wb check` full happy path agai
 
 ## M2 — Gerätetechnik content (Claude-Code session 2)
 
-1. Write all 8 exercises per SPEC §4 LB mapping (AUFGABE.md German ~B1, exercise.toml with lb_relevant/stufen, per-exercise Aufräumen step; re-parametrized vs. the LB — never exam tasks verbatim). Add LICENSE files per decision: content CC BY-NC-SA 4.0, runner MIT OR Apache-2.0, plus `SOLI_DEO_GLORIA.md` colophon.
-2. Generate answer hashes via authoring tool; solutions written to the private `werkbank-loesungen` repo structure (local folder, Sebastian pushes privately).
-3. `trainer/HANDBUCH_GERAETETECHNIK.md` (session plan for ~4 Unterrichtseinheiten, per-exercise pitfalls, timing, what to project) + `trainer/AUTOREN.md`.
-4. `START_HIER.md` final + printable one-pager.
-5. `wb intern lint` green over full module; content reviewed against PRD §7 language rules (German output check).
+1. [x] Write all 8 exercises per SPEC §4 LB mapping (AUFGABE.md German ~B1, exercise.toml with lb_relevant/stufen, per-exercise Aufräumen step; re-parametrized vs. the LB — never exam tasks verbatim). Add LICENSE files per decision: content CC BY-NC-SA 4.0, runner MIT OR Apache-2.0, plus `SOLI_DEO_GLORIA.md` colophon.
+2. [x] Generate answer hashes via authoring tool; solutions written to the private `werkbank-loesungen` repo structure (local folder `../werkbank-loesungen`, Sebastian pushes privately).
+3. [x] `trainer/HANDBUCH_GERAETETECHNIK.md` (session plan for 4 blocks à ~100 min — the LB's own length, per-exercise pitfalls, timing, what to project) + `trainer/AUTOREN.md`.
+4. [x] `START_HIER.md` final + printable one-pager (`trainer/AUSTEILEN_A4.md`).
+5. [x] `wb intern lint` green over full module (in CI on both platforms); content reviewed against PRD §7 language rules.
+
+Decisions taken in M2:
+
+- **ADR 0005**: `antwort` hashes only for closed vocabularies; machine-specific values (cores, RAM, firmware type in a QEMU VM) are presence-checked with `alle_antworten`, because a hashed expectation would fail honest work.
+- Exercises target **Windows Server 2022 first**, with explicit „Falls du Windows 11 nutzt" notes where commands differ (VSS in 04, BitLocker feature in 07).
+- Repo/licence naming aligned with the real remote: **SebastianKrn/werkbank**, copyright Sebastian Kern.
+- ADR 0003 corrected: accepted answer spellings live in the private solutions repo, **not** in `trainer/` (that line contradicted CLAUDE.md rule 6).
 
 DoD: `just package geraetetechnik` produces a ZIP that passes the full learner flow on a clean machine; Raphael has reviewed exercise list against his curriculum (30-min review call — content fit is his call, not ours).
+
+Open at the end of M2 (carried into M3):
+
+- [ ] Raphael's 30-min curriculum review of the exercise list.
+- [ ] Windows binary in the ZIP: `just package` on Linux ships only the Linux `wb`. `wb.exe` for the pilot ZIP comes from a windows-latest build in M3 ("Freeze: build final pilot ZIP").
+- [ ] Windows-only paths (`manage-bde`, PowerShell presets, UTF-16LE/CP850 captures on a real console) verified only by CI so far, never on a real VM — that is M3 item 1.
 
 ## M3 — Pilot packaging & dry runs (mixed)
 

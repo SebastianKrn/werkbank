@@ -21,8 +21,34 @@ The exercise format and the runner are the product. The first module
 
 ## Status
 
-Milestone **M1 — runner core**. The runner works against fixture exercises;
-the Gerätetechnik module is milestone M2. See `docs/MILESTONES.md`.
+Milestone **M2 — Gerätetechnik content**. The runner is done (M1) and the pilot
+module ships eight exercises under `uebungen/geraetetechnik/`. Next is M3: test
+protocol on a fresh Windows account, external beta, freeze the pilot ZIP.
+See `docs/MILESTONES.md`.
+
+## The pilot module
+
+Eight exercises preparing a BBRZ Wien retraining group for their practical
+assessment. Each one trains the same competency as an exam task, deliberately
+re-parametrised — never the exam task itself (`docs/SPEC.md` §4).
+
+| # | Übung | Competency | min |
+|---|---|---|---|
+| 01 | Dein Server, deine Firma | PowerShell basics: folders, files, listings | 30 |
+| 02 | Was steckt in der Kiste? | CIM inventory, UEFI/BIOS, GPT/MBR, spotting a VM | 30 |
+| 03 | Zwei Platten, ein Spiegel | diskpart VHDX, storage pool, mirror, NTFS | 45 |
+| 04 | Fingerabdruck & Backup | SHA-256, robocopy full/incremental, VSS | 40 |
+| 05 | Daten weg — und zurück | delete, restore, prove it with a hash | 35 |
+| 06 | Die Platte stirbt | simulate disk failure, read Degraded, repair | 40 |
+| 07 | Tresor zu, Tresor auf | BitLocker without TPM, Defender, firewall | 35 |
+| 08 | Generalprobe | own scenario end to end, reflection, teardown | 60 |
+
+Exercises 03–07 build on each other; 08 tears the whole stack down and proves it.
+Every exercise ends with its own cleanup step and check — the assessment deducts
+points for skipped cleanup, so the habit starts in exercise 01.
+
+Trainer material (session plan, pitfalls, authoring guide, printable handout)
+lives in `trainer/` and never reaches the learner ZIP.
 
 ## How it looks
 
@@ -131,5 +157,12 @@ commands directly.
 
 ## Licence
 
-Runner (`runner/`): MIT OR Apache-2.0. Exercise content and trainer material:
-CC BY-NC-SA 4.0. Licence files land with the first content module (M2).
+Runner (`runner/`): MIT OR Apache-2.0 — `LICENSE-MIT`, `LICENSE-APACHE`.
+Exercise content and trainer material: CC BY-NC-SA 4.0 — `uebungen/LICENSE`,
+`trainer/LICENSE`. Copyright Sebastian Kern.
+
+Solutions are not in this repository and never will be: expected answers exist
+only as salted hashes (ADR 0003), plaintext lives in the private
+`werkbank-loesungen` repo. Hashes cover closed-vocabulary answers only —
+machine-specific values are presence-checked, because a hashed expectation on
+"how many cores does your VM have" would fail honest work (ADR 0005).
