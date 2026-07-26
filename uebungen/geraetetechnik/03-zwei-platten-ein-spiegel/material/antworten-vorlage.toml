@@ -1,0 +1,15 @@
+# Vorlage für deine Antworten — Übung 03
+#
+#   Copy-Item "uebungen\03-zwei-platten-ein-spiegel\material\antworten-vorlage.toml" "$a\antworten.toml"
+
+# Wie heißt die Schutzart, die du gebaut hast? (ein Wort, steht in spiegel.txt)
+resilienz = ""
+
+# Wie oft liegt jede Datei auf dem Spiegel? (Zahl, steht in spiegel.txt)
+datenkopien = ""
+
+# Warum setzt eine Firma einen Spiegel ein? Zwei Sätze, dein eigener Gedanke.
+warum_raid1 = ""
+
+# Bonus: Wie viele Platten braucht das Parity-Verfahren mindestens?
+parity_mindestplatten = ""

@@ -1,0 +1,104 @@
+[exercise]
+id = "03-zwei-platten-ein-spiegel"
+titel = "Zwei Platten, ein Spiegel"
+modul = "geraetetechnik"
+schwierigkeit = 2
+zeit_minuten = 45
+ki_stufe = "danach"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/windows-server/storage/storage-spaces/deploy-standalone-storage-spaces",
+  "https://learn.microsoft.com/de-de/powershell/module/storage/new-virtualdisk",
+]
+
+[[check]]
+id = "platten-erfasst"
+type = "file_matches"
+path = "abgabe/datentraeger.txt"
+pattern = '(?i)CanPool'
+hint_de = "Tippe: .\\wb erfasse datentraeger 03 — in der Datei muss zweimal CanPool : True stehen. Steht dort False, ist die Platte noch nicht angesteckt (attach vdisk)."
+
+[[check]]
+id = "spiegel-erfasst"
+type = "file_exists"
+path = "abgabe/spiegel.txt"
+hint_de = "Tippe: .\\wb erfasse spiegel 03"
+
+[[check]]
+id = "spiegel-ist-spiegel"
+type = "file_matches"
+path = "abgabe/spiegel.txt"
+pattern = '(?i)(Mirror|Spiegel)'
+hint_de = "In spiegel.txt fehlt die Zeile ResiliencySettingName : Mirror. Wurde der virtuelle Datenträger mit -ResiliencySettingName Mirror angelegt? Prüfe mit: Get-VirtualDisk"
+
+[[check]]
+id = "spiegel-gesund"
+type = "file_matches"
+path = "abgabe/spiegel.txt"
+pattern = '(?i)(Healthy|Fehlerfrei)'
+hint_de = "Der Spiegel meldet noch keinen guten Zustand. Sind beide Platten angesteckt? Prüfe mit: Get-VirtualDisk | Format-List HealthStatus,OperationalStatus — und erfasse danach neu."
+
+[[check]]
+id = "volume-formatiert"
+type = "file_matches"
+path = "abgabe/volume.txt"
+pattern = '(?i)NTFS'
+hint_de = "Speichere den Zustand des Laufwerks: Get-Volume -DriveLetter S | Format-List | Out-File \"$a\\volume.txt\" — vorher muss es mit -FileSystem NTFS formatiert sein."
+
+[[check]]
+id = "resilienz-benannt"
+type = "antwort"
+key = "resilienz"
+salt = "wb1:gt:03"
+expect_hash = [
+  "4f71ceb42a9c694d3d737d54351bacd265b81bde9d3faa318ce9066c15fa0ee8",
+  "2feb12c261d4fbb797cf795c7d5f9633bfe0c667eb27808fbbd400d0f77a907f",
+  "c31fa918f79401bef8231a2224ab8db6dddd52b9e4ccd4ae6dedf749ecfff563",
+  "a45c067a555e40e8acc6e4b459b95a16b179e022d951fad31d9cc51eabac3567",
+  "4a56f458bfa89ee153335fed54c0f3dfeeaac1149e42338cf141596671e744be",
+]
+hint_de = "Wie heißt die Schutzart, die du gebaut hast? Ein Wort — es steht in spiegel.txt bei ResiliencySettingName."
+
+[[check]]
+id = "datenkopien-notiert"
+type = "antwort"
+key = "datenkopien"
+salt = "wb1:gt:03"
+expect_hash = [
+  "074bfc8178e1542377bddc871835965bca27d1a08775b5f5eb45f162600e7258",
+  "f2cae5af598091dad5321d93643c053f3f663024e6c6e84fa22667508bcec8d5",
+]
+hint_de = "Wie oft liegt jede Datei auf dem Spiegel? Die Zahl steht in spiegel.txt bei NumberOfDataCopies."
+
+[[check]]
+id = "warum-raid1"
+type = "alle_antworten"
+keys = ["warum_raid1"]
+hint_de = "Trage bei warum_raid1 ein, warum eine Firma einen Spiegel einsetzt. Zwei Sätze reichen — es gibt kein Richtig oder Falsch, aber es muss dein eigener Gedanke sein."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Räume die Testdatei weg und beweise es: Remove-Item S:\\test.txt -Force , dann Test-Path S:\\test.txt | Out-File \"$a\\aufraeumen.txt\""
+
+[[check]]
+id = "parity-verstanden"
+type = "antwort"
+stufe = "bonus"
+key = "parity_mindestplatten"
+salt = "wb1:gt:03"
+expect_hash = [
+  "42139afe73d6dca89c77d5cad48a6f4f57a80954ec0116a7764b1f4a9191b70e",
+  "d18510bf70aba04dd726fedd38e30972eb9c7661b62b4e0262291e8806dffff4",
+]
+hint_de = "Bonus: Wie viele Platten braucht Parity mindestens? Schau nach mit: Get-StoragePool wb-pool | Get-ResiliencySetting | Format-List Name,NumberOfDataCopies,NumberOfColumns"
+
+[[check]]
+id = "homelab-vergleich"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 3
+hint_de = "Nur mit eigenem Labor: Baue einen Spiegel mit anderer Technik (mdadm, ZFS, Hardware-RAID) und schreibe 3 Unterschiede in abgabe\\homelab.txt."

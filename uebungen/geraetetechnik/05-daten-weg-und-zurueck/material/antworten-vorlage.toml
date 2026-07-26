@@ -1,0 +1,16 @@
+# Vorlage für deine Antworten — Übung 05
+#
+#   Copy-Item "uebungen\05-daten-weg-und-zurueck\material\antworten-vorlage.toml" "$a\antworten.toml"
+
+# Der Fingerabdruck VOR dem Löschen (aus hash-vorher.txt, 64 Zeichen).
+hash_vorher = ""
+
+# Der Fingerabdruck NACH dem Zurückholen (aus hash-nachher.txt, 64 Zeichen).
+# wb prüft, ob beide Werte gleich sind — das ist dein Beweis.
+hash_nachher = ""
+
+# Welche Daten waren weg, und wie hättest du gemerkt, dass sie fehlen?
+was_war_weg = ""
+
+# Bonus: Wie heißt das Beweismittel? (ein Wort)
+beweis = ""
