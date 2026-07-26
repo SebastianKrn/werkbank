@@ -10,3 +10,4 @@ deleted.
 | [0002](0002-declarative-checks-only.md) | Declarative checks only; the runner never executes content | accepted |
 | [0003](0003-hashed-answers.md) | Expected answers ship as salted hashes only | accepted |
 | [0004](0004-monorepo-with-excluded-trainer-dir.md) | One public repo, `trainer/` excluded from the learner ZIP | accepted |
+| [0005](0005-antwort-hashes-only-for-closed-vocabulary.md) | Hashed answers only for closed vocabularies; machine-specific values are presence-checked | accepted |

@@ -281,9 +281,19 @@ pub fn detail_text(detail: &Detail) -> String {
             format!("Die Datei \"{path}\" gibt es noch nicht. Dort trägst du deine Antworten ein.")
         }
         Detail::AnswersBroken { path, problem } => {
+            // The backslash trap is the one beginners really hit: a Windows path
+            // inside double quotes ("C:\wb") is an invalid escape in TOML and
+            // breaks the whole file, which would otherwise block every answer
+            // check of the exercise with an unreadable message.
+            let hinweis = if problem.contains("escape") {
+                "\n       Steht in einer Antwort ein Pfad oder Befehl mit \\ ?\n       \
+                 Dann nimm einfache Anführungszeichen:  schluessel = 'C:\\wb\\probe'"
+            } else {
+                ""
+            };
             format!(
                 "Die Datei \"{path}\" kann ich nicht lesen.\n       \
-                 Achte auf diese Form:  schluessel = \"deine antwort\"\n       \
+                 Achte auf diese Form:  schluessel = \"deine antwort\"{hinweis}\n       \
                  (technisch: {problem})"
             )
         }
@@ -578,6 +588,28 @@ mod tests {
         assert_eq!(zeilen(3), "3 Zeilen mit Text");
         assert_eq!(versuche(1), "1 Versuch");
         assert_eq!(versuche(2), "2 Versuche");
+    }
+
+    #[test]
+    fn broken_answers_name_the_backslash_trap() {
+        // A learner writing a Windows path into a double-quoted TOML value
+        // breaks the whole file. The message has to say what to do instead —
+        // otherwise every answer check of the exercise fails at once with a
+        // parser error nobody can read.
+        let escape = detail_text(&Detail::AnswersBroken {
+            path: "abgabe/antworten.toml".to_string(),
+            problem: "invalid escape sequence expected `b`, `f`, `n`".to_string(),
+        });
+        assert!(escape.contains("einfache Anführungszeichen"), "{escape}");
+        assert!(escape.contains(r"'C:\wb\probe'"), "{escape}");
+
+        // Other parse errors must not get the misleading backslash advice.
+        let other = detail_text(&Detail::AnswersBroken {
+            path: "abgabe/antworten.toml".to_string(),
+            problem: "expected an equals, found a newline".to_string(),
+        });
+        assert!(!other.contains("Anführungszeichen:"), "{other}");
+        assert!(other.contains("schluessel"), "{other}");
     }
 
     #[test]

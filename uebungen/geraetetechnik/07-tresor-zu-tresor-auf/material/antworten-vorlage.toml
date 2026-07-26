@@ -1,0 +1,25 @@
+# Vorlage für deine Antworten — Übung 07
+#
+#   Copy-Item "uebungen\07-tresor-zu-tresor-auf\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
+
+# Diese VM hat kein TPM. Womit hast du das Laufwerk stattdessen geschützt?
+# Ein Wort.
+schutz_ohne_tpm = ''
+
+# Wo gehört ein BitLocker-Wiederherstellungsschlüssel in einer echten Firma hin —
+# und warum nicht auf denselben Server?
+wo_liegt_der_schluessel = ''
+
+# Bonus: Wo liegt dein Schlüssel jetzt tatsächlich?
+wiederherstellungsschluessel_ort = ''

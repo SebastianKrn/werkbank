@@ -1,0 +1,92 @@
+[exercise]
+id = "04-fingerabdruck-und-backup"
+titel = "Fingerabdruck & Backup"
+modul = "geraetetechnik"
+schwierigkeit = 2
+zeit_minuten = 40
+ki_stufe = "danach"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.utility/get-filehash",
+  "https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/robocopy",
+]
+
+[[check]]
+id = "hash-genommen"
+type = "file_matches"
+path = "abgabe/hash-vorher.txt"
+pattern = '(?i)SHA256'
+hint_de = "Nimm den Fingerabdruck: Get-FileHash C:\\wb\\firma\\vertraege\\vertrag-001.txt -Algorithm SHA256 | Format-List | Out-File \"$a\\hash-vorher.txt\""
+
+[[check]]
+id = "vollbackup-protokolliert"
+type = "file_matches"
+path = "abgabe/backup-voll.log"
+pattern = '(?i)vertrag-001'
+hint_de = "Im Protokoll des Vollbackups fehlt die Vertragsdatei. Lief robocopy mit /E über C:\\wb\\firma? Beispiel: robocopy C:\\wb\\firma S:\\backup\\firma /E /LOG:\"$a\\backup-voll.log\""
+
+[[check]]
+id = "inkrementell-protokolliert"
+type = "file_matches"
+path = "abgabe/backup-inkrementell.log"
+pattern = '(?i)rechnung-002'
+hint_de = "Im zweiten Protokoll muss die neue Datei rechnung-002.txt auftauchen. Lege sie zuerst an, dann lass robocopy noch einmal laufen — mit einem anderen /LOG:-Namen."
+
+[[check]]
+id = "schattenkopie-angelegt"
+type = "file_matches"
+path = "abgabe/schattenkopie.txt"
+pattern = '\{[0-9a-fA-F-]{36}\}'
+hint_de = "In schattenkopie.txt fehlt eine Kennung in geschweiften Klammern — es gibt also noch keine Schattenkopie. Lege zuerst eine an (Server: vssadmin create shadow /for=C:), dann: vssadmin list shadows | Out-File \"$a\\schattenkopie.txt\""
+
+[[check]]
+id = "zweiter-lauf-benannt"
+type = "antwort"
+key = "zweiter_lauf"
+salt = "wb1:gt:04"
+expect_hash = [
+  "13c8090b86571b9abb56c5d0e23a26050d5506ad6c04724dfdede10657cf33ea",
+  "8ae83c2e7dedd404aa33db7a4ab0a118f66716f516d47ffeb1512c61bf6880a6",
+  "a9b00dea986a801c0634b03cda6df6e1c3f70ff93674f607ded30dfb65d74b9b",
+]
+hint_de = "Wie nennt man ein Backup, das nur die Änderungen seit dem letzten Lauf sichert? Ein Wort. Es steht in Schritt 4."
+
+[[check]]
+id = "hash-notiert"
+type = "alle_antworten"
+keys = ["hash_notiert"]
+hint_de = "Trage bei hash_notiert den 64-stelligen Hash aus hash-vorher.txt ein. Du brauchst ihn in Übung 05 als Beweismittel."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Räume den Arbeitsordner weg und beweise es: Remove-Item C:\\wb\\temp-04 -Recurse -Force , dann Test-Path C:\\wb\\temp-04 | Out-File \"$a\\aufraeumen.txt\""
+
+[[check]]
+id = "hash-aenderung-erkannt"
+type = "antwort"
+stufe = "bonus"
+key = "hash_aendert_sich"
+salt = "wb1:gt:04"
+expect_hash = [
+  "ae04e7530b2e33e5d7d7b08b128d96ce6dd58f6972498671cf6f8c771536af5c",
+  "f38c5b1006197e186316572c3d06b0bb05d6cb9c7489040000366acedde3a433",
+]
+hint_de = "Bonus: Ändere ein Zeichen in einer Kopie der Datei und nimm den Hash noch einmal. Ändert sich der Fingerabdruck? Ja oder nein."
+
+[[check]]
+id = "hash-nach-aenderung"
+type = "alle_antworten"
+stufe = "bonus"
+keys = ["hash_nach_aenderung"]
+hint_de = "Bonus: Trage den Hash der geänderten Kopie bei hash_nach_aenderung ein."
+
+[[check]]
+id = "homelab-zweites-ziel"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 2
+hint_de = "Nur mit eigenem Labor: Sichere die Daten auf ein zweites Gerät und schreibe 2 Zeilen dazu in abgabe\\homelab.txt."

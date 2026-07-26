@@ -1,0 +1,68 @@
+[exercise]
+id = "01-dein-server-deine-firma"
+titel = "Dein Server, deine Firma"
+modul = "geraetetechnik"
+schwierigkeit = 1
+zeit_minuten = 30
+ki_stufe = "ohne"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/scripting/learn/ps101/00-introduction",
+  "https://learn.microsoft.com/de-de/training/modules/introduction-to-powershell/",
+]
+
+[[check]]
+id = "szenario-vorhanden"
+type = "file_exists"
+path = "abgabe/szenario.txt"
+hint_de = "Lege die Datei an: notepad uebungen\\01-dein-server-deine-firma\\abgabe\\szenario.txt — Notepad fragt, ob es die Datei erstellen soll, antworte mit Ja."
+
+[[check]]
+id = "szenario-ausgefuellt"
+type = "datei_zeilen_min"
+path = "abgabe/szenario.txt"
+min = 5
+hint_de = "In szenario.txt fehlen noch Zeilen. Gefragt sind mindestens 5: Firma, Branche, Ort, Server und die Datenarten — eine Angabe pro Zeile."
+
+[[check]]
+id = "struktur-erfasst"
+type = "file_exists"
+path = "abgabe/firma-struktur.txt"
+hint_de = "Speichere die Liste deiner Ordner: Get-ChildItem C:\\wb\\firma -Recurse | Out-File uebungen\\01-dein-server-deine-firma\\abgabe\\firma-struktur.txt"
+
+[[check]]
+id = "struktur-zeigt-ordner"
+type = "file_matches"
+path = "abgabe/firma-struktur.txt"
+pattern = '(?i)(Verzeichnis:|Directory:|LastWriteTime)'
+hint_de = "Die Liste sieht leer aus. Hast du die Ordner unter C:\\wb\\firma schon angelegt? Prüfe mit: Get-ChildItem C:\\wb\\firma -Recurse"
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Räume den Ordner temp weg und beweise es: Remove-Item C:\\wb\\firma\\temp -Recurse -Force , dann Test-Path C:\\wb\\firma\\temp | Out-File uebungen\\01-dein-server-deine-firma\\abgabe\\aufraeumen.txt — in der Datei muss False stehen."
+
+# Bonus: closed vocabulary, so a hash is fair (ADR 0005).
+[[check]]
+id = "cmdlet-benannt"
+type = "antwort"
+stufe = "bonus"
+key = "cmdlet_ordner"
+salt = "wb1:gt:01"
+expect_hash = [
+  "8cc3007b0885da9ed400adb3a61c06f43e6e00243669ec685e7164f7dd8a9a84",
+  "8d5bc5c4f73e6b627b2052ee226045a0c5b3e2a2c2e48ffdc4eeed86fe301a13",
+  "5f37c9de0f3372074ebba6bcd8c9ace504d32b7e5da174af138b6e61624e6875",
+  "52dd0bba356cb295223806b0021eda277460c933e9b85936cfc69608606f3c35",
+]
+hint_de = "Mit welchem Cmdlet hast du die Ordner angelegt? Schau in Schritt 3 nach und trage es bei cmdlet_ordner ein."
+
+[[check]]
+id = "homelab-vergleich"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 3
+hint_de = "Nur mit eigenem Labor: Baue die Struktur auf einem zweiten Gerät und schreibe 3 Unterschiede in abgabe\\homelab.txt."

@@ -1,0 +1,51 @@
+# Vorlage für deine Antworten — Übung 08 (Generalprobe)
+#
+#   Copy-Item "uebungen\08-generalprobe\material\antworten-vorlage.toml" "$a\antworten.toml"
+#
+# Zeilen mit # sind Notizen und werden nicht geprüft.
+#
+# So schreibst du eine Antwort:
+#
+#     schluessel = 'deine antwort'
+#
+# Nimm EINFACHE Anführungszeichen. Dann darf in der Antwort alles vorkommen —
+# auch Pfade und Befehle mit Backslash, zum Beispiel 'C:\wb\firma'.
+# (In doppelten Anführungszeichen wäre \ ein Sonderzeichen und die ganze
+# Datei wäre kaputt.)
+
+# --- Teil 1: dein eigener Beweis ---
+
+# Fingerabdruck deiner Datei VOR dem Löschen (64 Zeichen).
+probe_hash_vorher = ''
+
+# Fingerabdruck derselben Datei NACH dem Zurückholen. Muss gleich sein.
+probe_hash_nachher = ''
+
+# --- Teil 2: die fünf Fragen. Zwei bis vier Sätze, eigene Worte. ---
+
+# 1. Warum ersetzt ein Spiegel (RAID 1) kein Backup?
+reflexion_1 = ''
+
+# 2. Was beweist ein SHA-256-Hash, und was beweist er nicht?
+reflexion_2 = ''
+
+# 3. Unterschied volles / inkrementelles Backup — und warum ist das
+#    inkrementelle allein wertlos?
+reflexion_3 = ''
+
+# 4. Wo bewahrst du einen BitLocker-Wiederherstellungsschlüssel auf, und warum
+#    nicht auf demselben Server?
+reflexion_4 = ''
+
+# 5. Fremder Server, du kennst ihn nicht: Welche drei Befehle tippst du zuerst,
+#    und was willst du damit wissen?
+reflexion_5 = ''
+
+# --- Zum Schluss ---
+
+# Welchen Schritt vergessen bei Prüfungen die meisten? (ein Wort)
+wichtigster_schritt = ''
+
+# Bonus: Welchen Befehl hast du für die Netzwerkfreigabe benutzt, und wer darf
+# darauf zugreifen?
+smb_freigabe = ''

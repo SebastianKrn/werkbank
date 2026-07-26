@@ -35,8 +35,8 @@ test:
 lint-inhalt:
     cargo run --quiet --manifest-path {{runner}}/Cargo.toml -- \
         intern lint {{runner}}/tests/fixtures/modul-demo/uebungen
-    @# M2: add the real module here once uebungen/ exists:
-    @#   cargo run --quiet --manifest-path {{runner}}/Cargo.toml -- intern lint uebungen
+    cargo run --quiet --manifest-path {{runner}}/Cargo.toml -- \
+        intern lint uebungen
 
 # Everything the pipeline checks
 ci: lint test lint-inhalt
@@ -46,24 +46,34 @@ hash salt +antworten:
     cargo run --quiet --manifest-path {{runner}}/Cargo.toml -- \
         intern hash --salt {{salt}} {{antworten}}
 
-# Build the learner ZIP. Content arrives in M2 — until then this stops early
-# with a clear message instead of shipping an empty package.
+# Build the learner ZIP.
+#
+# The classroom needs wb.exe, and this recipe cannot cross-compile it. Drop a
+# Windows build at dist/wb.exe (CI artefact from the windows-latest job) and it
+# is packaged; without it the ZIP is Linux-only and says so loudly.
 [unix]
 package modul=default_modul:
     #!/usr/bin/env bash
     set -euo pipefail
     if [ ! -d "uebungen/{{modul}}" ]; then
-        echo "No content yet: uebungen/{{modul}} does not exist."
-        echo "Exercises are milestone M2 (docs/MILESTONES.md). Nothing to package."
+        echo "No such module: uebungen/{{modul}} does not exist."
         exit 1
     fi
     just release
     rm -rf dist/werkbank-{{modul}}
     mkdir -p dist/werkbank-{{modul}}/uebungen
     cp {{runner}}/target/release/wb dist/werkbank-{{modul}}/
+    if [ -f dist/wb.exe ]; then
+        cp dist/wb.exe dist/werkbank-{{modul}}/
+    else
+        echo "WARNUNG: dist/wb.exe fehlt — dieses ZIP enthält kein Windows-Binary."
+        echo "         Für den Pilotbetrieb ist es unbrauchbar (M3, docs/MILESTONES.md)."
+    fi
     cp START_HIER.md dist/werkbank-{{modul}}/
     cp -r uebungen/{{modul}}/. dist/werkbank-{{modul}}/uebungen/
-    # trainer/ and dotfiles never reach a learner ZIP (SPEC §5)
+    # The content licence travels with the content (CC BY-NC-SA 4.0)
+    cp uebungen/LICENSE dist/werkbank-{{modul}}/uebungen/
+    # trainer/ and dotfiles never reach a learner ZIP (SPEC §5, ADR 0004)
     find dist/werkbank-{{modul}} -name '.*' -not -name '.' -prune -exec rm -rf {} +
     (cd dist && find werkbank-{{modul}} -type f | sort > MANIFEST.txt)
     (cd dist && zip -r -q werkbank-{{modul}}.zip werkbank-{{modul}})

@@ -59,5 +59,13 @@ Negative / accepted costs:
 - Authors cannot read their own expected answers back out of the repository.
   This is why the private solutions repo is not optional.
 - A typo in an accepted answer is invisible until someone tries it — content
-  review has to cover the answer list, and the trainer handbook (M2) carries
-  the accepted spellings.
+  review has to cover the answer list, and the accepted spellings are documented
+  per exercise in the private solutions repo.
+
+  *Correction (M2, 2026-07-26):* this line originally said the trainer handbook
+  carries the accepted spellings. It must not — `trainer/` lives in this public
+  repo, and CLAUDE.md rule 6 / SPEC §4 keep plaintext answers out of it entirely.
+  The spellings live in `werkbank-loesungen/<modul>/<id>/LOESUNG.md`;
+  `trainer/HANDBUCH_GERAETETECHNIK.md` points there and tells the trainer to
+  award the point when a correct spelling is missing, then report it so the hash
+  can be added.

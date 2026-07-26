@@ -1,0 +1,79 @@
+[exercise]
+id = "05-daten-weg-und-zurueck"
+titel = "Daten weg — und zurück"
+modul = "geraetetechnik"
+schwierigkeit = 2
+zeit_minuten = 35
+ki_stufe = "ohne"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/robocopy",
+  "https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.management/move-item",
+]
+
+[[check]]
+id = "datenverlust-belegt"
+type = "file_matches"
+path = "abgabe/datenverlust.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Belege den Schaden: nach Remove-Item C:\\wb\\firma\\vertraege -Recurse -Force schreibe Test-Path C:\\wb\\firma\\vertraege | Out-File \"$a\\datenverlust.txt\" — dort muss False stehen. Prüfe vorher, dass das Backup wirklich existiert."
+
+[[check]]
+id = "restore-protokolliert"
+type = "file_matches"
+path = "abgabe/restore.log"
+pattern = '(?i)vertrag-001'
+hint_de = "Im Wiederherstellungs-Protokoll fehlt die Vertragsdatei. Hol das Backup daneben zurück: robocopy S:\\backup\\firma\\vertraege C:\\wb\\restore-probe /E /LOG:\"$a\\restore.log\""
+
+[[check]]
+id = "hash-beweis"
+type = "werte_gleich"
+key_a = "hash_vorher"
+key_b = "hash_nachher"
+hint_de = "Die beiden Fingerabdrücke stimmen noch nicht überein. Trage in antworten.toml beide 64-stelligen Werte ein — den aus hash-vorher.txt und den aus hash-nachher.txt. Sind sie wirklich verschieden, ist die zurückgeholte Datei nicht dieselbe: sag es dem Trainer, das ist ein wichtiger Fund."
+
+[[check]]
+id = "daten-wieder-da"
+type = "file_matches"
+path = "abgabe/wiederhergestellt.txt"
+pattern = '(?i)vertrag-001'
+hint_de = "Stelle das geprüfte Backup an seinen Platz und belege es: Move-Item C:\\wb\\restore-probe C:\\wb\\firma\\vertraege , dann Get-ChildItem C:\\wb\\firma\\vertraege | Out-File \"$a\\wiederhergestellt.txt\""
+
+[[check]]
+id = "schaden-beschrieben"
+type = "alle_antworten"
+keys = ["was_war_weg"]
+hint_de = "Trage bei was_war_weg ein, welche Daten weg waren und wie du gemerkt hättest, dass sie fehlen."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Beweise, dass kein Prüfstand übrig ist: Test-Path C:\\wb\\restore-probe | Out-File \"$a\\aufraeumen.txt\" — steht dort True, liegt noch eine doppelte Kopie der Daten herum."
+
+[[check]]
+id = "beweismittel-benannt"
+type = "antwort"
+stufe = "bonus"
+key = "beweis"
+salt = "wb1:gt:05"
+expect_hash = [
+  "8044039ec442da841403835a3cc475c34e3868aa68cbf56580278d39c7470b5c",
+  "ad35b62bb2800a481067f043bfceddc9e39175be266c074382f820402cb1afe2",
+  "2f310fd1875e7c40c230fe513e7a88f7d82692b4d4ce727ea1d9509698874e24",
+  "abb96f58b12ee7f905ff6b297b78d037c5d23e3df6cbb6a1a4563c557d306ba4",
+  "a749a6e2a9945579f9ea037e6f54a91654131670c3ee58ae6e77092ab28dccfc",
+  "322a9214e3c24234b0635faa75f27114acfbc4079ed6b575129bb5839c5134ae",
+  "3e3c5c21ee2ddb1c56a61fb970d6ab81f63b9f76f2aa9b5850335c902c8ceaac",
+  "f59c01b589f105a50b3890fb4c13fb12a03c3b0dcc36f60582950f9b4b45637f",
+]
+hint_de = "Bonus: Wie heißt das Beweismittel, mit dem du gezeigt hast, dass die Datei byte-genau dieselbe ist? Ein Wort."
+
+[[check]]
+id = "homelab-fremdes-geraet"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 2
+hint_de = "Nur mit eigenem Labor: Hol das Backup auf einem anderen Gerät zurück, prüfe dort den Hash und schreibe 2 Zeilen in abgabe\\homelab.txt."

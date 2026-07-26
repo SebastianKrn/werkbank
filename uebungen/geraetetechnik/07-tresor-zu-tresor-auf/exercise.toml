@@ -1,0 +1,96 @@
+[exercise]
+id = "07-tresor-zu-tresor-auf"
+titel = "Tresor zu, Tresor auf"
+modul = "geraetetechnik"
+schwierigkeit = 2
+zeit_minuten = 35
+ki_stufe = "danach"
+lb_relevant = true
+vertiefung = [
+  "https://learn.microsoft.com/de-de/powershell/module/bitlocker/enable-bitlocker",
+  "https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/",
+]
+
+[[check]]
+id = "bitlocker-erfasst"
+type = "file_exists"
+path = "abgabe/bitlocker.txt"
+hint_de = "Tippe: .\\wb erfasse bitlocker 07 — auf Windows Server muss dafür zuerst das Feature installiert sein (Install-WindowsFeature BitLocker -IncludeAllSubFeature -Restart)."
+
+[[check]]
+id = "schutz-aktiv"
+type = "file_matches"
+path = "abgabe/bitlocker.txt"
+pattern = '(?i)(Protection On|Schutz ist aktiviert|Schutzstatus\s*:\s*Ein)'
+hint_de = "Der Schutz ist noch nicht aktiv. Prüfe mit Get-BitLockerVolume -MountPoint S: — bei VolumeStatus muss FullyEncrypted und bei ProtectionStatus On stehen. Läuft die Verschlüsselung noch, warte ab und erfasse dann neu."
+
+[[check]]
+id = "verschluesselung-aes256"
+type = "file_matches"
+path = "abgabe/bitlocker.txt"
+pattern = '(?i)(XTS.?AES.?256|AES.?256)'
+hint_de = "Es fehlt das Verschlüsselungsverfahren mit 256 Bit. Beim Einschalten gehört -EncryptionMethod XtsAes256 dazu."
+
+[[check]]
+id = "defender-gezeigt"
+type = "file_matches"
+path = "abgabe/schutz.txt"
+pattern = '(?i)RealTimeProtectionEnabled'
+hint_de = "Tippe: .\\wb erfasse schutz 07 — danach steht in schutz.txt der Zustand von Microsoft Defender."
+
+[[check]]
+id = "firewall-gezeigt"
+type = "file_matches"
+path = "abgabe/schutz.txt"
+pattern = '(?i)(Domain|Private|Public|Domäne|Öffentlich)'
+hint_de = "In schutz.txt fehlen die Firewall-Profile. Erfasse noch einmal: .\\wb erfasse schutz 07 — es müssen drei Profile auftauchen."
+
+[[check]]
+id = "schutz-ohne-tpm"
+type = "antwort"
+key = "schutz_ohne_tpm"
+salt = "wb1:gt:07"
+expect_hash = [
+  "01c1037db034f599b73824037a6ac9ce0c17182f3058d3d5af3fe854156e7df9",
+  "144a1e9551166b986e118053d9d178c7fe72fad138d10ae81499e03e092882be",
+  "b0635bb3671870188d1147a0dfc4f45521871578f19a933120db779144aab41c",
+  "9a0a2e3111dfc0f4538adae3a916f822098e4e33c278d7d7f41e66f0de5b6d8e",
+  "9d3f7871b89b1b0c07fc2fe1b481ca6f504d441bf4e1d5024c9fb9e55a15d0b3",
+]
+hint_de = "Diese VM hat kein TPM. Womit hast du das Laufwerk stattdessen geschützt? Ein Wort — es steht im Namen des Schalters, den du bei Enable-BitLocker benutzt hast."
+
+[[check]]
+id = "schluessel-verwahrt"
+type = "alle_antworten"
+keys = ["wo_liegt_der_schluessel"]
+hint_de = "Trage bei wo_liegt_der_schluessel ein, wo der Wiederherstellungsschlüssel in einer echten Firma aufbewahrt wird — und warum nicht auf demselben Server."
+
+[[check]]
+id = "aufgeraeumt"
+type = "file_matches"
+path = "abgabe/aufraeumen.txt"
+pattern = '(?i)(False|Falsch)'
+hint_de = "Die Schlüsseldatei darf nicht auf der Maschine bleiben: Remove-Item C:\\wb\\bitlocker-schluessel.txt -Force , dann Test-Path C:\\wb\\bitlocker-schluessel.txt | Out-File \"$a\\aufraeumen.txt\" — vorher den Schlüssel auf Papier notieren."
+
+[[check]]
+id = "tresor-zu"
+type = "file_matches"
+stufe = "bonus"
+path = "abgabe/tresor-zu.txt"
+pattern = '(?i)LockStatus\s*:\s*(Locked|Gesperrt)'
+hint_de = "Bonus: Sperre das Laufwerk (Lock-BitLocker -MountPoint S: -ForceDismount) und halte den Zustand fest: Get-BitLockerVolume -MountPoint S: | Format-List MountPoint,LockStatus,ProtectionStatus | Out-File \"$a\\tresor-zu.txt\" — danach mit Unlock-BitLocker wieder aufschließen."
+
+[[check]]
+id = "schluessel-ort-notiert"
+type = "alle_antworten"
+stufe = "bonus"
+keys = ["wiederherstellungsschluessel_ort"]
+hint_de = "Bonus: Trage bei wiederherstellungsschluessel_ort ein, wo dein Schlüssel jetzt tatsächlich liegt."
+
+[[check]]
+id = "homelab-andere-verschluesselung"
+type = "datei_zeilen_min"
+stufe = "homelab"
+path = "abgabe/homelab.txt"
+min = 2
+hint_de = "Nur mit eigenem Labor: Verschlüssle einen USB-Stick (BitLocker To Go) oder ein Linux-Laufwerk (LUKS) und schreibe 2 Zeilen in abgabe\\homelab.txt."
