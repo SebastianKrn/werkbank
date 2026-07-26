@@ -50,10 +50,23 @@ DoD: `just package geraetetechnik` produces a ZIP that passes the full learner f
 Open at the end of M2 (carried into M3):
 
 - [ ] Raphael's 30-min curriculum review of the exercise list.
-- [ ] Windows binary in the ZIP: `just package` on Linux ships only the Linux `wb`. `wb.exe` for the pilot ZIP comes from a windows-latest build in M3 ("Freeze: build final pilot ZIP").
+- [x] Windows binary in the ZIP: **done in M3a.** `.github/workflows/release.yml` builds `wb.exe` on windows-latest and publishes the assembled ZIP from a tag (ADR 0006).
 - [ ] Windows-only paths (`manage-bde`, PowerShell presets, UTF-16LE/CP850 captures on a real console) verified only by CI so far, never on a real VM — that is M3 item 1.
 
 ## M3 — Pilot packaging & dry runs (mixed)
+
+### M3a — Freeze machinery (Claude-Code session 3) — **done 2026-07-26**
+
+1. [x] `scripts/paket.sh` — packaging as one script shared by `just` and CI. Version in the ZIP filename (SPEC §5), missing `wb.exe` a hard error, tripwire against `trainer/` and solutions in the manifest.
+2. [x] `.github/workflows/release.yml` — tag-driven build of both binaries, assembly, verification of the unpacked artifact, publication as a GitHub Release. Version guard against `runner/Cargo.toml`.
+3. [x] Packaging smoke test in CI on every run.
+4. [x] `docs/TESTPROTOKOLL.md` (SPEC §8, binding) and `trainer/BETA_FEEDBACK.md`.
+5. [x] SmartScreen / Mark-of-the-Web instructions in `START_HIER.md` — wording still to be verified against a real Windows 11 (protocol Part A).
+6. [x] ADR 0006.
+
+Found while writing the protocol, unfixed by design: **seven of nine capture presets have never been executed anywhere.** Tests run only `ordnerliste` and `ipconfig`; `bitlocker` and `schutz` are `unix: None` and cannot run on the Linux dev box at all. Protocol Part C exists to close this. No pre-emptive fixes were written — guessing at Windows behaviour without evidence is how the protocol gets invalidated before it runs.
+
+### M3b — Dry runs (human)
 
 1. Test protocol run (docs/TESTPROTOKOLL.md) on a fresh Windows account — fix everything found.
 2. External beta: 42-friend runs the module solo, remote, no help; collect where he got stuck + quote; fix top findings.
