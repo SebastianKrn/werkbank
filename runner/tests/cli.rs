@@ -538,6 +538,7 @@ fn lint_rejects_every_invalid_fixture() {
         ("falsche-ki-stufe", "ki_stufe `manchmal`"),
         ("ohne-basis-check", "no check with stufe `basis`"),
         ("id-passt-nicht", "must match the folder name"),
+        ("windows-geraetename", "reserved Windows device name"),
     ];
     for (case, expected) in cases {
         let mut command = Command::cargo_bin("wb").expect("binary wb");

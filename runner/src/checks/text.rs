@@ -13,6 +13,13 @@ use std::path::Path;
 
 use super::cp850;
 
+/// Upper bound for a single learner file. `wb status` reads every checked file
+/// of every exercise, so an accidental runaway `Out-File` loop in `abgabe/`
+/// must not be able to exhaust the VM's memory. Every documented check works on
+/// a prefix: regexes match within it, and a file this large clears any
+/// `datei_zeilen_min` many times over.
+pub const MAX_READ_BYTES: usize = 8 * 1024 * 1024;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextEncoding {
     Utf8,
@@ -49,9 +56,14 @@ pub fn decode(bytes: &[u8]) -> (String, TextEncoding) {
     (cp850::decode(bytes), TextEncoding::Cp850)
 }
 
-/// Read a file as text, tolerating the encodings above.
+/// Read a file as text, tolerating the encodings above. Never reads more than
+/// [`MAX_READ_BYTES`], so a runaway file in `abgabe/` cannot exhaust memory.
 pub fn read(path: &Path) -> io::Result<(String, TextEncoding)> {
-    let bytes = std::fs::read(path)?;
+    use std::io::Read;
+
+    let file = std::fs::File::open(path)?;
+    let mut bytes = Vec::new();
+    file.take(MAX_READ_BYTES as u64).read_to_end(&mut bytes)?;
     Ok(decode(&bytes))
 }
 
@@ -176,5 +188,40 @@ mod tests {
     fn non_empty_line_counting() {
         let text = "eins\r\n\r\n   \nzwei\ndrei";
         assert_eq!(count_non_empty_lines(text), 3);
+    }
+
+    /// `wb status` reads every checked file of every exercise. A runaway
+    /// `Out-File` loop in `abgabe/` must not make the runner allocate the whole
+    /// file — instant feedback is the product.
+    #[test]
+    fn read_stops_at_the_size_cap() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("riesig.txt");
+        let line = b"Zeile voller Text\n";
+        let mut bytes = Vec::with_capacity(MAX_READ_BYTES + line.len() * 64);
+        while bytes.len() < MAX_READ_BYTES + line.len() * 32 {
+            bytes.extend_from_slice(line);
+        }
+        let written = bytes.len();
+        std::fs::write(&path, &bytes).unwrap();
+
+        let (text, _) = read(&path).unwrap();
+        assert!(
+            text.len() <= MAX_READ_BYTES,
+            "read {} bytes from a {written}-byte file — the cap did not hold",
+            text.len()
+        );
+    }
+
+    /// A file below the cap must still be read whole, byte for byte.
+    #[test]
+    fn read_returns_small_files_completely() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("klein.txt");
+        std::fs::write(&path, "Größe: 4 Kerne\nzwei\n").unwrap();
+
+        let (text, enc) = read(&path).unwrap();
+        assert_eq!(text, "Größe: 4 Kerne\nzwei\n");
+        assert_eq!(enc, TextEncoding::Utf8);
     }
 }

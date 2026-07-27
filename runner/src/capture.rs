@@ -326,4 +326,29 @@ mod tests {
         assert!(folder_list(&exercise, Some("../..")).is_err());
         assert!(folder_list(&exercise, Some("gibtsnicht")).is_err());
     }
+
+    /// The entry point is canonicalised, but the recursive walk must not follow
+    /// a symlink out of the exercise either — otherwise `ordnerliste` writes
+    /// chunks of the host filesystem into the learner's abgabe.
+    #[cfg(unix)]
+    #[test]
+    fn folder_list_does_not_follow_symlinks_out_of_the_exercise() {
+        let dir = tempfile::tempdir().unwrap();
+        let exercise = dir.path().join("01-test");
+        std::fs::create_dir_all(exercise.join("abgabe")).unwrap();
+        std::fs::write(exercise.join("abgabe/notiz.txt"), "Hallo").unwrap();
+
+        let outside = dir.path().join("geheim");
+        std::fs::create_dir_all(&outside).unwrap();
+        std::fs::write(outside.join("passwoerter.txt"), "streng geheim").unwrap();
+        std::os::unix::fs::symlink(&outside, exercise.join("abgabe/link")).unwrap();
+
+        let capture = folder_list(&exercise, None).unwrap();
+        assert!(capture.text.contains("notiz.txt"), "{}", capture.text);
+        assert!(
+            !capture.text.contains("passwoerter.txt"),
+            "the walk followed a symlink out of the exercise:\n{}",
+            capture.text
+        );
+    }
 }

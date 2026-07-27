@@ -1,0 +1,16 @@
+# Invalid on purpose: `CON` is a reserved Windows device name. Reading it would
+# block until the console sends EOF, hanging `wb check` on the target platform
+# with no diagnostic (SPEC §2).
+[exercise]
+id = "01-windows-geraetename"
+titel = "Pfad trifft ein Windows-Gerät"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 5
+ki_stufe = "ohne"
+
+[[check]]
+id = "geraetename"
+type = "file_exists"
+path = "abgabe/CON.txt"
+hint_de = "Diese Übung darf gar nicht laden."
