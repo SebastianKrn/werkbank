@@ -5,9 +5,14 @@ mindestens 12 pt drucken, Zielgruppe sieht nicht immer gut.)*
 
 ---
 
-## 1 · Entpacken
+## 1 · Freigeben, dann entpacken
 
-ZIP-Datei → Rechtsklick → **Alle extrahieren** → nach `C:\`
+**Zuerst:** Rechtsklick auf die ZIP-Datei → **Eigenschaften** → ganz unten
+**„Zulassen"** ankreuzen → **OK**.
+
+*Vor* dem Entpacken ist Ruhe. Danach fragt Windows bei **jeder** Datei nach.
+
+**Dann:** ZIP-Datei → Rechtsklick → **Alle extrahieren** → nach `C:\`
 
 Du hast dann: `C:\werkbank-geraetetechnik`
 

@@ -27,7 +27,7 @@ Menschen, die aus gesundheitlichen Gründen in die IT umschulen (BBRZ-Kernklient
 Ein **Praxis-Layer**, der neben jeden bestehenden Kurs gelegt werden kann:
 
 1. **Übungspakete** (Repo oder ZIP): pro Übung ein Ordner mit `AUFGABE.md` (Deutsch, einfache Sprache), Startdateien und deklarativen Checks.
-2. **Check-Runner `wb`** (ein portables Binary, keine Installation, keine Adminrechte): Lernende:r arbeitet, tippt `wb check`, bekommt sofort deutsches Feedback mit Hinweis statt Lösung. Fortschritt lokal, Bericht für Trainer per `wb bericht`.
+2. **Check-Runner `wb`** (ein portables Binary, keine Installation, keine Adminrechte für `wb` selbst): Lernende:r arbeitet, tippt `wb check`, bekommt sofort deutsches Feedback mit Hinweis statt Lösung. Fortschritt lokal, Bericht für Trainer per `wb bericht`.
 3. **Trainer-Handbuch** pro Modul: Ablaufplan, typische Stolperstellen, Lösungen (privat).
 4. **KI-Didaktik eingebaut:** Jede Übung hat eine markierte KI-Stufe („erst selbst, dann KI") + Reflexionsfragen. Nicht technisch erzwungen — didaktisch verankert.
 
@@ -77,7 +77,7 @@ Das Format ist themenagnostisch. Pilot-Inhalt: **Modul Gerätetechnik** (8 Übun
 - Als **Umschüler** will ich eine Übung mit einem einzigen Befehl prüfen können, damit ich sofort weiß, ob ich richtig liege — ohne auf den Trainer zu warten. *(P0)*
 - Als **Umschüler** will ich bei einem Fehler einen Hinweis statt der Lösung bekommen, damit ich es selbst schaffen kann. *(P0)*
 - Als **Umschüler** will ich jederzeit sehen, wo ich stehe (`wb status`), damit ich nicht das 42-Gefühl „verloren im PDF" habe. *(P0)*
-- Als **Umschüler** will ich ohne Installation und ohne Adminrechte starten können (ZIP entpacken → loslegen), damit die Technik mich nicht am ersten Tag besiegt. *(P0)*
+- Als **Umschüler** will ich ohne Installation starten können (ZIP entpacken → loslegen) — `wb` selbst verlangt keine Adminrechte —, damit die Technik mich nicht am ersten Tag besiegt. *(P0)*
 - Als **Trainer** will ich pro Lernendem einen kompakten Bericht (`wb bericht` → Datei/Text zum Abgeben), damit ich Betreuung priorisieren kann. *(P0)*
 - Als **Trainer** will ich im Handbuch typische Stolperstellen je Übung sehen, damit Supplierende (z. B. Sebastian) ohne Vorlauf unterrichten können. *(P1)*
 - Als **Umschüler** will ich nach jeder Übung eine kurze Reflexionsfrage zur KI-Nutzung beantworten, damit ich lerne, wann KI hilft und wann sie mir das Lernen stiehlt. *(P1)*
@@ -85,7 +85,7 @@ Das Format ist themenagnostisch. Pilot-Inhalt: **Modul Gerätetechnik** (8 Übun
 
 ## 7. Nicht-funktionale Anforderungen
 
-1. **Zero-Install:** Läuft aus entpacktem ZIP auf Windows 10/11 ohne Adminrechte, ohne Runtime (kein Python/Node/JVM). Linux/macOS-Builds zusätzlich.
+1. **Zero-Install:** Läuft aus entpacktem ZIP auf Windows 11 / Windows Server 2022 ohne Runtime (kein Python/Node/JVM). **`wb` selbst braucht keine Adminrechte** — die Übungen 03–07 brauchen sie sehr wohl, in der lernenden-administrierten VM (M0-Ergebnis, SPEC §8). Linux-Build zusätzlich für die Entwicklung; macOS wird derzeit nicht gebaut.
 2. **Offline-first:** Alle Checks lokal. Internet nur für optionale Vertiefungslinks.
 3. **Sprache:** Lernenden-Output 100 % Deutsch, einfache Sprache (~B1), keine Anglizismen ohne Erklärung. Fehlermeldungen ermutigend, nie beschämend.
 4. **Robustheit:** Tolerant gegenüber Windows-Encodings (UTF-8/UTF-16/CP850) und lokalisierten Befehlsausgaben (deutsche `systeminfo`-Labels).
@@ -112,7 +112,7 @@ Messmethode: `wb bericht`-Abgaben + kurzes Papier-/Forms-Feedback + Trainer-Retr
 | Risiko | Wirkung | Gegenmaßnahme |
 |---|---|---|
 | BBRZ untersagt/limitiert externes Material | Pilot platzt | M0-Gate vor jeder Codezeile; Raphaels bestehende Wissensdatenbank als Präzedenzfall; notfalls Pilot mit 42-Freund + privaten Testern |
-| Interessenkonflikt Raphael (Angestellter pilotiert Stoicera-Produkt) | Vertrauensschaden, blockiert spätere Träger-Deals | Transparenz gegenüber BBRZ-Leitung in M0; Pilot ausdrücklich unentgeltlich; Inhalte original (nichts aus BBRZ-Material) |
+| Interessenkonflikt Raphael (Angestellter pilotiert Werkbank-Produkt) | Vertrauensschaden, blockiert spätere Träger-Deals | Transparenz gegenüber BBRZ-Leitung in M0; Pilot ausdrücklich unentgeltlich; Inhalte original (nichts aus BBRZ-Material) |
 | Gesperrte Klassen-PCs blockieren sogar portable EXE (AppLocker o. ä.) | Runner läuft nicht | M0-Checkliste klärt das vorab; Fallback: Checks als reine PowerShell-Skripte (signierbar) — Entscheidung in M0, nicht später |
 | Übungen zu schwer/zu leicht für Zielgruppe | Frust/Langeweile, Metriken scheitern | Beta-Test mit 42-Freund vor Klasseneinsatz (M3); Schwierigkeitsgrade + Bonusaufgaben |
 | Scope-Explosion Richtung Plattform („nur noch schnell eine Web-UI…") | MVP verfehlt Pilottermin | Harte NICHT-Liste §5; CLAUDE.md-Regel; Milestone-Disziplin |

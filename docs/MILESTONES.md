@@ -16,13 +16,13 @@ Owner: Raphael (BBRZ side) + Sebastian (product side). Target: ≤ 2 weeks (by 2
 
 **Gate result recorded at the bottom of this file. If the EXE path is blocked and no fallback is acceptable → project parks (like eeg-tooling), no code written.**
 
-## M1 — Runner core (Claude-Code session 1)
+## M1 — Runner core (Claude-Code session 1) — **done 2026-07-25**
 
 Scope, in order:
 
 1. Scaffold repo per SPEC §6 (runner crate, justfile, CI per SPEC §8, README stub, docs/ copied in).
 2. Implement exercise discovery + `exercise.toml` parsing with full validation (schema, path-escape rejection, regex compile) — `wb intern lint`.
-3. Implement the five check types (SPEC §3) with encoding-tolerant file reading; unit tests per type incl. UTF-16LE and CP850 fixtures.
+3. Implement the six check types (SPEC §3) with encoding-tolerant file reading; unit tests per type incl. UTF-16LE and CP850 fixtures.
 4. Implement `wb check`, `wb status`, `wb hilfe` with German output (strings_de.rs), progress file, `--json`.
 5. Implement `wb erfasse` presets (systeminfo, ipconfig, datentraeger) with Windows + Linux variants; integration tests via fixture exercises.
 6. Implement `wb bericht` (txt + json + integrity hash) and `wb loesung` (didactic refusal).
@@ -30,7 +30,7 @@ Scope, in order:
 
 DoD: CI green on windows-latest + ubuntu-latest; `wb check` full happy path against fixture module; a non-technical person can follow START_HIER.md draft on a clean Windows user account.
 
-## M2 — Gerätetechnik content (Claude-Code session 2)
+## M2 — Gerätetechnik content (Claude-Code session 2) — **done 2026-07-26**
 
 1. [x] Write all 8 exercises per SPEC §4 LB mapping (AUFGABE.md German ~B1, exercise.toml with lb_relevant/stufen, per-exercise Aufräumen step; re-parametrized vs. the LB — never exam tasks verbatim). Add LICENSE files per decision: content CC BY-NC-SA 4.0, runner MIT OR Apache-2.0, plus `SOLI_DEO_GLORIA.md` colophon.
 2. [x] Generate answer hashes via authoring tool; solutions written to the private `werkbank-loesungen` repo structure (local folder `../werkbank-loesungen`, Sebastian pushes privately).
@@ -45,7 +45,9 @@ Decisions taken in M2:
 - Repo/licence naming aligned with the real remote: **SebastianKrn/werkbank**, copyright Sebastian Kern.
 - ADR 0003 corrected: accepted answer spellings live in the private solutions repo, **not** in `trainer/` (that line contradicted CLAUDE.md rule 6).
 
-DoD: `just package geraetetechnik` produces a ZIP that passes the full learner flow on a clean machine; Raphael has reviewed exercise list against his curriculum (30-min review call — content fit is his call, not ours).
+DoD: a ZIP that passes the full learner flow on a clean machine; Raphael has reviewed exercise list against his curriculum (30-min review call — content fit is his call, not ours).
+
+> **Correction (M3a).** The DoD command was `just package geraetetechnik`; since ADR 0006 that exits 2 on the Linux dev machine without `--erlaube-ohne-windows`, and the classroom ZIP comes from a tag. The Raphael review is still open and is carried as M3b item 3 — M2 is otherwise complete.
 
 Open at the end of M2 (carried into M3):
 
