@@ -21,7 +21,7 @@ The exercise format and the runner are the product. The first module
 
 ## Status
 
-Milestone **M3a — freeze machinery**. The runner is done (M1), the pilot module
+Milestone **M3a — freeze machinery — done (2026-07-26)**. The runner is done (M1), the pilot module
 ships eight exercises under `uebungen/geraetetechnik/` (M2), and a tag now
 produces a classroom-ready ZIP containing `wb.exe`. Next is M3b, which needs a
 human and a real Windows VM: the manual test protocol

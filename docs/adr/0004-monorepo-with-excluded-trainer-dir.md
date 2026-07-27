@@ -1,9 +1,19 @@
 # ADR 0004 — One public repo, `trainer/` excluded from the learner ZIP
 
-- Status: accepted
+- Status: accepted, partly superseded by [ADR 0006](0006-packaging-script-and-tag-driven-release.md)
 - Date: 2026-07-25
 - Milestone: M1
 - Deciders: Sebastian Kern
+
+> **Corrections (M3a, 2026-07-26).** Two statements below were overtaken by
+> later decisions and are kept only as a record of what was decided then:
+>
+> - The repository is `SebastianKrn/werkbank`, not `stoicera/werkbank`. The
+>   working name was dropped before the first commit.
+> - Exclusion of `trainer/` is enforced by `scripts/paket.sh` — the single
+>   assembly point shared by `just` and the release workflow — not by a
+>   `just package` recipe. The script also carries a hard tripwire that fails
+>   the build if `trainer/`, `loesung` or `lösung` ever reach the ZIP.
 
 ## Context
 

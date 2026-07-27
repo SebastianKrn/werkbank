@@ -116,6 +116,11 @@ impl RelPath {
         if bytes.len() >= 2 && bytes[1] == b':' && bytes[0].is_ascii_alphabetic() {
             return Err(format!("path `{raw}` must not contain a drive letter"));
         }
+        if unified.contains(':') {
+            return Err(format!(
+                "path `{raw}` must not contain `:` (NTFS alternate data stream)"
+            ));
+        }
         for segment in unified.split('/') {
             match segment {
                 "" => return Err(format!("path `{raw}` contains an empty segment")),
@@ -126,6 +131,11 @@ impl RelPath {
                 }
                 _ => {}
             }
+            if is_windows_device_name(segment) {
+                return Err(format!(
+                    "path `{raw}` uses the reserved Windows device name `{segment}`"
+                ));
+            }
         }
         Ok(RelPath(unified))
     }
@@ -135,6 +145,27 @@ impl RelPath {
     pub fn to_path(&self, exercise_dir: &Path) -> PathBuf {
         exercise_dir.join(&self.0)
     }
+}
+
+/// Windows resolves these names as devices in *any* directory, with or without
+/// an extension: reading `abgabe/CON` blocks until the console sends EOF, which
+/// would hang `wb check` with no diagnostic. Rejecting them at parse time keeps
+/// the failure where a content author can see it.
+fn is_windows_device_name(segment: &str) -> bool {
+    const RESERVED: [&str; 6] = ["CON", "PRN", "AUX", "NUL", "COM", "LPT"];
+    let stem = segment.split('.').next().unwrap_or(segment);
+    let upper = stem.to_ascii_uppercase();
+    RESERVED.iter().any(|reserved| {
+        if matches!(*reserved, "COM" | "LPT") {
+            // COM1..COM9 and LPT1..LPT9 only — `com.txt` is an ordinary file.
+            upper.len() == 4
+                && upper.starts_with(reserved)
+                && upper.as_bytes()[3].is_ascii_digit()
+                && upper.as_bytes()[3] != b'0'
+        } else {
+            upper == *reserved
+        }
+    })
 }
 
 impl fmt::Display for RelPath {
@@ -749,6 +780,50 @@ mod tests {
             assert!(
                 RelPath::parse(bad).is_err(),
                 "path escape was accepted: {bad}"
+            );
+        }
+    }
+
+    /// Windows resolves reserved device names in *every* directory, so a check
+    /// on `abgabe/CON` would read the console device and block `wb check`
+    /// forever. An NTFS alternate data stream (`file.txt:hidden`) is likewise
+    /// something no learner can produce with the documented tooling.
+    #[test]
+    fn rel_path_rejects_windows_device_names_and_streams() {
+        for bad in [
+            "abgabe/CON",
+            "abgabe/con",
+            "CON",
+            "abgabe/NUL.txt",
+            "abgabe/COM1",
+            "abgabe/lpt9.log",
+            "abgabe/PRN",
+            "abgabe/AUX",
+            "abgabe/notiz.txt:geheim",
+            "abgabe:stream/x.txt",
+        ] {
+            assert!(
+                RelPath::parse(bad).is_err(),
+                "Windows-hostile path was accepted: {bad}"
+            );
+        }
+    }
+
+    /// The device-name guard must not swallow ordinary learner filenames that
+    /// merely start with the same letters.
+    #[test]
+    fn rel_path_still_accepts_ordinary_names() {
+        for good in [
+            "abgabe/notiz.txt",
+            "abgabe/console.txt",
+            "abgabe/nullwerte.csv",
+            "abgabe/com.txt",
+            "abgabe/auxiliar.md",
+            "material/antworten-vorlage.toml",
+        ] {
+            assert!(
+                RelPath::parse(good).is_ok(),
+                "ordinary path was rejected: {good}"
             );
         }
     }

@@ -164,7 +164,7 @@ Was war in diesen acht Übungen der Schritt, bei dem du am meisten gelernt hast?
 Trag es bei `wichtigster_schritt` ein — die Frage danach ist eine andere: Welchen
 Schritt vergessen bei Prüfungen die meisten?
 
-## Bonus (freiwillig, A9-Niveau)
+## Bonus (freiwillig)
 
 Gib deinen Probe-Ordner als Netzwerkfreigabe frei und trage bei `smb_freigabe`
 ein, welchen Befehl du benutzt hast und wer darauf zugreifen darf:

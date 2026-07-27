@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -24,7 +27,7 @@ jobs:
         working-directory: runner
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Show toolchain
         run: |
@@ -34,7 +37,7 @@ jobs:
           cargo fmt --version
 
       - name: Cache cargo
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ~/.cargo/registry
@@ -49,11 +52,10 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
 
-      - name: Unit tests
-        run: cargo test --bins
-
-      - name: Integration tests
-        run: cargo test --test cli
+      # Every target, not a hand-listed set: naming test files here once meant a
+      # new integration test could sit in the repo without CI ever running it.
+      - name: Tests
+        run: cargo test --all-targets
 
       # Content is code: every exercise.toml must validate.
       - name: Content lint (fixtures)

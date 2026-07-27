@@ -8,7 +8,7 @@ No server. No accounts. No database. The entire system is:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Distribution ZIP  (built by `just package`)        │
+│  Distribution ZIP  (built from a tag, ADR 0006)     │
 │                                                     │
 │  werkbank-geraetetechnik/                           │
 │  ├── wb.exe / wb            ← static runner binary  │
@@ -35,7 +35,7 @@ Data flow: `wb` discovers exercises by scanning `uebungen/*/exercise.toml` → r
 
 Single crate `runner/` (workspace-ready if it grows). Binary name `wb`.
 
-- Rust stable, `clap` (derive) for CLI, `serde` + `toml` for config, `regex`, `sha2` for answer hashing, `chardetng`/`encoding_rs` for Windows encoding tolerance. No async, no network deps. Cross-compile targets: `x86_64-pc-windows-msvc` (primary), `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin`.
+- Rust stable, `clap` (derive) for CLI, `serde` + `toml` for config, `regex`, `sha2` for answer hashing, `encoding_rs` for Windows encoding tolerance (detection is a fixed deterministic order, not statistical — `chardetng` was considered and not used), `serde_json` for `--json`/`bericht.json`/`fortschritt.json`. No async, no network deps. Build targets: `x86_64-pc-windows-msvc` (primary) and `x86_64-unknown-linux-gnu` (dev); macOS is not built today.
 - All learner-facing strings live in one `strings_de.rs` module (future i18n by module swap, not a framework).
 - Exit codes: 0 = all checks pass, 1 = some fail, 2 = usage/config error. Machine-readable `--json` flag on `check`/`status` (for tests and future integrations).
 
@@ -46,8 +46,8 @@ Single crate `runner/` (workspace-ready if it grows). Binary name `wb`.
 | `wb` / `wb hilfe` | German help, lists commands with examples. |
 | `wb status` | Progress map: per exercise ✅ / 🔨 / ⬜, module progress bar, next suggested exercise. |
 | `wb check [ID]` | Run checks for exercise ID, or for the "current" (first not-passed) exercise if omitted. Output per check: pass line or **one hint** (`hint_de`), never the solution. On full pass: short encouragement + pointer to next exercise. |
-| `wb erfasse <preset> [ID]` | Convenience capture: runs a **whitelisted** command and writes its output into the exercise's `abgabe/`. Presets fixed in the binary per platform (via `powershell -NoProfile -Command`): `systeminfo`, `ipconfig`, `hardware` (Win32_ComputerSystem/Processor/PhysicalMemory), `firmware` (BiosFirmwareType + PartitionStyle), `datentraeger` (Get-Disk/Get-PhysicalDisk), `spiegel` (Get-VirtualDisk + Get-StoragePool), `bitlocker` (manage-bde -status), `schutz` (Get-MpComputerStatus + Get-NetFirewallProfile), `ordnerliste <path-inside-exercise>`. Linux equivalents where meaningful. Never executes anything from exercise content. |
-| `wb bericht` | Renders `bericht.txt` (German, human-readable) + `bericht.json`: learner alias (asked once, stored locally), per-exercise status, timestamps, attempt counts, integrity hash (SHA-256 over canonicalized progress + salt) so casual tampering is detectable. Not cryptographically strong — documented as such. |
+| `wb erfasse <preset> [ID]` | Convenience capture: runs a **whitelisted** command and writes its output into the exercise's `abgabe/`. Presets fixed in the binary per platform (via `powershell -NoProfile -Command`): `systeminfo`, `ipconfig`, `hardware` (Win32_ComputerSystem/Processor/PhysicalMemory), `firmware` (BiosFirmwareType + PartitionStyle), `datentraeger` (Get-Disk/Get-PhysicalDisk), `spiegel` (Get-VirtualDisk + Get-StoragePool), `bitlocker` (manage-bde -status), `schutz` (Get-MpComputerStatus + Get-NetFirewallProfile), `ordnerliste` (native Rust, `--ordner PFAD` to pick a folder inside the exercise). Full form: `wb erfasse [NAME] [ID] [--ordner PFAD]`; a bare `wb erfasse` lists the presets. Linux equivalents where meaningful. Never executes anything from exercise content. |
+| `wb bericht` | Renders `bericht.txt` (German, human-readable) + `bericht.json`: learner alias (asked once, stored locally), per-exercise status, timestamps, attempt counts, integrity hash (SHA-256 over the canonicalized **report** — alias, module, timestamp, summary counters and per-exercise rows — plus a salt) so casual tampering is detectable. Not cryptographically strong — documented as such, and no verifier ships today. |
 | `wb loesung <ID>` | Refuses with a friendly German message pointing to the trainer (command exists so learners searching for it get didactics, not silence). |
 
 ### Security constraints (binding)
@@ -102,10 +102,10 @@ hint_de = "Schau in der Datenträgerverwaltung nach: Ist dein Systemlaufwerk ein
 | type | Semantics |
 |---|---|
 | `file_exists` | Path exists and is non-empty. |
-| `file_matches` | Regex against file content; content decoded tolerantly (UTF-8 → UTF-16LE → CP850 fallback), regex applied case-per-pattern. |
+| `file_matches` | Regex against file content; content decoded tolerantly (BOM → BOM-less UTF-16LE → UTF-8 → CP850 fallback; the UTF-16LE heuristic must run *before* UTF-8, because ASCII in UTF-16LE is also valid UTF-8), regex applied case-per-pattern. Files are read up to a fixed cap (8 MiB) so a runaway file in `abgabe/` cannot exhaust memory. |
 | `antwort` | Learner answer in `abgabe/antworten.toml` under `key`; normalized (trim, lowercase, collapse whitespace) then salted-SHA-256 compared against `expect_hash` list. |
 | `datei_zeilen_min` | File has ≥ N non-empty lines (for free-form deliverables like inventory lists / diagnosis reports). |
-| `alle_antworten` | Convenience: every key listed exists in `antworten.toml` (catches "forgot to fill in"). |
+| `alle_antworten` | Convenience: every key listed exists in `antworten.toml` **and is non-empty** — a whitespace-only value counts as missing (catches "forgot to fill in"). |
 | `werte_gleich` | Two keys in `antworten.toml` must be equal after normalization — e.g. SHA-256 before deletion vs. after restore (the backup-validity proof). |
 
 Any check may carry `stufe = "bonus"` or `stufe = "homelab"` (default `"basis"`). Non-basis checks never block an exercise from counting as passed; `wb status` and `wb bericht` show them separately (Basis ✅ · Bonus 2/3 · Homelab —). This is the whole differentiation mechanism for the heterogeneous group — one exercise, three depths; do not build separate exercise variants.
@@ -144,7 +144,9 @@ Each `AUFGABE.md`: goal in one sentence → steps → deliverable definition →
 
 ## 5. Packaging & Distribution
 
-- `just package geraetetechnik` → `dist/werkbank-geraetetechnik-vX.Y.zip`: runner binaries (win + linux), `START_HIER.md`, `uebungen/`, minus `trainer/`, minus dotfiles. Deterministic content listing written to `dist/MANIFEST.txt`.
+- The classroom ZIP is produced **only by pushing a `vX.Y.Z[-rcN]` tag** (ADR 0006): `.github/workflows/release.yml` gates on fmt/clippy/tests/content-lint, builds `wb.exe` on windows-latest, then calls `scripts/paket.sh` — the single assembly point, shared by CI and `just`.
+- Result `dist/werkbank-geraetetechnik-vX.Y.Z.zip`: runner binaries (win + linux), `START_HIER.md`, `uebungen/`, `VERSION.txt`, `uebungen/LICENSE`, minus `trainer/`, minus dotfiles. Deterministic content listing in `dist/MANIFEST.txt`, checksums in `dist/SHA256SUMS.txt`.
+- `just package geraetetechnik` on a dev machine **exits 2** unless `--erlaube-ohne-windows` is passed: the Linux box cannot cross-compile `wb.exe`, and a ZIP without it is classroom-useless. Use the waiver for pipeline testing only.
 - `START_HIER.md`: entpacken → Doppelklick/`wb status` → erste Übung. One page, printable (trainer hands it out).
 - Releases via GitHub Releases; ZIP is the unit of delivery to the classroom (USB or download — M0 checklist decides).
 
@@ -154,7 +156,7 @@ Each `AUFGABE.md`: goal in one sentence → steps → deliverable definition →
 werkbank/                      (public repo: SebastianKrn/werkbank)
 ├── CLAUDE.md
 ├── README.md                  (English; what/why/quickstart, screenshots)
-├── docs/                      (PRD.md, SPEC.md, MILESTONES.md, ADRs)
+├── docs/                      (PRD.md, SPEC.md, MILESTONES.md, TESTPROTOKOLL.md, ADRs)
 ├── runner/                    (Rust crate `wb`)
 │   ├── src/…  (cli.rs, checks/, progress.rs, report.rs, capture.rs, strings_de.rs)
 │   └── tests/ (integration: fixture exercises under tests/fixtures/)
@@ -184,4 +186,4 @@ werkbank-loesungen/            (private repo; mirrors exercise IDs)
 
 ## 9. Out of Scope (MVP) — restated for the coding agent
 
-No server/API/DB/accounts/web UI. No LLM calls anywhere in the runner. No additional check types beyond §3's five. No second module. No Moodle/LMS export beyond `bericht.txt`/`.json`. No auto-update mechanism. No installer (ZIP only). No English learner content. If a requirement seems to need any of these — stop and ask the owner.
+No server/API/DB/accounts/web UI. No LLM calls anywhere in the runner. No additional check types beyond §3's six. No second module. No Moodle/LMS export beyond `bericht.txt`/`.json`. No auto-update mechanism. No installer (ZIP only). No English learner content. If a requirement seems to need any of these — stop and ask the owner.

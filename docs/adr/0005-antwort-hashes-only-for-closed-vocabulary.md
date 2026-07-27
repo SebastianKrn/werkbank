@@ -33,7 +33,10 @@ Split answer questions by whether the correct answer is machine-independent.
 
 - **`antwort` (hashed) is reserved for closed vocabularies** — answers every
   learner must reach identically, one or two words, drawn from the domain
-  language: `gpt`, `mirror`/`spiegelung`, `2`, `inkrementell`, `kennwort`, `ja`.
+  language: a partition style, a resilience setting, a count of data copies, a
+  backup mode, a BitLocker protector, a yes/no. (Deliberately described rather
+  than listed: this repo is public, and an enumeration here would be a
+  copy-paste answer key — see rule 6 and ADR 0003.)
   Each accepted spelling gets its own `expect_hash` entry (ADR 0003).
 - **Machine-specific values are checked with `alle_antworten`** — the key must
   exist and be non-empty. `wb` confirms the learner looked and wrote something

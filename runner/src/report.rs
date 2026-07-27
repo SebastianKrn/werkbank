@@ -117,6 +117,12 @@ fn checksum(report: &Report) -> String {
     canonical.push_str(&report.modul);
     canonical.push('|');
     canonical.push_str(&report.erstellt_am);
+    // The summary counters are the line a trainer reads off the sheet, so they
+    // have to be inside the checksum, not just derivable from the rows below.
+    canonical.push_str(&format!(
+        "|{}/{}:{}/{}",
+        report.bestanden, report.gesamt, report.lb_bestanden, report.lb_gesamt
+    ));
     for exercise in &report.uebungen {
         canonical.push_str(&format!(
             "|{}:{}:{}:{}/{}:{}/{}:{}/{}",
@@ -279,6 +285,35 @@ mod tests {
 
         report.uebungen[0].status = "offen".into();
         assert_ne!(original, checksum(&report), "editing a status must show up");
+    }
+
+    /// The summary counters are the line a trainer actually reads
+    /// ("Übungen bestanden: X von Y"). If the checksum does not cover them,
+    /// they can be edited in bericht.txt/.json while the Prüfsumme still
+    /// validates — which is exactly what the Prüfsumme promises to catch.
+    #[test]
+    fn checksum_covers_the_summary_counters() {
+        let base = checksum(&sample());
+
+        let mut edited = sample();
+        edited.bestanden += 1;
+        assert_ne!(base, checksum(&edited), "editing `bestanden` must show up");
+
+        let mut edited = sample();
+        edited.gesamt += 1;
+        assert_ne!(base, checksum(&edited), "editing `gesamt` must show up");
+
+        let mut edited = sample();
+        edited.lb_bestanden += 1;
+        assert_ne!(
+            base,
+            checksum(&edited),
+            "editing `lb_bestanden` must show up"
+        );
+
+        let mut edited = sample();
+        edited.lb_gesamt += 1;
+        assert_ne!(base, checksum(&edited), "editing `lb_gesamt` must show up");
     }
 
     #[test]
