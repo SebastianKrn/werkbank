@@ -505,6 +505,45 @@ fn symlinks_out_of_the_exercise_are_rejected_at_run_time() {
     );
 }
 
+#[cfg(windows)]
+#[test]
+fn junctions_out_of_the_exercise_are_rejected_at_run_time() {
+    let fixture = Fixture::new(
+        r#"
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/extern/notiz.txt"
+hint_de = "Lege die Datei abgabe/extern/notiz.txt an."
+"#,
+    );
+    let outside = fixture.dir().parent().unwrap().join("aussen");
+    std::fs::create_dir_all(&outside).unwrap();
+    std::fs::write(outside.join("notiz.txt"), "geheimer Inhalt").unwrap();
+    // A junction, unlike an NTFS symlink, needs neither admin rights nor
+    // developer mode — it is the escape a learner VM can actually produce.
+    let status = std::process::Command::new("cmd")
+        .arg("/C")
+        .arg("mklink")
+        .arg("/J")
+        .arg(fixture.dir().join("abgabe/extern"))
+        .arg(&outside)
+        .status()
+        .expect("cmd /C mklink must be runnable on Windows");
+    assert!(status.success(), "creating the junction failed");
+    let outcome = fixture.run_first();
+    assert!(
+        !outcome.passed,
+        "a junction out of the exercise must not pass"
+    );
+    assert_eq!(
+        outcome.detail,
+        Some(Detail::PathEscape {
+            path: "abgabe/extern/notiz.txt".into()
+        })
+    );
+}
+
 // --- levels ---------------------------------------------------------------
 
 #[test]
