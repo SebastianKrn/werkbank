@@ -522,11 +522,13 @@ hint_de = "Lege die Datei abgabe/extern/notiz.txt an."
     std::fs::write(outside.join("notiz.txt"), "geheimer Inhalt").unwrap();
     // A junction, unlike an NTFS symlink, needs neither admin rights nor
     // developer mode — it is the escape a learner VM can actually produce.
+    // The link path must be all-backslash: mklink reads a `/` inside an
+    // unquoted argument as the start of a switch.
     let status = std::process::Command::new("cmd")
         .arg("/C")
         .arg("mklink")
         .arg("/J")
-        .arg(fixture.dir().join("abgabe/extern"))
+        .arg(fixture.dir().join("abgabe").join("extern"))
         .arg(&outside)
         .status()
         .expect("cmd /C mklink must be runnable on Windows");
