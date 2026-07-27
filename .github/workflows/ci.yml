@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -49,11 +52,10 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
 
-      - name: Unit tests
-        run: cargo test --bins
-
-      - name: Integration tests
-        run: cargo test --test cli
+      # Every target, not a hand-listed set: naming test files here once meant a
+      # new integration test could sit in the repo without CI ever running it.
+      - name: Tests
+        run: cargo test --all-targets
 
       # Content is code: every exercise.toml must validate.
       - name: Content lint (fixtures)
