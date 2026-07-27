@@ -106,7 +106,7 @@ gelösten System fehlschlagen?* Wenn ja: umbauen.
 
 ```sh
 cargo run -q --manifest-path runner/Cargo.toml -- \
-    intern hash --salt wb1:gt:09 "gpt" "guid partition table"
+    intern hash --salt wb1:gt:09 "himmelblau" "himmel blau"
 ```
 
 Ausgabe ist ein fertiger `expect_hash`-Block zum Einsetzen.
@@ -114,9 +114,8 @@ Ausgabe ist ein fertiger `expect_hash`-Block zum Einsetzen.
 - Salt je Übung, Schema `wb1:<modul-kurz>:<nummer>`. Nie zwei Übungen mit
   demselben Salt.
 - Normalisierung: `trim` → `lowercase` → innere Leerzeichen zusammenfassen.
-  Deshalb braucht **jede Schreibweise einen eigenen Hash** — auch `prüfsumme`
-  und `pruefsumme`, auch `aufräumen` und `aufraeumen`. Umlaute werden nicht
-  ersetzt.
+  Deshalb braucht **jede Schreibweise einen eigenen Hash** — auch `blaugrün`
+  und `blaugruen`, auch `hügel` und `huegel`. Umlaute werden nicht ersetzt.
 - Großschreibung, Leerzeichen am Rand und doppelte Leerzeichen sind schon
   abgedeckt. Dafür braucht es keine Extra-Hashes.
 - `wb intern hash` gibt **nur** Hashes aus. Der Klartext erscheint nie in stdout
@@ -140,7 +139,7 @@ Auch nicht „auskommentiert".
 
 ## 8. AUFGABE.md — Aufbau und Sprache
 
-Reihenfolge, die alle acht Übungen dieses Moduls einhalten:
+Reihenfolge, die die Übungen 01–07 dieses Moduls einhalten:
 
 1. Titel + **Ziel in einem Satz** (fett)
 2. Zeit · Schwierigkeit · LB-Relevanz
@@ -152,6 +151,10 @@ Reihenfolge, die alle acht Übungen dieses Moduls einhalten:
 8. **KI-Stufe** — was erlaubt ist und warum
 9. **Reflexion** — eine Frage, keine Aufgabe
 10. **Bonus** / **Homelab** — freiwillig, klar gekennzeichnet
+
+Übung 08 („Generalprobe") weicht bewusst ab: sie ist die Prüfungssimulation und
+gliedert sich in `Teil 1/2/3` plus `Abschluss` statt in `Schritte`/`Aufräumen`.
+Das ist die einzige gewollte Ausnahme — neue Übungen folgen dem Aufbau oben.
 
 Sprache:
 
