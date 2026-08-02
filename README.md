@@ -23,10 +23,22 @@ The exercise format and the runner are the product. The first module
 
 Milestone **M3a — freeze machinery — done (2026-07-26)**. The runner is done (M1), the pilot module
 ships eight exercises under `uebungen/geraetetechnik/` (M2), and a tag now
-produces a classroom-ready ZIP containing `wb.exe`. Next is M3b, which needs a
-human and a real Windows VM: the manual test protocol
-(`docs/TESTPROTOKOLL.md`), an external beta, then the pilot freeze.
-See `docs/MILESTONES.md`.
+produces a classroom-ready ZIP containing `wb.exe`. Current pre-release:
+[`v0.1.0-rc2`](https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2).
+
+Next is M3b, which needs a human and a real Windows VM: the manual test
+protocol, an external beta, then the pilot freeze. See `docs/MILESTONES.md` for
+the milestone record.
+
+The M3b hand-work is written up as German runbooks, because they are executed
+step by step in front of a machine rather than read for architecture:
+
+| Document | What it gets you |
+|---|---|
+| `docs/M3B_ANLEITUNG.md` | **Start here.** Order, timings, preconditions, and the three open decisions. |
+| `docs/VM_WINDOWS_SERVER.md` | A Windows Server 2022 test VM on Linux, from nothing. |
+| `docs/TESTPROTOKOLL.md` | The manual test protocol itself (binding, SPEC §8). |
+| `docs/RELEASE.md` | Cutting and verifying a release; the freeze procedure. |
 
 ## The pilot module
 
@@ -184,6 +196,9 @@ spelled out.
 **Never hand-assemble a ZIP.** `scripts/paket.sh` is the only copy of the rules
 for what must and must not reach a learner — a second copy is one that will
 eventually disagree.
+
+Step-by-step, including how to verify the published artifact and how to back a
+tag out: `docs/RELEASE.md`.
 
 Before any ZIP goes to a class, run `docs/TESTPROTOKOLL.md` on a real Windows
 VM. CI proves the archive is well-formed; it cannot prove that `manage-bde`
