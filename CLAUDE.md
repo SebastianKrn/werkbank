@@ -33,6 +33,8 @@ Group standards apply (Definition of Done, conventional commits, ADRs). Rust: `c
 
 Code, commits, README, ADRs, technical docs: **English**. Everything a learner or trainer sees (`AUFGABE.md`, CLI output, START_HIER.md, Handbuch, bericht.txt): **German (Austrian, simple language)**. Domain terms stay German: Übung, Abgabe, Fortschritt, Bericht, Vertiefung.
 
+**Operator runbooks are German** — `M3B_ANLEITUNG.md`, `VM_WINDOWS_SERVER.md`, `TESTPROTOKOLL.md`, `RELEASE.md`. They are executed step by step in front of a machine by German speakers, which puts them in the same category as START_HIER.md, not with SPEC/PRD/ADRs. Those stay English. Decided 2026-08-02.
+
 ## Way of working
 
 Strictly milestone by milestone (`docs/MILESTONES.md`). **M0 is a hard human gate — if the gate log in MILESTONES.md doesn't say M0 = green, do not scaffold anything.** One milestone = one session. After each: tests green, docs updated, commit, review with Sebastian. When ambiguous: ask, don't invent scope — SPEC §9 has a hard out-of-scope list. The strongest temptation in this project is building platform features; the pilot needs a ZIP that works on a locked-down PC in front of a nervous beginner. Optimize for that person.

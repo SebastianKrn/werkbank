@@ -70,14 +70,29 @@ Found while writing the protocol, unfixed by design: **seven of nine capture pre
 
 ### M3b — Dry runs (human) — **next**
 
+> **Operator runbook: `docs/M3B_ANLEITUNG.md`** (German). That file is the
+> working document — preconditions, order, timings, and the three open
+> decisions. This section stays as the milestone record.
+
 Nothing here can be done by a coding session. Each item needs a person, a real
 Windows VM, or another human being. They are strictly in order: item 2 is
 worthless if item 1 found a blocker.
 
-1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against the current pre-release ZIP (v0.1.0-rc2 — rc1 predates the hardening review and is superseded). Instrument: `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut the next rc, re-run Parts A and B against it.
+1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against the current pre-release ZIP (v0.1.0-rc2 — rc1 predates the hardening review and is superseded). Build the VM per `docs/VM_WINDOWS_SERVER.md`; instrument is `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut the next rc per `docs/RELEASE.md`, re-run Parts A and B against it.
 2. [ ] **External beta.** 42-friend, solo and remote. Send exactly three things: the release link, `trainer/BETA_FEEDBACK.md`, and the instruction to ask nobody. Answering one question by hand destroys the measurement. Blocked on item 1 being clean.
 3. [ ] **Dry-teach.** Sebastian teaches one exercise to Raphael as role play; handbook gaps fixed in `trainer/HANDBUCH_GERAETETECHNIK.md`. Combine with Raphael's outstanding 30-min curriculum review (open since M2).
-4. [ ] **Freeze.** Bump `runner/Cargo.toml` to `0.1.0` if it moved, tag `v0.1.0`, verify the published ZIP, print `trainer/AUSTEILEN_A4.md` one-pagers. The tag is the whole freeze procedure — see README "Releasing" and ADR 0006.
+4. [ ] **Freeze.** Bump `runner/Cargo.toml` to `0.1.0` if it moved, tag `v0.1.0`, verify the published ZIP, print `trainer/AUSTEILEN_A4.md` one-pagers. The tag is the whole freeze procedure — see `docs/RELEASE.md` and ADR 0006.
+
+Carried into M3b from the hardening review (PR #3), still open — all three are
+Sebastian's call, written up with recommendations in `docs/M3B_ANLEITUNG.md` §3:
+
+- [ ] Re-salting the leaked answer words (recommendation: don't — re-salting does not un-leak them, and ADR 0003 already accepts brute-forceability).
+- [ ] Whether the public `trainer/` handbook may name accepted answers (recommendation: explicit carve-out in CLAUDE.md rule 6; `scripts/paket.sh` already enforces the ZIP boundary mechanically).
+- [ ] Code signing / build provenance (recommendation: buy nothing for a seven-learner pilot — no paid path clears SmartScreen without reputation that will never accrue; switch on free GitHub build provenance instead).
+
+Known coverage gap remaining after PR #3: the `wb erfasse ordnerliste` walk is
+junction-tested only on Unix (`wb check` **is** covered on windows-latest since
+`1a584a0`). Protocol Part F closes it.
 
 Current pre-release: **v0.1.0-rc2** (2026-07-27), <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2> — built from main after the hardening review (PR #3), pipeline test-gated on both platforms. No human has yet run it on Windows.
 
