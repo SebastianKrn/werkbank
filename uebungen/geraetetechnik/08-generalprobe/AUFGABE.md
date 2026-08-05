@@ -142,7 +142,8 @@ Windows 11 in der Oberfläche „BitLocker deaktivieren" — der Befehl
 Im Ordner `abgabe`:
 
 - `protokoll.txt` — mindestens 12 Zeilen, dein Weg durch Teil 1
-- `antworten.toml` — die beiden Fingerabdrücke und alle fünf Antworten
+- `antworten.toml` — die beiden Fingerabdrücke, die fünf Reflexionsantworten
+  und `wichtigster_schritt`
 - `aufraeumen.txt` — enthält `False` und `0`
 - `ordnerliste.txt` — der Abschluss-Blick
 - alles, was du in Teil 1 sonst noch erfasst hast
@@ -160,9 +161,11 @@ was davon stimmt.
 
 ## Reflexion
 
-Was war in diesen acht Übungen der Schritt, bei dem du am meisten gelernt hast?
-Trag es bei `wichtigster_schritt` ein — die Frage danach ist eine andere: Welchen
-Schritt vergessen bei Prüfungen die meisten?
+Welchen Schritt vergessen bei Prüfungen die meisten? **Ein Wort** — trag es bei
+`wichtigster_schritt` ein. Du hast ihn in jeder der acht Übungen gemacht.
+
+Und eine Frage nur für dich, ohne Eintrag und ohne Prüfung: Was war in diesen
+acht Übungen der Schritt, bei dem du am meisten gelernt hast?
 
 ## Bonus (freiwillig)
 
