@@ -9,6 +9,7 @@ mod checks;
 mod cli;
 mod clock;
 mod commands;
+mod content;
 mod error;
 mod exercise;
 mod progress;

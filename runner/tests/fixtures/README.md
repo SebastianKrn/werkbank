@@ -28,6 +28,18 @@ One folder per authoring mistake that must fail `wb intern lint`:
 | `falsche-ki-stufe` | Values outside the allowed sets |
 | `ohne-basis-check` | Only optional checks — would pass without work |
 | `id-passt-nicht` | `id` does not match the folder name |
+| `windows-geraetename` | Path uses a reserved Windows device name |
+
+The next four are schema-valid and still unfit to hand to a person. They cover
+`src/content.rs`, which asks the wider question `exercise::load` deliberately
+does not ask (see that module's header):
+
+| Folder | Mistake |
+|---|---|
+| `ohne-aufgabe` | No `AUFGABE.md` — nothing for the learner to read |
+| `datei-nicht-erklaert` | Check and task text disagree about the filename |
+| `schluessel-nicht-erklaert` | Answer key the learner is never shown |
+| `liest-ausserhalb-abgabe` | Check grades a shipped file, not the learner's work |
 
 These deliberately stay outside `modul-demo/`, so the content lint in CI runs
 against valid content only.

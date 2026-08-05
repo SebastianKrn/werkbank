@@ -28,6 +28,11 @@
 
 Zuerst selbst probieren. Danach darfst du deine Antworten mit einer KI vergleichen.
 
+## Bonus (freiwillig)
+
+Trage zusätzlich `lieblingsbefehl` ein: Welchen Befehl benutzt du, um den Inhalt
+eines Ordners anzuzeigen?
+
 ## Reflexion
 
 Warum ist es praktisch, wenn Antworten in einer festen Form gespeichert werden?

@@ -12,6 +12,7 @@ use serde_json::json;
 use crate::capture;
 use crate::checks::{self, ExerciseResult};
 use crate::cli::Intern;
+use crate::content;
 use crate::error::{AppError, Result};
 use crate::exercise::{self, Exercise, Level, EXERCISES_DIR};
 use crate::progress::{Progress, STATUS_PASSED};
@@ -541,6 +542,20 @@ fn lint(path: Option<&Path>, explicit_root: Option<&Path>) -> Result<i32> {
                     continue;
                 }
                 seen_ids.push((loaded.id.clone(), exercise_dir.clone()));
+
+                // Loadable is not the same as fit to hand to a human: an
+                // exercise whose task text and checks disagree passes every
+                // schema rule and still burns the learner.
+                let content_problems = content::audit(&loaded);
+                if !content_problems.is_empty() {
+                    failures += 1;
+                    println!("FAIL {}", exercise_dir.display());
+                    for problem in content_problems {
+                        println!("  - {problem}");
+                    }
+                    continue;
+                }
+
                 let basis = loaded.count_of(Level::Basis);
                 let bonus = loaded.count_of(Level::Bonus);
                 let homelab = loaded.count_of(Level::Homelab);

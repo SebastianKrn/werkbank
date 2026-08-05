@@ -539,6 +539,16 @@ fn lint_rejects_every_invalid_fixture() {
         ("ohne-basis-check", "no check with stufe `basis`"),
         ("id-passt-nicht", "must match the folder name"),
         ("windows-geraetename", "reserved Windows device name"),
+        ("ohne-aufgabe", "AUFGABE.md is missing"),
+        ("datei-nicht-erklaert", "never mentioned in AUFGABE.md"),
+        (
+            "schluessel-nicht-erklaert",
+            "answer key `werkzeug` appears neither",
+        ),
+        (
+            "liest-ausserhalb-abgabe",
+            "may only read what the learner writes",
+        ),
     ];
     for (case, expected) in cases {
         let mut command = Command::cargo_bin("wb").expect("binary wb");
@@ -649,4 +659,49 @@ fn ascii_mode_avoids_symbols() {
     let text = stdout(&output);
     assert!(text.contains("[  ]"), "{text}");
     assert!(!text.contains('⬜'), "{text}");
+}
+
+// ---------------------------------------------------------------------------
+// Copy-pasteability (the platform that matters is PowerShell)
+// ---------------------------------------------------------------------------
+
+/// PowerShell does not run a program from the current directory — `wb check 01`
+/// answers with "not recognized as a cmdlet", and `START_HIER.md` sends the
+/// learner off to look for the wrong folder. Every command the tool suggests
+/// must therefore be typeable exactly as printed.
+#[test]
+fn every_suggested_command_can_be_pasted_into_the_shell() {
+    let prefix = if cfg!(windows) { ".\\wb" } else { "./wb" };
+    let sandbox = Sandbox::new();
+
+    let mut screens = Vec::new();
+    for args in [
+        vec!["hilfe"],
+        vec!["status"],
+        vec!["check"],
+        vec!["erfasse"],
+        vec!["loesung", "01"],
+    ] {
+        let output = sandbox.wb().args(&args).output().expect("run wb");
+        screens.push((args.join(" "), stdout(&output) + &stderr(&output)));
+    }
+
+    let mut bare = Vec::new();
+    for (screen, text) in &screens {
+        for (number, line) in text.lines().enumerate() {
+            for (at, _) in line.match_indices("wb ") {
+                let before = &line[..at];
+                if !before.ends_with("./") && !before.ends_with(".\\") {
+                    bare.push(format!("  `wb {screen}` line {}: {line}", number + 1));
+                }
+            }
+        }
+    }
+    bare.dedup();
+    assert!(
+        bare.is_empty(),
+        "these lines tell the learner to type `wb …`, which PowerShell refuses. \
+         Use the `{prefix}` form:\n{}",
+        bare.join("\n")
+    );
 }

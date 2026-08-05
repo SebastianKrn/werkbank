@@ -1,0 +1,15 @@
+# Deliberately broken fixture: schema-valid, but there is no AUFGABE.md, so a
+# learner would be told to do nothing and then be graded on it.
+[exercise]
+id = "01-ohne-aufgabe"
+titel = "Ohne Aufgabentext"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+[[check]]
+id = "notiz-da"
+type = "file_exists"
+path = "abgabe/notiz.txt"
+hint_de = "Lege abgabe/notiz.txt an."

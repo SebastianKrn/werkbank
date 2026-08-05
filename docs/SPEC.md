@@ -115,7 +115,7 @@ Free-text deliverables (e.g. the final diagnosis report) are checked for *presen
 ### Authoring pipeline
 
 - `tools/hash-antwort` (tiny Rust bin or `wb intern hash` hidden subcommand): takes salt + accepted answers, prints `expect_hash` entries. Used by content authors; documented in `trainer/AUTOREN.md`.
-- `wb intern lint` validates all `exercise.toml` files (schema, path escapes, regex compile, dangling IDs). Runs in CI.
+- `wb intern lint` validates all `exercise.toml` files (schema, path escapes, regex compile, dangling IDs) **and** the exercise as a deliverable (ADR 0008): `AUFGABE.md` exists and is non-empty, every checked file is named in it, every answer key is discoverable from `AUFGABE.md` or `material/antworten-vorlage.toml`, and every check reads from `abgabe/`. Runs in CI.
 
 ## 4. Module: Gerätetechnik (pilot content, German)
 
