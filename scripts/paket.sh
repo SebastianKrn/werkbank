@@ -19,11 +19,15 @@
 #   0  ok
 #   1  usage error / unknown module
 #   2  Windows binary missing and not explicitly waived
-#   3  tripwire: a forbidden path reached the package
+#   3  tripwire: a forbidden path or a symbolic link reached the package
 #
 # Note on names: the ZIP FILE carries the version, the FOLDER INSIDE does not.
 # START_HIER.md tells learners to `cd C:\werkbank-geraetetechnik`, and that
 # instruction must survive every release.
+#
+# A ZIP built with --erlaube-ohne-windows carries the waiver in its file name
+# and in VERSION.txt. ADR 0006's reasoning applies: on freeze day a warning on
+# stderr gets scrolled past, a file name does not.
 
 set -euo pipefail
 
@@ -32,6 +36,14 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 # Paths that must never reach a learner: trainer material (ADR 0004) and
 # anything solution-shaped (CLAUDE.md rule 6).
 readonly VERBOTEN='trainer/|loesung|lösung'
+
+# Stamped into the file name and into VERSION.txt of a waived build.
+readonly TESTBAU_MARKE='TESTBAU-OHNE-WINDOWS'
+
+# One fixed mtime for every staged file, so the same tag always produces the
+# same SHA-256 (see the zip section below). Any date after 1980 does; the ZIP
+# format cannot store anything earlier.
+readonly ZEITSTEMPEL='202001010000.00'
 
 usage() {
     echo "usage: scripts/paket.sh <modul> <version> [--wb-linux PATH] [--wb-windows PATH] [--erlaube-ohne-windows]" >&2
@@ -65,7 +77,6 @@ if [ ! -d "uebungen/${modul}" ]; then
 fi
 
 readonly ziel="dist/werkbank-${modul}"
-readonly zipdatei="dist/werkbank-${modul}-${version}.zip"
 
 # --- binaries ---------------------------------------------------------------
 
@@ -75,7 +86,9 @@ if [ ! -f "$wb_linux" ]; then
     exit 1
 fi
 
-if [ ! -f "$wb_windows" ]; then
+if [ -f "$wb_windows" ]; then
+    mit_windows="ja"
+else
     if [ "$erlaube_ohne_windows" = "nein" ]; then
         echo "FEHLER: ${wb_windows} fehlt — dieses ZIP hätte kein Windows-Binary." >&2
         echo "        Für den Pilotbetrieb ist es unbrauchbar (docs/MILESTONES.md, M3)." >&2
@@ -83,7 +96,18 @@ if [ ! -f "$wb_windows" ]; then
         echo "        Nur für lokale Tests: --erlaube-ohne-windows" >&2
         exit 2
     fi
+    mit_windows="nein"
     echo "WARNUNG: ohne ${wb_windows} — dieses ZIP ist nur für lokale Tests." >&2
+    echo "         Es heißt darum ...-${TESTBAU_MARKE}.zip und sagt das auch" >&2
+    echo "         in VERSION.txt. Niemals als Release ausliefern." >&2
+fi
+
+# The waiver goes into the file name, not only into a warning: nobody must be
+# able to hand this ZIP out believing it is the classroom build.
+if [ "$mit_windows" = "ja" ]; then
+    readonly zipdatei="dist/werkbank-${modul}-${version}.zip"
+else
+    readonly zipdatei="dist/werkbank-${modul}-${version}-${TESTBAU_MARKE}.zip"
 fi
 
 # --- assemble ---------------------------------------------------------------
@@ -93,7 +117,7 @@ mkdir -p "${ziel}/uebungen"
 
 cp "$wb_linux" "${ziel}/wb"
 chmod +x "${ziel}/wb"
-if [ -f "$wb_windows" ]; then
+if [ "$mit_windows" = "ja" ]; then
     cp "$wb_windows" "${ziel}/wb.exe"
 fi
 
@@ -103,8 +127,22 @@ cp -r "uebungen/${modul}/." "${ziel}/uebungen/"
 # The content licence travels with the content (CC BY-NC-SA 4.0).
 cp uebungen/LICENSE "${ziel}/uebungen/"
 
-# So a trainer can always answer "which build do you have?".
+# The runner is MIT OR Apache-2.0 and statically links MIT/Apache dependencies,
+# so its licences have to travel too. Own folder, .txt names, German folder
+# name: a learner looks for exercises in `uebungen/` and can never mistake a
+# licence for one.
+mkdir -p "${ziel}/lizenzen"
+cp LICENSE-MIT "${ziel}/lizenzen/wb-LIZENZ-MIT.txt"
+cp LICENSE-APACHE "${ziel}/lizenzen/wb-LIZENZ-APACHE-2.0.txt"
+
+# So a trainer can always answer "which build do you have?". The first line
+# stays exactly `werkbank-<modul> <version>` — docs/TESTPROTOKOLL.md (B7) and
+# docs/RELEASE.md read it that way.
 echo "werkbank-${modul} ${version}" > "${ziel}/VERSION.txt"
+if [ "$mit_windows" = "nein" ]; then
+    echo "${TESTBAU_MARKE}: kein wb.exe enthalten." >> "${ziel}/VERSION.txt"
+    echo "Nur für lokale Tests — nicht für den Unterricht." >> "${ziel}/VERSION.txt"
+fi
 
 # Dotfiles (.gitkeep and friends) never reach a learner.
 find "$ziel" -name '.*' -not -name '.' -prune -exec rm -rf {} +
@@ -120,10 +158,40 @@ if grep -Eiq "$VERBOTEN" dist/MANIFEST.txt; then
     exit 3
 fi
 
+# A symbolic link walks straight past the check above: the manifest lists only
+# regular files, so a harmless-looking link into trainer/ never appears there —
+# while zip would bake the content of its target into the archive. No links in
+# the package, at all.
+verknuepfungen="$(find "$ziel" -type l)"
+if [ -n "$verknuepfungen" ]; then
+    echo "FEHLER: Verknüpfung im Paket — das darf niemals ausgeliefert werden:" >&2
+    printf '%s\n' "$verknuepfungen" >&2
+    echo "        Eine Verknüpfung kann auf trainer/ oder auf eine Lösung zeigen." >&2
+    exit 3
+fi
+
 # --- zip --------------------------------------------------------------------
 
+# Reproducible archive: two builds of the same tag must have the same SHA-256,
+# otherwise a checksum in a runbook proves nothing. A ZIP stores every file's
+# mtime, and copying stamps each file with the time of the build — so the whole
+# staged tree gets one fixed timestamp first. `-X` drops the remaining metadata
+# (uid/gid, extra timestamp fields), and the sorted file list makes the entry
+# order independent of the filesystem's directory order. `-y` stores symbolic
+# links as links instead of copying what they point at — belt and braces next
+# to the tripwire above.
+find "$ziel" -exec touch -h -t "$ZEITSTEMPEL" -- {} +
+
+# Permission bits land in the archive as well, and `cp` filters them through the
+# build machine's umask. Normalise them, then give back the one bit that
+# matters: `wb` must stay executable. wb.exe is for Windows, which has no such
+# bit and does not care.
+chmod -R u=rwX,go=rX "$ziel"
+chmod 755 "${ziel}/wb"
+
 rm -f "$zipdatei"
-( cd dist && zip -r -q -X "$(basename "$zipdatei")" "werkbank-${modul}" )
+( cd dist && find "werkbank-${modul}" -print | LC_ALL=C sort \
+    | zip -q -X -y -@ "$(basename "$zipdatei")" )
 
 ( cd dist && sha256sum "$(basename "$zipdatei")" ) > dist/SHA256SUMS.txt
 

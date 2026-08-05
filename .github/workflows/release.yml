@@ -8,8 +8,10 @@ name: Release
 #
 #   git tag v0.1.0-rc1 && git push origin v0.1.0-rc1
 #
-# Tags containing "-rc" are published as pre-releases. workflow_dispatch runs
-# everything except publishing — use it to test the pipeline itself.
+# Exactly two tag shapes are accepted: `vX.Y.Z` (full release) and `vX.Y.Z-rcN`
+# (pre-release, lowercase rc, N >= 1). Anything else fails the guard.
+# workflow_dispatch runs everything except publishing — use it to test the
+# pipeline itself.
 
 on:
   push:
@@ -41,23 +43,38 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
+          # The one rule for what a release tag looks like. Both answers this
+          # job produces — the version and the pre-release flag — come out of
+          # these two patterns, so the guard and the badge on the release page
+          # can never disagree.
+          #
+          # A glob would be too loose: `v[0-9]*.[0-9]*.[0-9]*` also matches
+          # `v0.1.0-RC2` and `v0.1.0-foo`, which then get published as a FULL
+          # release — no pre-release badge, no "Testversion" banner.
+          fassung='^v[0-9]+\.[0-9]+\.[0-9]+$'
+          vorab='^v[0-9]+\.[0-9]+\.[0-9]+-rc[1-9][0-9]*$'
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
               version="v0.0.0-dispatch"
+              # Never published (the release job runs on tag pushes only), but
+              # if it ever were, it would be a pre-release.
+              prerelease=true
               echo "Dry run — no tag, no version guard, nothing published."
           else
               version="${GITHUB_REF#refs/tags/}"
               # The tag name reaches shell commands in later jobs, and git ref
-              # names may legally contain `$`, backticks, `;` and `|`. Accept
-              # only the exact release shape so a tag can never carry a payload.
-              case "$version" in
-                  v[0-9]*.[0-9]*.[0-9]*|v[0-9]*.[0-9]*.[0-9]*-rc[0-9]*) ;;
-                  *)
-                      echo "Tag ${version} is not vMAJOR.MINOR.PATCH[-rcN]." >&2
-                      exit 1
-                      ;;
-              esac
-              if printf '%s' "$version" | grep -q '[^A-Za-z0-9.-]'; then
-                  echo "Tag ${version} contains characters that are not allowed." >&2
+              # names may legally contain `$`, backticks, `;` and `|`. These two
+              # patterns admit nothing but digits, dots, `v` and `rc`, so a tag
+              # can never carry a payload either.
+              if [[ "$version" =~ $fassung ]]; then
+                  prerelease=false
+              elif [[ "$version" =~ $vorab ]]; then
+                  prerelease=true
+              else
+                  echo "Tag ${version} is not a release tag." >&2
+                  echo "Allowed: vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rcN" >&2
+                  echo "         (lowercase rc, N starting at 1 — v0.1.0, v0.1.0-rc2)." >&2
+                  echo "Delete the tag, fix the name, push again." >&2
                   exit 1
               fi
               crate="$(grep -m1 '^version' runner/Cargo.toml | cut -d'"' -f2)"
@@ -73,10 +90,11 @@ jobs:
               echo "Tag ${version} matches crate version ${crate}."
           fi
 
-          case "$version" in
-              *-rc*) prerelease=true ;;
-              *)     prerelease=false ;;
-          esac
+          if [ "$prerelease" = "true" ]; then
+              echo "${version} is a pre-release: it gets the Testversion banner."
+          else
+              echo "${version} is a full release."
+          fi
 
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${prerelease}" >> "$GITHUB_OUTPUT"
@@ -101,14 +119,17 @@ jobs:
       - name: Formatting
         run: cargo fmt --check
 
+      # --locked in every cargo call that resolves dependencies: what gets
+      # tested here and what gets built into the two binaries below must come
+      # from runner/Cargo.lock, not from whatever cargo would resolve today.
       - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets -- -D warnings
 
       - name: Tests
-        run: cargo test --all-targets
+        run: cargo test --locked --all-targets
 
       - name: Lint the shipped content
-        run: cargo run --quiet -- intern lint ../uebungen
+        run: cargo run --locked --quiet -- intern lint ../uebungen
 
   build:
     name: build (${{ matrix.os }})
@@ -129,7 +150,26 @@ jobs:
 
       - name: Build release binary
         working-directory: runner
-        run: cargo build --release
+        # Same lockfile as the test job above, so both ZIP binaries come from
+        # the dependency set that was actually tested.
+        run: cargo build --locked --release
+
+      # The Windows binary is the one a learner double-clicks, and until here
+      # nothing had ever run it: the package job verifies the ZIP by running the
+      # LINUX binary. So run the freshly built wb.exe against this repo's own
+      # uebungen/ before it is allowed into an artifact. `--wurzel` points it at
+      # a Werkbank folder without unpacking a ZIP first.
+      - name: Smoke test the Windows binary
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          wb="runner/target/release/wb.exe"
+          "$wb" --version
+          "$wb" hilfe
+          "$wb" status --wurzel .
+          "$wb" intern lint uebungen
+          echo "wb.exe starts, finds the module and validates the content."
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -249,7 +289,7 @@ jobs:
           Alles Weitere steht in `START_HIER.md` im ZIP.
 
           Warnt Windows vor unbekannter Herkunft? Das ist normal — die Datei ist
-          nicht signiert. In `START_HIER.md` steht unter „Wenn etwas nicht geht",
+          nicht signiert. In `START_HIER.md` steht unter „Wenn etwas nicht geht“,
           wie du weiterkommst.
 
           ## Inhalt
@@ -261,7 +301,9 @@ jobs:
           EOF
 
           args=(--title "Werkbank Gerätetechnik ${VERSION}" --notes-file hinweise.md)
-          if [ "${{ needs.guard.outputs.prerelease }}" = "true" ]; then
+          # Same variable as the banner above: the badge on the release page and
+          # the "Testversion" note in the body cannot drift apart.
+          if [ "$PRERELEASE" = "true" ]; then
               args+=(--prerelease)
           fi
 
