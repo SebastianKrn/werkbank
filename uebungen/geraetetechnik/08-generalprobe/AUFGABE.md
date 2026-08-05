@@ -134,7 +134,7 @@ eingibst. Du entscheidest, wem du sie gibst.
 ## Falls du Windows 11 nutzt
 
 Der Abbau ist identisch. Nur beim Abschalten der Verschlüsselung heißt es auf
-Windows 11 in der Oberfläche „BitLocker deaktivieren" — der Befehl
+Windows 11 in der Oberfläche „BitLocker deaktivieren“ — der Befehl
 `Disable-BitLocker` ist derselbe.
 
 ## Abgabe

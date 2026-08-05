@@ -42,7 +42,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Räume den Ordner temp weg und beweise es: Remove-Item C:\\wb\\firma\\temp -Recurse -Force , dann Test-Path C:\\wb\\firma\\temp | Out-File uebungen\\01-dein-server-deine-firma\\abgabe\\aufraeumen.txt — in der Datei muss False stehen."
+hint_de = "Räume den Ordner temp weg und beweise es: Remove-Item C:\\wb\\firma\\temp -Recurse -Force. Dann Test-Path C:\\wb\\firma\\temp | Out-File uebungen\\01-dein-server-deine-firma\\abgabe\\aufraeumen.txt — in der Datei muss False stehen."
 
 # Bonus: closed vocabulary, so a hash is fair (ADR 0005).
 [[check]]

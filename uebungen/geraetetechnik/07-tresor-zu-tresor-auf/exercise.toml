@@ -70,7 +70,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Die Schlüsseldatei darf nicht auf der Maschine bleiben: Remove-Item C:\\wb\\bitlocker-schluessel.txt -Force , dann Test-Path C:\\wb\\bitlocker-schluessel.txt | Out-File \"$a\\aufraeumen.txt\" — vorher den Schlüssel auf Papier notieren."
+hint_de = "Die Schlüsseldatei darf nicht auf der Maschine bleiben: Remove-Item C:\\wb\\bitlocker-schluessel.txt -Force. Dann Test-Path C:\\wb\\bitlocker-schluessel.txt | Out-File uebungen\\07-tresor-zu-tresor-auf\\abgabe\\aufraeumen.txt — vorher den Schlüssel auf Papier notieren."
 
 [[check]]
 id = "tresor-zu"
@@ -78,7 +78,7 @@ type = "file_matches"
 stufe = "bonus"
 path = "abgabe/tresor-zu.txt"
 pattern = '(?i)LockStatus\s*:\s*(Locked|Gesperrt)'
-hint_de = "Bonus: Sperre das Laufwerk (Lock-BitLocker -MountPoint S: -ForceDismount) und halte den Zustand fest: Get-BitLockerVolume -MountPoint S: | Format-List MountPoint,LockStatus,ProtectionStatus | Out-File \"$a\\tresor-zu.txt\" — danach mit Unlock-BitLocker wieder aufschließen."
+hint_de = "Bonus: Sperre das Laufwerk (Lock-BitLocker -MountPoint S: -ForceDismount) und halte den Zustand fest: Get-BitLockerVolume -MountPoint S: | Format-List MountPoint,LockStatus,ProtectionStatus | Out-File uebungen\\07-tresor-zu-tresor-auf\\abgabe\\tresor-zu.txt — danach mit Unlock-BitLocker wieder aufschließen."
 
 [[check]]
 id = "schluessel-ort-notiert"

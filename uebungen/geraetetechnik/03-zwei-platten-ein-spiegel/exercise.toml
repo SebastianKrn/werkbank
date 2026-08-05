@@ -43,7 +43,7 @@ id = "volume-formatiert"
 type = "file_matches"
 path = "abgabe/volume.txt"
 pattern = '(?i)NTFS'
-hint_de = "Speichere den Zustand des Laufwerks: Get-Volume -DriveLetter S | Format-List | Out-File \"$a\\volume.txt\" — vorher muss es mit -FileSystem NTFS formatiert sein."
+hint_de = "Speichere den Zustand des Laufwerks: Get-Volume -DriveLetter S | Format-List | Out-File uebungen\\03-zwei-platten-ein-spiegel\\abgabe\\volume.txt — vorher muss es mit -FileSystem NTFS formatiert sein."
 
 [[check]]
 id = "resilienz-benannt"
@@ -81,7 +81,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Räume die Testdatei weg und beweise es: Remove-Item S:\\test.txt -Force , dann Test-Path S:\\test.txt | Out-File \"$a\\aufraeumen.txt\""
+hint_de = "Räume die Testdatei weg und beweise es: Remove-Item S:\\test.txt -Force. Dann Test-Path S:\\test.txt | Out-File uebungen\\03-zwei-platten-ein-spiegel\\abgabe\\aufraeumen.txt"
 
 [[check]]
 id = "parity-verstanden"

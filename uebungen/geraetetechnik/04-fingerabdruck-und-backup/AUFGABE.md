@@ -38,8 +38,8 @@ notepad "$a\hash-vorher.txt"
 In der Datei stehen drei Zeilen: `Algorithm`, `Hash` und `Path`. Der Hash ist
 64 Zeichen lang.
 
-Trag den Hash in deine Antworten ein (Schritt 5) — du brauchst ihn in Übung 05
-wieder, dort ist er dein Beweismittel.
+Trag den Hash in Schritt 6 bei `hash_notiert` in deine Antworten ein — du
+brauchst ihn in Übung 05 wieder, dort ist er dein Beweismittel.
 
 ### 2. Vollbackup mit robocopy
 
@@ -52,10 +52,10 @@ notepad "$a\backup-voll.log"
 - `/LOG:` schreibt das Protokoll in eine Datei statt auf den Bildschirm.
 
 Im Protokoll steht unten eine Tabelle: wie viele Verzeichnisse und Dateien
-insgesamt, kopiert, übersprungen. Beim ersten Lauf ist alles „kopiert".
+insgesamt, kopiert, übersprungen. Beim ersten Lauf ist alles „kopiert“.
 
 **Wichtig:** `robocopy` meldet sich mit einem Rückgabewert. `0` heißt „nichts zu
-tun", `1` heißt „erfolgreich kopiert". **Beides ist Erfolg** — anders als bei
+tun“, `1` heißt „erfolgreich kopiert“. **Beides ist Erfolg** — anders als bei
 fast allen anderen Programmen. Ab `8` ist es ein echter Fehler. Du siehst den
 Wert mit:
 
@@ -116,7 +116,38 @@ Copy-Item "uebungen\04-fingerabdruck-und-backup\material\antworten-vorlage.toml"
 notepad "$a\antworten.toml"
 ```
 
-### 7. Prüfen
+### 7. Aufräumen
+
+Die Schattenkopie belegt Platz und gehört nicht in den Dauerbetrieb einer
+Übungsmaschine:
+
+```powershell
+vssadmin delete shadows /for=C: /oldest
+```
+
+Auf Windows 11 stattdessen:
+
+```powershell
+Get-CimInstance Win32_ShadowCopy | Select-Object -First 1 | Remove-CimInstance
+```
+
+Und den Arbeitsordner dieser Übung wegräumen. Den Ordner `C:\wb\temp-04` gibt es
+nur, wenn du den Bonus gemacht hast. Die erste Zeile legt ihn darum kurz an — so
+läuft das Wegräumen bei allen gleich, ohne rote Fehlermeldung:
+
+```powershell
+New-Item -ItemType Directory -Path C:\wb\temp-04 -Force
+Remove-Item C:\wb\temp-04 -Recurse -Force
+Test-Path C:\wb\temp-04 | Out-File "$a\aufraeumen.txt"
+```
+
+**Das Backup auf `S:\backup` bleibt stehen.** Du brauchst es in Übung 05 —
+dort wirst du Daten löschen und aus genau diesem Backup zurückholen.
+
+### 8. Prüfen
+
+Jetzt bist du fertig — und erst jetzt fragst du `wb`. Aufräumen ist einer der
+Punkte, die geprüft werden:
 
 ```powershell
 .\wb check 04
@@ -133,32 +164,6 @@ legst du die Schattenkopie so an:
 
 Danach funktioniert `vssadmin list shadows` genau wie beschrieben.
 
-## Aufräumen
-
-Die Schattenkopie belegt Platz und gehört nicht in den Dauerbetrieb einer
-Übungsmaschine:
-
-```powershell
-vssadmin delete shadows /for=C: /oldest
-```
-
-Auf Windows 11 stattdessen:
-
-```powershell
-Get-CimInstance Win32_ShadowCopy | Select-Object -First 1 | Remove-CimInstance
-```
-
-Und den Arbeitsordner dieser Übung wegräumen:
-
-```powershell
-New-Item -ItemType Directory -Path C:\wb\temp-04 -Force
-Remove-Item C:\wb\temp-04 -Recurse -Force
-Test-Path C:\wb\temp-04 | Out-File "$a\aufraeumen.txt"
-```
-
-**Das Backup auf `S:\backup` bleibt stehen.** Du brauchst es in Übung 05 —
-dort wirst du Daten löschen und aus genau diesem Backup zurückholen.
-
 ## Abgabe
 
 Im Ordner `abgabe`:
@@ -173,7 +178,7 @@ Im Ordner `abgabe`:
 ## KI-Stufe: danach
 
 **Zuerst selbst.** Danach lohnt die Frage: „Welche robocopy-Schalter braucht
-man für ein Backup mit Rechten und Zeitstempeln?" Vergleiche die Antwort mit
+man für ein Backup mit Rechten und Zeitstempeln?“ Vergleiche die Antwort mit
 `robocopy /?` — dort steht die Wahrheit.
 
 ## Reflexion
@@ -193,7 +198,7 @@ Copy-Item C:\wb\firma\vertraege\vertrag-001.txt C:\wb\temp-04\kopie.txt
 ```
 
 Trag den neuen Hash bei `hash_nach_aenderung` ein und beantworte
-`hash_aendert_sich`. Räume danach `C:\wb\temp-04` wieder weg (siehe Aufräumen).
+`hash_aendert_sich`. Räume danach `C:\wb\temp-04` wieder weg (siehe Schritt 7).
 
 ## Homelab (freiwillig, für Erfahrene)
 

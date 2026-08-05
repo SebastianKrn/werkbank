@@ -14,7 +14,7 @@ Dinge lernen: wie du in PowerShell einen Ordner und eine Datei anlegst — und w
    schiefgeht, springst du einfach dorthin zurück. Das ist dein Reset-Knopf.
 
 2. Öffne **PowerShell als Administrator**: Rechtsklick auf das Start-Symbol →
-   „Windows PowerShell (Administrator)" oder „Terminal (Administrator)".
+   „Windows PowerShell (Administrator)“ oder „Terminal (Administrator)“.
 
 3. Wechsle in den Werkbank-Ordner — dort, wo `wb.exe` liegt:
 
@@ -121,20 +121,11 @@ Unterordner. Schau dir die Datei danach an:
 notepad "$a\firma-struktur.txt"
 ```
 
-### 7. Prüfen
-
-```powershell
-.\wb check 01
-```
-
-`wb` sagt dir für jeden Punkt, ob er passt. Wenn etwas offen ist, bekommst du
-einen **Hinweis** — nicht die Lösung. Das ist Absicht.
-
-## Aufräumen
+### 7. Aufräumen
 
 Aufräumen ist Teil der Arbeit, nicht das Ende der Arbeit. Bei der
 Leistungsbeurteilung kostet vergessenes Aufräumen Punkte. Wir üben es ab jetzt
-in jeder Übung.
+in jeder Übung — immer **vor** dem Prüfen, denn `wb` schaut auch darauf.
 
 ```powershell
 Remove-Item C:\wb\firma\temp -Recurse -Force
@@ -146,6 +137,17 @@ muss `False` stehen — das ist dein Beweis, dass du aufgeräumt hast.
 
 **Der Ordner `C:\wb\firma` bleibt stehen.** Du brauchst ihn in den Übungen 03
 bis 06 wieder. Weggeräumt wird er in Übung 08.
+
+### 8. Prüfen
+
+Jetzt bist du fertig — und erst jetzt fragst du `wb`:
+
+```powershell
+.\wb check 01
+```
+
+`wb` sagt dir für jeden Punkt, ob er passt. Wenn etwas offen ist, bekommst du
+einen **Hinweis** — nicht die Lösung. Das ist Absicht.
 
 ## Abgabe
 

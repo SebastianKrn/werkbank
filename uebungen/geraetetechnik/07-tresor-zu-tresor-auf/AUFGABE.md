@@ -36,7 +36,7 @@ Auf Windows Server ist BitLocker ein Feature, das erst installiert werden muss:
 Get-WindowsFeature BitLocker
 ```
 
-Steht dort kein `X` bei „Installed", dann:
+Steht dort kein `X` bei „Installed“, dann:
 
 ```powershell
 Install-WindowsFeature BitLocker -IncludeAllSubFeature -Restart
@@ -158,7 +158,24 @@ Copy-Item "uebungen\07-tresor-zu-tresor-auf\material\antworten-vorlage.toml" "$a
 notepad "$a\antworten.toml"
 ```
 
-### 8. Prüfen
+### 8. Aufräumen
+
+Die Schlüsseldatei darf nicht auf der Maschine bleiben:
+
+```powershell
+Remove-Item C:\wb\bitlocker-schluessel.txt -Force
+Test-Path C:\wb\bitlocker-schluessel.txt | Out-File "$a\aufraeumen.txt"
+```
+
+Hast du den Schlüssel auf Papier? Dann ist das hier richtig. Hast du ihn nicht,
+hol das jetzt nach, **bevor** du löschst.
+
+**Die Verschlüsselung bleibt an.** Sie wird in Übung 08 wieder abgeschaltet,
+wenn der ganze Aufbau abgebaut wird.
+
+### 9. Prüfen
+
+Erst aufräumen, dann prüfen — `wb` schaut auch auf das Aufräumen:
 
 ```powershell
 .\wb check 07
@@ -174,21 +191,6 @@ notepad "$a\antworten.toml"
 - Nur für das **Systemlaufwerk** ohne TPM bräuchte man zusätzlich eine
   Gruppenrichtlinie. Wir verschlüsseln ein Datenlaufwerk, also nicht nötig.
 
-## Aufräumen
-
-Die Schlüsseldatei darf nicht auf der Maschine bleiben:
-
-```powershell
-Remove-Item C:\wb\bitlocker-schluessel.txt -Force
-Test-Path C:\wb\bitlocker-schluessel.txt | Out-File "$a\aufraeumen.txt"
-```
-
-Hast du den Schlüssel auf Papier? Dann ist das hier richtig. Hast du ihn nicht,
-hol das jetzt nach, **bevor** du löschst.
-
-**Die Verschlüsselung bleibt an.** Sie wird in Übung 08 wieder abgeschaltet,
-wenn der ganze Aufbau abgebaut wird.
-
 ## Abgabe
 
 Im Ordner `abgabe`:
@@ -202,7 +204,7 @@ Im Ordner `abgabe`:
 ## KI-Stufe: danach
 
 **Zuerst selbst.** Danach eine gute Frage: „Was ist der Unterschied zwischen
-BitLocker mit TPM, mit Kennwort und mit Startschlüssel auf USB?" Diese drei
+BitLocker mit TPM, mit Kennwort und mit Startschlüssel auf USB?“ Diese drei
 Wege muss man auseinanderhalten können — die Frage kommt in Prüfungen gern.
 
 ## Reflexion

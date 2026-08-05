@@ -107,7 +107,7 @@ Felder `Manufacturer` und `Model` an.
 
 Bei `passt_zu_uefi`: Eine Wissensfrage, die für alle gleich ist — welcher
 Partitionsstil gehört technisch zu UEFI, `MBR` oder `GPT`? (Vorsicht: Das ist
-**nicht** dieselbe Frage wie „was steht bei dir?" — es kann sein, dass beides
+**nicht** dieselbe Frage wie „was steht bei dir?“ — es kann sein, dass beides
 gleich ist, muss aber nicht.)
 
 ### 4. Notiz in den Arbeitsordner legen
@@ -118,13 +118,7 @@ Im Alltag legt man sich so eine Inventur in den Arbeitsordner:
 Copy-Item "$a\hardware.txt" C:\wb\inventur-notiz.txt
 ```
 
-### 5. Prüfen
-
-```powershell
-.\wb check 02
-```
-
-## Aufräumen
+### 5. Aufräumen
 
 Die Notiz aus Schritt 4 war Arbeitsmaterial und muss weg:
 
@@ -135,6 +129,14 @@ Test-Path C:\wb\inventur-notiz.txt | Out-File "$a\aufraeumen.txt"
 
 In der Datei muss `False` stehen. Deine Abgabe-Dateien bleiben natürlich liegen —
 weggeräumt wird nur, was du im System angelegt hast.
+
+### 6. Prüfen
+
+Erst aufräumen, dann prüfen — `wb` schaut auch auf das Aufräumen:
+
+```powershell
+.\wb check 02
+```
 
 ## Abgabe
 
@@ -148,7 +150,7 @@ Im Ordner `abgabe`:
 
 **Zuerst selbst.** Lies die Dateien und beantworte alles allein. Erst wenn
 `wb check 02` grün ist, darfst du eine KI fragen — und zwar am besten so:
-„Erklär mir, was `Win32_PhysicalMemory` noch alles liefert." Du prüfst dann, ob
+„Erklär mir, was `Win32_PhysicalMemory` noch alles liefert.“ Du prüfst dann, ob
 die Antwort zu deiner Datei passt. Wer zuerst fragt, hat die Übung nicht
 gemacht, sondern zugeschaut.
 
@@ -161,7 +163,7 @@ nachzuschauen?
 
 Trag bei `medientyp_erklaerung` ein, warum in einer VM bei `MediaType` oft
 `Unspecified` steht — und was das für eine Fehlersuche bedeutet („die Platte ist
-langsam" — wie prüft man das in einer VM überhaupt?).
+langsam“ — wie prüft man das in einer VM überhaupt?).
 
 ## Homelab (freiwillig, für Erfahrene)
 

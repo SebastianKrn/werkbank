@@ -63,7 +63,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Räume die Notiz weg und beweise es: Remove-Item C:\\wb\\inventur-notiz.txt -Force , dann Test-Path C:\\wb\\inventur-notiz.txt | Out-File \"$a\\aufraeumen.txt\""
+hint_de = "Räume die Notiz weg und beweise es: Remove-Item C:\\wb\\inventur-notiz.txt -Force. Dann Test-Path C:\\wb\\inventur-notiz.txt | Out-File uebungen\\02-was-steckt-in-der-kiste\\abgabe\\aufraeumen.txt"
 
 [[check]]
 id = "medientyp-erklaert"
