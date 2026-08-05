@@ -208,6 +208,12 @@ fn check_json(exercise: &Exercise, result: &ExerciseResult) -> String {
 // ---------------------------------------------------------------------------
 
 pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Result<i32> {
+    // An empty module is a damaged installation, not an achievement. Without
+    // this, `wb status` congratulates a learner whose content never arrived and
+    // sends them to `wb bericht`, which then refuses.
+    if workspace.exercises.is_empty() {
+        return Err(AppError::new(nichts_zu_zeigen(workspace)));
+    }
     let mut progress = Progress::load(&workspace.progress_path());
     let results: Vec<(&Exercise, ExerciseResult)> = workspace
         .exercises
@@ -609,6 +615,28 @@ fn hash(salt: &str, answers: &[String]) -> Result<i32> {
 // ---------------------------------------------------------------------------
 // shared helpers
 // ---------------------------------------------------------------------------
+
+/// What to say when there is nothing to work with.
+///
+/// "Keine Übungen" is true but unhelpful when the exercises are *there* and
+/// damaged: the folder name is what the trainer needs to fix it, and the
+/// learner needs to hear that it is not their doing.
+fn nichts_zu_zeigen(workspace: &Workspace) -> String {
+    if workspace.broken.is_empty() {
+        return de::keine_uebungen(EXERCISES_DIR);
+    }
+    format!(
+        "{}\n\n{}",
+        de::keine_uebungen(EXERCISES_DIR),
+        de::status_kaputte_uebungen(
+            &workspace
+                .broken
+                .iter()
+                .map(|(path, _)| path.display().to_string())
+                .collect::<Vec<_>>()
+        )
+    )
+}
 
 /// Persist progress, and say so in German if it did not work.
 ///

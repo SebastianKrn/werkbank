@@ -1,0 +1,21 @@
+# Deliberately broken fixture: two checks share an id, so a learner cannot tell which line failed.
+[exercise]
+id = "01-doppelte-check-id"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/eins.txt"
+hint_de = "Lege abgabe/eins.txt an."
+
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/zwei.txt"
+hint_de = "Lege abgabe/zwei.txt an."

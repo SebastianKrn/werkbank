@@ -549,6 +549,14 @@ fn lint_rejects_every_invalid_fixture() {
             "liest-ausserhalb-abgabe",
             "may only read what the learner writes",
         ),
+        ("gleiche-schluessel", "are the same key"),
+        ("doppelte-check-id", "duplicate check id"),
+        ("hash-kein-sha256", "is not a 64-character hex SHA-256"),
+        ("hash-grossbuchstaben", "must be lowercase"),
+        ("unbekannter-typ", "unknown type"),
+        ("leerer-hinweis", "hint_de is empty"),
+        ("zeit-null", "zeit_minuten must be greater than 0"),
+        ("vertiefung-kein-link", "must be an http(s) URL"),
     ];
     for (case, expected) in cases {
         let mut command = Command::cargo_bin("wb").expect("binary wb");
@@ -684,6 +692,16 @@ fn every_suggested_command_can_be_pasted_into_the_shell() {
     ] {
         let output = sandbox.wb().args(&args).output().expect("run wb");
         screens.push((args.join(" "), stdout(&output) + &stderr(&output)));
+    }
+
+    // A string built with `String::from` instead of `format!` prints the
+    // placeholder itself. It slips past the check below — `{WB}` contains no
+    // bare `wb ` — so it is worth its own assertion.
+    for (screen, text) in &screens {
+        assert!(
+            !text.contains("{WB}"),
+            "`wb {screen}` prints an unresolved placeholder:\n{text}"
+        );
     }
 
     let mut bare = Vec::new();
@@ -857,4 +875,67 @@ fn a_copied_exercise_folder_does_not_double_the_module() {
         "`wb check 01` must still resolve:\n{}",
         stderr(&check)
     );
+}
+
+/// Antivirus quarantine, a half-finished copy, a sync client that left folders
+/// as placeholders: the module can be empty through no fault of the learner.
+/// Congratulating them and sending them to `wb bericht` — which then refuses —
+/// is the worst possible answer.
+#[test]
+fn an_empty_module_is_not_reported_as_finished() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    std::fs::create_dir_all(dir.path().join("uebungen")).expect("create uebungen");
+
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let output = command
+        .arg("status")
+        .arg("--wurzel")
+        .arg(dir.path())
+        .output()
+        .expect("run status");
+
+    let text = stdout(&output) + &stderr(&output);
+    assert!(
+        !text.contains("geschafft"),
+        "nothing was achieved here:\n{text}"
+    );
+    assert!(
+        text.contains("keine Übungen"),
+        "the learner must be told the module is empty:\n{text}"
+    );
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "an empty module is a broken installation, not a finished one"
+    );
+}
+
+/// "No exercises" is the wrong answer when there are exercises and they are
+/// damaged: the trainer needs the folder name to fix it, and the learner needs
+/// to know it is not their doing.
+#[test]
+fn an_all_damaged_module_names_the_damaged_folders() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let broken = dir.path().join("uebungen").join("01-kaputt");
+    std::fs::create_dir_all(&broken).expect("create exercise");
+    std::fs::write(broken.join("exercise.toml"), "das ist kein toml [[[").expect("write");
+
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let output = command
+        .arg("status")
+        .arg("--wurzel")
+        .arg(dir.path())
+        .output()
+        .expect("run status");
+
+    let text = stdout(&output) + &stderr(&output);
+    assert!(
+        text.contains("01-kaputt"),
+        "the damaged folder must be named:\n{text}"
+    );
+    assert!(
+        text.contains("Trainer"),
+        "and this is a job for the trainer, not the learner:\n{text}"
+    );
+    assert_eq!(output.status.code(), Some(2));
 }

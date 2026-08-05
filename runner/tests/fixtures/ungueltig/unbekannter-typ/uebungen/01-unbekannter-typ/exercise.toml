@@ -1,0 +1,15 @@
+# Deliberately broken fixture: invented check type — the six in SPEC §3 are the whole set.
+[exercise]
+id = "01-unbekannter-typ"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "irgendwas"
+type = "datei_ist_schoen"
+path = "abgabe/eins.txt"
+hint_de = "Mach die Datei schön."

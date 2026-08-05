@@ -425,9 +425,10 @@ pub fn nochmal_pruefen(id: &str) -> String {
 }
 
 pub fn alles_geschafft() -> String {
-    "Du hast alle Übungen geschafft. Respekt!\n\
-     Erstelle jetzt deinen Bericht:  {WB} bericht"
-        .to_string()
+    format!(
+        "Du hast alle Übungen geschafft. Respekt!\n\
+         Erstelle jetzt deinen Bericht:  {WB} bericht"
+    )
 }
 
 /// Optional further reading. Never required to pass (SPEC §3).
@@ -494,11 +495,11 @@ pub fn status_kaputte_uebungen(pfade: &[String]) -> String {
 // ---------------------------------------------------------------------------
 
 pub fn erfasse_uebersicht(zeilen: &[(String, String, bool)]) -> String {
-    let mut out = String::from(
+    let mut out = format!(
         "{WB} erfasse — speichert eine Systemausgabe in deine Abgabe.\n\n\
          So geht es:  {WB} erfasse <name>\n\
          Beispiel:    {WB} erfasse systeminfo\n\n\
-         Das gibt es:\n",
+         Das gibt es:\n"
     );
     let breite = zeilen.iter().map(|(n, _, _)| n.len()).max().unwrap_or(0);
     for (name, beschreibung, verfuegbar) in zeilen {
@@ -509,10 +510,10 @@ pub fn erfasse_uebersicht(zeilen: &[(String, String, bool)]) -> String {
         };
         out.push_str(&format!("  {name:breite$}  {beschreibung}{marke}\n"));
     }
-    out.push_str(
+    out.push_str(&format!(
         "\nDie Datei landet im Ordner \"abgabe\" der Übung.\n\
-         Danach prüfen mit:  {WB} check\n",
-    );
+         Danach prüfen mit:  {WB} check\n"
+    ));
     out
 }
 

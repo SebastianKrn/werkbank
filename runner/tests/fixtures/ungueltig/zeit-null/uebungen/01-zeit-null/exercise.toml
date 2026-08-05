@@ -1,0 +1,16 @@
+# Deliberately broken fixture: zeit_minuten is 0, which would print "ca. 0 Minuten" to the learner.
+[exercise]
+id = "01-zeit-null"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 0
+ki_stufe = "ohne"
+
+
+
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/eins.txt"
+hint_de = "Lege abgabe/eins.txt an."
