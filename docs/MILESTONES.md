@@ -130,7 +130,7 @@ Nothing here can be done by a coding session. Each item needs a person, a real
 Windows VM, or another human being. They are strictly in order: item 2 is
 worthless if item 1 found a blocker.
 
-1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against **`v0.1.0-rc3`, which has to be cut first** — rc2 predates the QA sprint above and would measure defects that no longer exist, in strings that no longer ship. Build the VM per `docs/VM_WINDOWS_SERVER.md`; instrument is `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut `v0.1.0-rc4` per `docs/RELEASE.md`, re-run Parts A and B against it.
+1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against **`v0.1.0-rc3`** (published 2026-08-05) — rc2 predates the QA sprint above and would measure defects that no longer exist, in strings that no longer ship. Build the VM per `docs/VM_WINDOWS_SERVER.md`; instrument is `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut `v0.1.0-rc4` per `docs/RELEASE.md`, re-run Parts A and B against it.
 2. [ ] **External beta.** 42-friend, solo and remote. Send exactly three things: the release link, `trainer/BETA_FEEDBACK.md`, and the instruction to ask nobody. Answering one question by hand destroys the measurement. Blocked on item 1 being clean.
 3. [ ] **Dry-teach.** Sebastian teaches one exercise to Raphael as role play; handbook gaps fixed in `trainer/HANDBUCH_GERAETETECHNIK.md`. Combine with Raphael's outstanding 30-min curriculum review (open since M2).
 4. [ ] **Freeze.** Bump `runner/Cargo.toml` to `0.1.0` if it moved, tag `v0.1.0`, verify the published ZIP, print `trainer/AUSTEILEN_A4.md` one-pagers. The tag is the whole freeze procedure — see `docs/RELEASE.md` and ADR 0006.
@@ -146,7 +146,7 @@ Known coverage gap remaining after PR #3: the `wb erfasse ordnerliste` walk is
 junction-tested only on Unix (`wb check` **is** covered on windows-latest since
 `1a584a0`). Protocol Part F closes it.
 
-Published pre-release: **v0.1.0-rc2** (2026-07-27) — **superseded**, do not test it. The QA sprint of 2026-08-05 changed learner-facing strings and content after it was built. The test object is `v0.1.0-rc3`, to be cut from main per `docs/RELEASE.md` as the first step of M3b. No human has yet run any build on Windows.
+Current pre-release: **v0.1.0-rc3** (2026-08-05), <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc3> — built from main after the QA sprint, test-gated on both platforms. rc2 is **superseded**; do not test it. Verified after publication: checksum, `wb.exe` present, `VERSION.txt`, the unpacked `./wb status`, and the forbidden-path sweep from `docs/RELEASE.md`. The release pipeline now also runs `wb.exe` on windows-latest before packing it — the first time the shipped binary has been executed anywhere. **No human has yet run it on a real VM**; that is M3b item 1.
 
 DoD: beta tester finished ≥ 6/8 exercises without mechanical help; ZIP frozen ≥ 3 days before pilot date (and the pilot itself completes before the LB date).
 

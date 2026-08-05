@@ -30,14 +30,16 @@ Feld; 19 Hinweise verwiesen auf eine Variable, die in einem frischen Fenster
 leer ist. Ein Protokolllauf gegen rc2 würde Fehler messen, die es nicht mehr
 gibt — und die neuen Texte gar nicht.
 
-**Dein erster Schritt ist darum `docs/RELEASE.md`:** `runner/Cargo.toml` steht
-auf `0.1.0`, also
+**`v0.1.0-rc3` ist schon gebaut und veröffentlicht** (2026-08-05):
+<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc3>
 
-```sh
-git tag v0.1.0-rc3 && git push origin v0.1.0-rc3
-```
+Du musst also nichts taggen — lade das ZIP herunter und fang bei Schritt 1a an.
+Alles unten Beschriebene gilt für **rc3**.
 
-Dann weiter bei Schritt 1a. Alles unten Beschriebene gilt für **rc3**.
+Was an rc3 zum ersten Mal überhaupt geprüft ist: die Pipeline **führt `wb.exe`
+jetzt aus**, bevor sie es einpackt. Auf windows-latest hat es gestartet, das
+Modul gefunden und alle acht Übungen validiert. Ein Binary, das gar nicht
+läuft, kann dich in der VM also nicht mehr überraschen — alles andere schon.
 
 ### Was seit dem letzten Stand erledigt ist
 
