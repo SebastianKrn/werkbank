@@ -5,7 +5,7 @@ in welcher Reihenfolge, wie lange es dauert und in welchem Dokument die Details
 stehen. Nichts davon kann eine Programmiersitzung erledigen — jeder Punkt
 braucht einen Menschen, eine echte Windows-VM oder eine andere Person.
 
-Stand: 2026-08-02.
+Stand: 2026-08-05.
 
 ---
 
@@ -20,17 +20,28 @@ Stand: 2026-08-02.
 | **M3b Trockenläufe** | **← du bist hier** |
 | M4 Pilot | gesperrt bis M3b durch ist |
 
-**Das Testobjekt:** `v0.1.0-rc2`, veröffentlicht am 2026-07-27.
-<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2>
+### ⚠ Zuerst: ein neues rc bauen
 
-Gebaut aus `main` nach dem Härtungs-Review, auf beiden Plattformen
-test-abgesichert. **Noch kein Mensch hat es auf Windows ausgeführt.** Genau das
-ist Schritt 1.
+**`v0.1.0-rc2` ist überholt. Teste es nicht.** Am 2026-08-05 lief eine
+QA-Sitzung über den ganzen Stand und hat unter anderem Dinge behoben, die
+**jeder Lernende zu sehen bekommt**: `wb` schlug Befehle vor, die die
+PowerShell so nicht ausführt; Übung 08 schickte die Antwort in das falsche
+Feld; 19 Hinweise verwiesen auf eine Variable, die in einem frischen Fenster
+leer ist. Ein Protokolllauf gegen rc2 würde Fehler messen, die es nicht mehr
+gibt — und die neuen Texte gar nicht.
 
-### Was aus dem Review schon erledigt ist
+**Dein erster Schritt ist darum `docs/RELEASE.md`:** `runner/Cargo.toml` steht
+auf `0.1.0`, also
 
-Damit du es nicht noch einmal aufmachst — diese vier Punkte aus deinen
-Notizen sind **geschlossen**:
+```sh
+git tag v0.1.0-rc3 && git push origin v0.1.0-rc3
+```
+
+Dann weiter bei Schritt 1a. Alles unten Beschriebene gilt für **rc3**.
+
+### Was seit dem letzten Stand erledigt ist
+
+Damit du es nicht noch einmal aufmachst — diese Punkte sind **geschlossen**:
 
 | Punkt | Erledigt in |
 |---|---|
@@ -38,10 +49,27 @@ Notizen sind **geschlossen**:
 | GitHub-Actions auf Commit-SHAs festnageln | `8e3549b` |
 | ADR für die deutsch-englische Schema-Sprache | `efcdb43` (ADR 0007) |
 | Junction-Test für `wb check` | `1a584a0`, korrigiert in `e0341dc` — läuft auf windows-latest in der CI |
+| QA-Sprint über Runner, Inhalte, Doku und Pipeline | Branch `qa/m3b-autonomous-sprint`, 2026-08-05 — Zusammenfassung in `docs/MILESTONES.md` |
 
-Vom „Junction-Test fehlt" bleibt eine **kleinere** Lücke übrig: der rekursive
+Vom „Junction-Test fehlt“ bleibt eine **kleinere** Lücke übrig: der rekursive
 Durchlauf von `wb erfasse ordnerliste` ist nur auf Unix getestet. Das ist Teil F
 des Protokolls, nicht mehr ein eigener Punkt.
+
+### Was der QA-Sprint an deiner Handarbeit geändert hat
+
+Nichts wurde dir abgenommen — die sieben ungetesteten Presets, die
+Zeichenkodierung auf einer echten Konsole und SmartScreen brauchen weiterhin
+dich und eine VM. Aber:
+
+- Die **CI führt jetzt `wb.exe` aus**, bevor es ins ZIP darf (`--version`,
+  `hilfe`, `status`, `intern lint`). Ein Binary, das gar nicht startet, kann
+  dich in der VM nicht mehr überraschen.
+- Das **Testprotokoll wurde geschärft**: Teil C.1 heißt jetzt richtig „die
+  acht“, Teil B prüft auch die Umlaute in `AUFGABE.md` in Notepad, und der
+  Windows-11-Anhang nennt alle sechs betroffenen Übungen statt zwei.
+- Der Prüfbefehl in `docs/RELEASE.md` schlug bisher bei **jedem** sauberen
+  Release falschen Alarm. Behoben — sonst hättest du am Freeze-Tag danach
+  gesucht.
 
 ---
 
@@ -55,10 +83,10 @@ an ein kaputtes ZIP verbrennen.
 |---|---|---|---|
 | 1a | Test-VM bauen | ~90 min | `docs/VM_WINDOWS_SERVER.md` |
 | 1b | Testprotokoll durchlaufen | 2–3 h | `docs/TESTPROTOKOLL.md` |
-| 1c | Funde beheben, `v0.1.0-rc3` bauen, Teil A+B wiederholen | 1–3 h | `docs/RELEASE.md` |
+| 1c | Funde beheben, `v0.1.0-rc4` bauen, Teil A+B wiederholen | 1–3 h | `docs/RELEASE.md` |
 | 2 | Externe Beta (42-Freund) | 30 min deine Zeit | unten, Abschnitt 2.2 |
 | 3 | Probeunterricht mit Raphael + sein Curriculum-Review | 90 min | unten, Abschnitt 2.3 |
-| 4 | Freeze: Tag `v0.1.0`, Handzettel drucken | 30 min | `docs/RELEASE.md`, Abschnitt „Der Freeze" |
+| 4 | Freeze: Tag `v0.1.0`, Handzettel drucken | 30 min | `docs/RELEASE.md`, Abschnitt „Der Freeze“ |
 
 ### 2.1 Schritt 1 — Der Testprotokoll-Lauf
 
@@ -73,7 +101,7 @@ an ein kaputtes ZIP verbrennen.
 irgendwo gelaufen, und zwei davon können auf Linux gar nicht laufen. Wenn der
 Pilot bricht, bricht er dort.
 
-**Fertig, wenn:** Teile A–F durch sind, alle Blocker behoben, `v0.1.0-rc3`
+**Fertig, wenn:** Teile A–F durch sind, alle Blocker behoben, `v0.1.0-rc4`
 gebaut und die Teile A und B dagegen sauber wiederholt.
 
 ### 2.2 Schritt 2 — Die externe Beta
@@ -84,7 +112,7 @@ Erst starten, wenn Schritt 1 sauber ist.
 
 1. den Link zum Release
 2. `trainer/BETA_FEEDBACK.md` (als Datei oder ausgedruckt)
-3. den Satz: **„Frag niemanden. Auch mich nicht."**
+3. den Satz: **„Frag niemanden. Auch mich nicht.“**
 
 **Beantworte keine einzige Frage von Hand.** Genau eine beantwortete Frage
 zerstört die Messung — gemessen wird, ob das Modul einen Menschen allein trägt,
@@ -108,7 +136,7 @@ Zwei Dinge in einem Termin, weil beide Raphael brauchen:
 
 ### 2.4 Schritt 4 — Freeze
 
-`docs/RELEASE.md`, Abschnitt „Der Freeze". Ein Tag, mehr ist es nicht.
+`docs/RELEASE.md`, Abschnitt „Der Freeze“. Ein Tag, mehr ist es nicht.
 
 **Harte Bedingung:** Der Freeze muss **mindestens 3 Tage vor dem Pilottag**
 liegen, und der Pilot vor dem LB-Termin.
@@ -122,13 +150,22 @@ wenn du sie überhaupt für nötig hältst. Lies die Empfehlung, kreuz an, ferti
 
 ### 3.1 Die geleakten Antwort-Wörter
 
-**Die Frage:** In der Git-Historie stehen dauerhaft 11 akzeptierte
-Antwortwörter, aus den Übungen 02, 03, 04, 06, 07 und 08. Aus den Dateien sind
-sie entfernt (`9c4e565`), aus der Historie nicht — dort bleiben sie für immer.
+**Die Frage:** In der Git-Historie stehen dauerhaft akzeptierte Antwortwörter.
+Aus den Dateien sind sie entfernt, aus der Historie nicht — dort bleiben sie
+für immer.
+
+**Neu seit 2026-08-05:** Es sind nicht 11, sondern 15. Der QA-Sprint fand vier
+weitere, die bis dahin **nicht nur in der Historie, sondern im aktuellen Stand**
+standen: `trainer/AUTOREN.md` erklärte eine Regel mit vier echten Antworten aus
+vier Übungen, nebeneinander in einer Tabellenzelle. Entfernt und durch ein
+erfundenes Wort ersetzt; ein neuer Test
+(`no_document_lists_several_accepted_answers_on_one_line`) verhindert die
+Wiederholung. **An der Entscheidung unten ändert das nichts** — die Begründung
+hing nie an der Anzahl.
 
 **Die Fakten, ohne Beschönigung:**
 
-- **Neu salzen behebt das nicht.** Neue Hashes machen die 11 Wörter in der
+- **Neu salzen behebt das nicht.** Neue Hashes machen die Wörter in der
   Historie nicht ungültig — die Wörter sind weiterhin die richtigen Antworten.
   Nur eine **Umparametrisierung** dieser Fragen würde das ändern, und das ist
   Inhaltsarbeit an sechs Übungen.
@@ -145,7 +182,7 @@ es stattdessen in ADR 0003 fest, damit es später niemand als Versehen liest.
 ☐ nichts tun (empfohlen) ☐ neu salzen ☐ die sechs Fragen umparametrisieren
 
 Falls neu salzen: die Befehle stehen in `../werkbank-loesungen/README.md`,
-Abschnitt „Hashes neu erzeugen". Jede akzeptierte **Schreibweise** braucht einen
+Abschnitt „Hashes neu erzeugen“. Jede akzeptierte **Schreibweise** braucht einen
 eigenen Hash-Eintrag, auch `ß` gegen `ss`.
 
 ### 3.2 Darf das öffentliche Trainer-Handbuch Antworten enthalten?
@@ -237,7 +274,7 @@ Damit es niemand für vergessen hält:
 
 | Nicht gemacht | Warum |
 |---|---|
-| Windows-11-Gegenprobe für die Übungen 04 und 07 | Die LB läuft auf Server 2022. Die Windows-11-Hinweise betreffen nur Lernende, die freiwillig anders arbeiten. Anhang im Testprotokoll, ca. 90 min, wenn du es willst. |
+| Windows-11-Gegenprobe für die sechs Übungen mit „Falls du Windows 11 nutzt“ (03–08) | Die LB läuft auf Server 2022. Die Windows-11-Hinweise betreffen nur Lernende, die freiwillig anders arbeiten. Echte Befehlsunterschiede stehen nur in 04 (VSS) und 07 (BitLocker) — dafür ca. 90 min. Anhang im Testprotokoll, wenn du es willst. |
 | Vorbeugende Windows-Korrekturen vor dem Protokoll | Ohne Beobachtung geraten. Raten macht genau die Beweise kaputt, für die das Protokoll existiert. |
 | Zweites Modul, Plattformfunktionen, Monetarisierung | Gesperrt bis zum M4-Gate. |
 

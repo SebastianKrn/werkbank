@@ -9,6 +9,7 @@ mod checks;
 mod cli;
 mod clock;
 mod commands;
+mod content;
 mod error;
 mod exercise;
 mod progress;
@@ -49,6 +50,18 @@ fn clap_error(err: clap::Error) -> i32 {
         | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand => {
             let _ = err.print();
             0
+        }
+        // The command was understood; only an argument is missing or malformed.
+        ErrorKind::MissingRequiredArgument
+        | ErrorKind::InvalidValue
+        | ErrorKind::WrongNumberOfValues
+        | ErrorKind::TooManyValues
+        | ErrorKind::TooFewValues
+        | ErrorKind::NoEquals => {
+            eprintln!("{}", de::befehl_unvollstaendig());
+            eprintln!();
+            eprintln!("{}", de::hilfe());
+            2
         }
         _ => {
             eprintln!("{}", de::unbekannter_befehl());

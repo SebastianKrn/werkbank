@@ -1,0 +1,16 @@
+# Deliberately broken fixture: werte_gleich compares a key with itself, so it passes as soon as the key is filled in — an exercise that grades nothing.
+[exercise]
+id = "01-gleiche-schluessel"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "hash-beweis"
+type = "werte_gleich"
+key_a = "hash_vorher"
+key_b = "hash_vorher"
+hint_de = "Trage beide Hashwerte ein."

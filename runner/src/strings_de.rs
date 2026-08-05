@@ -67,15 +67,42 @@ impl Symbols {
 
 pub const KURZBESCHREIBUNG: &str = "Werkbank — Übungen prüfen und Fortschritt zeigen";
 
+/// How the learner has to type the binary — as a literal, so that `concat!`
+/// can build clap's usage lines at compile time.
+///
+/// PowerShell, the shell `START_HIER.md` tells them to open, does not search
+/// the current directory. A bare `wb check 01` answers „Die Benennung 'wb'
+/// wurde nicht als Name eines Cmdlets … erkannt", and the troubleshooting
+/// table in `START_HIER.md` then sends them hunting for the wrong folder.
+/// Every command this runner suggests must be typeable exactly as printed.
+#[cfg(windows)]
+macro_rules! wb_befehl {
+    () => {
+        ".\\wb"
+    };
+}
+#[cfg(not(windows))]
+macro_rules! wb_befehl {
+    () => {
+        "./wb"
+    };
+}
+
+pub const WB: &str = wb_befehl!();
+
 /// Layout for clap's `--help`. clap's own headings are English, so they are
 /// replaced here — a learner must never meet an English word (rule 4).
-pub const HILFE_VORLAGE: &str = "\
+pub const HILFE_VORLAGE: &str = concat!(
+    "\
 {about-with-newline}
 Verwendung: {usage}
 
 {all-args}
 
-Ausführliche Hilfe:  wb hilfe";
+Ausführliche Hilfe:  ",
+    wb_befehl!(),
+    " hilfe"
+);
 
 pub const HILFE_VORLAGE_BEFEHL: &str = "\
 {about-with-newline}
@@ -87,13 +114,13 @@ pub const UEBERSCHRIFT_BEFEHLE: &str = "Befehle";
 pub const UEBERSCHRIFT_OPTIONEN: &str = "Optionen";
 pub const UEBERSCHRIFT_ANGABEN: &str = "Angaben";
 
-pub const NUTZUNG_WB: &str = "wb [BEFEHL] [OPTIONEN]";
-pub const NUTZUNG_STATUS: &str = "wb status [--json] [--ascii]";
-pub const NUTZUNG_CHECK: &str = "wb check [ID] [--json] [--ascii]";
-pub const NUTZUNG_ERFASSE: &str = "wb erfasse [NAME] [ID] [--ordner PFAD]";
-pub const NUTZUNG_BERICHT: &str = "wb bericht [--alias NAME]";
-pub const NUTZUNG_LOESUNG: &str = "wb loesung <ID>";
-pub const NUTZUNG_HILFE: &str = "wb hilfe";
+pub const NUTZUNG_WB: &str = concat!(wb_befehl!(), " [BEFEHL] [OPTIONEN]");
+pub const NUTZUNG_STATUS: &str = concat!(wb_befehl!(), " status [--json] [--ascii]");
+pub const NUTZUNG_CHECK: &str = concat!(wb_befehl!(), " check [ID] [--json] [--ascii]");
+pub const NUTZUNG_ERFASSE: &str = concat!(wb_befehl!(), " erfasse [NAME] [ID] [--ordner PFAD]");
+pub const NUTZUNG_BERICHT: &str = concat!(wb_befehl!(), " bericht [--alias NAME]");
+pub const NUTZUNG_LOESUNG: &str = concat!(wb_befehl!(), " loesung <ID>");
+pub const NUTZUNG_HILFE: &str = concat!(wb_befehl!(), " hilfe");
 
 pub const ARG_UEBUNG_ID: &str = "Nummer oder Name der Übung, z. B. 01";
 pub const ARG_ERFASSE_NAME: &str = "Name der Ausgabe, z. B. systeminfo";
@@ -113,24 +140,30 @@ pub const FLAG_ORDNER: &str = "Ordner in der Übung (nur bei ordnerliste)";
 pub const FLAG_ALIAS: &str = "Dein Name oder Kürzel für den Bericht";
 
 pub fn hilfe() -> String {
-    "\
+    /// Width of the command column, so the descriptions line up whatever the
+    /// platform prefix costs.
+    const SPALTE: usize = 22;
+    let befehl = |rest: &str| format!("  {:<SPALTE$}", format!("{WB} {rest}"));
+
+    format!(
+        "\
 Werkbank — deine Übungswerkstatt
 
 So arbeitest du:
   1. Übung lesen        Öffne AUFGABE.md im Ordner der Übung.
   2. Aufgabe machen     Lege deine Dateien in den Ordner \"abgabe\".
-  3. Prüfen lassen      Tippe: wb check
+  3. Prüfen lassen      Tippe: {WB} check
 
 Befehle:
-  wb status             Zeigt alle Übungen und wo du stehst.
-  wb check              Prüft die Übung, an der du gerade bist.
-  wb check <ID>         Prüft eine bestimmte Übung, z. B.: wb check 01-erste-schritte
-  wb erfasse <name>     Speichert eine Systemausgabe in deine Abgabe,
-                        z. B.: wb erfasse systeminfo
-  wb erfasse            Zeigt, welche Ausgaben es gibt.
-  wb bericht            Schreibt deinen Bericht für den Unterricht (bericht.txt).
-  wb loesung <ID>       Erklärt, warum es hier keine Lösungen zum Nachschauen gibt.
-  wb hilfe              Zeigt diese Hilfe.
+{}Zeigt alle Übungen und wo du stehst.
+{}Prüft die Übung, an der du gerade bist.
+{}Prüft eine bestimmte Übung, z. B.: {WB} check 01
+{}Speichert eine Systemausgabe in deine Abgabe,
+  {:<SPALTE$}z. B.: {WB} erfasse systeminfo
+{}Zeigt, welche Ausgaben es gibt.
+{}Schreibt deinen Bericht für den Unterricht (bericht.txt).
+{}Erklärt, warum es hier keine Lösungen zum Nachschauen gibt.
+{}Zeigt diese Hilfe.
 
 Zusätzlich:
   --json                Ausgabe für Maschinen (bei status und check).
@@ -140,12 +173,32 @@ Zusätzlich:
 Gut zu wissen:
   Du kannst so oft prüfen, wie du willst. Ein Fehlversuch kostet nichts.
   Du bekommst immer einen Hinweis — nie die fertige Lösung.
-"
-    .to_string()
+",
+        befehl("status"),
+        befehl("check"),
+        befehl("check <ID>"),
+        befehl("erfasse <name>"),
+        "",
+        befehl("erfasse"),
+        befehl("bericht"),
+        befehl("loesung <ID>"),
+        befehl("hilfe"),
+    )
 }
 
 pub fn unbekannter_befehl() -> String {
-    "Diesen Befehl kenne ich nicht.\n\nTippe \"wb hilfe\", dann siehst du alle Befehle.".to_string()
+    format!("Diesen Befehl kenne ich nicht.\n\nTippe \"{WB} hilfe\", dann siehst du alle Befehle.")
+}
+
+/// The command exists, something after it does not. Saying „kenne ich nicht"
+/// here sends the learner looking for the wrong mistake — and the command they
+/// just typed is printed in the help two lines further down.
+pub fn befehl_unvollstaendig() -> String {
+    format!(
+        "Zu diesem Befehl fehlt noch eine Angabe.\n\n\
+         Beispiel:  {WB} loesung 01\n\
+         Welche Angaben ein Befehl braucht, steht unten."
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -172,7 +225,7 @@ pub fn uebung_unbekannt(id: &str, vorhanden: &[String]) -> String {
         .join("\n");
     format!(
         "Eine Übung mit \"{id}\" finde ich nicht.\n\nDas gibt es:\n{liste}\n\n\
-         Tipp: Die Nummer reicht, z. B.: wb check 01"
+         Tipp: Die Nummer reicht, z. B.: {WB} check 01"
     )
 }
 
@@ -199,6 +252,18 @@ pub fn uebung_kaputt(pfad: &str, probleme: &[String]) -> String {
 
 pub fn schreibfehler(pfad: &str, problem: &str) -> String {
     format!("Ich kann \"{pfad}\" nicht schreiben.\nGrund: {problem}")
+}
+
+/// `wb check` and `wb status` keep their result when only the bookkeeping
+/// fails: the learner has done the work either way, and a beginner who is
+/// shown a write error instead of „Sehr gut!" learns nothing from it.
+pub fn fortschritt_nicht_gespeichert(problem: &str) -> String {
+    format!(
+        "Hinweis: Deinen Fortschritt konnte ich nicht speichern.\n\
+         Das Ergebnis oben stimmt trotzdem — gemerkt wird es diesmal nur nicht.\n\
+         Grund: {problem}\n\
+         Sag deinem Trainer Bescheid, wenn das öfter vorkommt."
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -352,17 +417,18 @@ pub fn check_offen() -> String {
 }
 
 pub fn naechster_schritt_check(id: &str) -> String {
-    format!("Weiter geht es mit:  wb check {id}")
+    format!("Weiter geht es mit:  {WB} check {id}")
 }
 
 pub fn nochmal_pruefen(id: &str) -> String {
-    format!("Wenn du so weit bist:  wb check {id}")
+    format!("Wenn du so weit bist:  {WB} check {id}")
 }
 
 pub fn alles_geschafft() -> String {
-    "Du hast alle Übungen geschafft. Respekt!\n\
-     Erstelle jetzt deinen Bericht:  wb bericht"
-        .to_string()
+    format!(
+        "Du hast alle Übungen geschafft. Respekt!\n\
+         Erstelle jetzt deinen Bericht:  {WB} bericht"
+    )
 }
 
 /// Optional further reading. Never required to pass (SPEC §3).
@@ -408,7 +474,7 @@ pub fn fortschrittsbalken(bestanden: usize, gesamt: usize) -> String {
 }
 
 pub fn status_naechster(id: &str) -> String {
-    format!("Dein nächster Schritt:  wb check {id}")
+    format!("Dein nächster Schritt:  {WB} check {id}")
 }
 
 pub fn status_lb_zeile(bestanden: usize, gesamt: usize) -> String {
@@ -429,11 +495,11 @@ pub fn status_kaputte_uebungen(pfade: &[String]) -> String {
 // ---------------------------------------------------------------------------
 
 pub fn erfasse_uebersicht(zeilen: &[(String, String, bool)]) -> String {
-    let mut out = String::from(
-        "wb erfasse — speichert eine Systemausgabe in deine Abgabe.\n\n\
-         So geht es:  wb erfasse <name>\n\
-         Beispiel:    wb erfasse systeminfo\n\n\
-         Das gibt es:\n",
+    let mut out = format!(
+        "{WB} erfasse — speichert eine Systemausgabe in deine Abgabe.\n\n\
+         So geht es:  {WB} erfasse <name>\n\
+         Beispiel:    {WB} erfasse systeminfo\n\n\
+         Das gibt es:\n"
     );
     let breite = zeilen.iter().map(|(n, _, _)| n.len()).max().unwrap_or(0);
     for (name, beschreibung, verfuegbar) in zeilen {
@@ -444,17 +510,17 @@ pub fn erfasse_uebersicht(zeilen: &[(String, String, bool)]) -> String {
         };
         out.push_str(&format!("  {name:breite$}  {beschreibung}{marke}\n"));
     }
-    out.push_str(
+    out.push_str(&format!(
         "\nDie Datei landet im Ordner \"abgabe\" der Übung.\n\
-         Danach prüfen mit:  wb check\n",
-    );
+         Danach prüfen mit:  {WB} check\n"
+    ));
     out
 }
 
 pub fn erfasse_unbekannt(name: &str, bekannte: &[String]) -> String {
     format!(
         "Eine Ausgabe namens \"{name}\" kenne ich nicht.\n\nDas gibt es: {}\n\n\
-         Tipp: \"wb erfasse\" ohne Namen zeigt die Liste mit Erklärung.",
+         Tipp: \"{WB} erfasse\" ohne Namen zeigt die Liste mit Erklärung.",
         bekannte.join(", ")
     )
 }
@@ -555,7 +621,7 @@ pub fn loesung(id: &str) -> String {
          Der Grund ist einfach: Wer die Lösung liest, kann sie danach nicht.\n\
          Wer selbst hinkommt, kann es auch in der Prüfung.\n\n\
          Das hilft dir jetzt weiter:\n\
-         1. wb check {id}  — der Hinweis sagt dir, was noch fehlt.\n\
+         1. {WB} check {id}  — der Hinweis sagt dir, was noch fehlt.\n\
          2. Lies die AUFGABE.md noch einmal langsam. Oft steht die Antwort im Text.\n\
          3. Frag jemanden aus deiner Gruppe. Erklären ist die beste Übung.\n\
          4. Frag deinen Trainer oder deine Trainerin. Dafür sind sie da.\n\n\

@@ -1,0 +1,15 @@
+# Deliberately broken fixture: hint_de is empty, so a stuck learner is shown nothing.
+[exercise]
+id = "01-leerer-hinweis"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/eins.txt"
+hint_de = "   "

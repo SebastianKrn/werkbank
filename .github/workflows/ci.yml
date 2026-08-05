@@ -49,20 +49,23 @@ jobs:
       - name: Formatting
         run: cargo fmt --check
 
+      # --locked everywhere a build happens: the release pipeline ships from
+      # runner/Cargo.lock, so a lockfile that no longer matches Cargo.toml has to
+      # turn a pull request red, not a tag push on freeze day.
       - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets -- -D warnings
 
       # Every target, not a hand-listed set: naming test files here once meant a
       # new integration test could sit in the repo without CI ever running it.
       - name: Tests
-        run: cargo test --all-targets
+        run: cargo test --locked --all-targets
 
       # Content is code: every exercise.toml must validate.
       - name: Content lint (fixtures)
-        run: cargo run --quiet -- intern lint tests/fixtures/modul-demo/uebungen
+        run: cargo run --locked --quiet -- intern lint tests/fixtures/modul-demo/uebungen
 
       - name: Content lint (Gerätetechnik module)
-        run: cargo run --quiet -- intern lint ../uebungen
+        run: cargo run --locked --quiet -- intern lint ../uebungen
 
       # The learner ZIP is assembled by scripts/paket.sh, which the release
       # pipeline also calls. Building it here on every run means a packaging
@@ -73,9 +76,24 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
-          scripts/paket.sh geraetetechnik v0.0.0-ci \
-              --wb-linux runner/target/debug/wb \
-              --erlaube-ohne-windows
+          # No wb.exe here, so this is a waived build: the ZIP carries
+          # TESTBAU-OHNE-WINDOWS in its name and says so in VERSION.txt, and it
+          # must stay that way — that marking is what keeps a CI ZIP from ever
+          # being handed out as the classroom build.
+          bauen() {
+              scripts/paket.sh geraetetechnik v0.0.0-ci \
+                  --wb-linux runner/target/debug/wb \
+                  --erlaube-ohne-windows
+          }
+          zipdatei="dist/werkbank-geraetetechnik-v0.0.0-ci-TESTBAU-OHNE-WINDOWS.zip"
+
+          bauen
+          test -f "$zipdatei" || {
+              echo "Expected the waived build to be named ${zipdatei}." >&2
+              ls -1 dist >&2
+              exit 1
+          }
+          erste_summe="$(sha256sum "$zipdatei" | cut -d' ' -f1)"
 
           fehler=0
           pruefe() {  # pruefe <beschreibung> <erwartet> <tatsaechlich>
@@ -95,6 +113,13 @@ jobs:
               "$(grep -c 'exercise.toml$' dist/MANIFEST.txt)"
           pruefe "content licence travels along" 1 \
               "$(grep -c '^werkbank-geraetetechnik/uebungen/LICENSE$' dist/MANIFEST.txt)"
+          # The runner is MIT OR Apache-2.0 and links MIT/Apache crates in, so
+          # both texts ship — outside uebungen/, where they cannot be mistaken
+          # for an exercise.
+          pruefe "runner licences travel along" 2 \
+              "$(grep -c '^werkbank-geraetetechnik/lizenzen/' dist/MANIFEST.txt)"
+          pruefe "waived build is marked in VERSION.txt" 1 \
+              "$(grep -c 'TESTBAU-OHNE-WINDOWS' dist/werkbank-geraetetechnik/VERSION.txt || true)"
           pruefe "no trainer material" 0 \
               "$(grep -ci 'trainer/' dist/MANIFEST.txt || true)"
           pruefe "no solutions" 0 \
@@ -106,7 +131,12 @@ jobs:
           # learner needs them to exist. Empty directories survive only as zip
           # directory entries, so check the archive itself, not the staging tree.
           pruefe "abgabe folders survive zipping" 8 \
-              "$(unzip -Z1 dist/werkbank-geraetetechnik-v0.0.0-ci.zip \
-                  | grep -c 'abgabe/$' || true)"
+              "$(unzip -Z1 "$zipdatei" | grep -c 'abgabe/$' || true)"
+
+          # Same tree in, same bytes out — otherwise a checksum handed to a
+          # trainer proves nothing about which build they hold.
+          bauen
+          pruefe "same input, same ZIP" "$erste_summe" \
+              "$(sha256sum "$zipdatei" | cut -d' ' -f1)"
 
           exit $fehler

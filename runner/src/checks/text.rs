@@ -29,7 +29,10 @@ pub enum TextEncoding {
     Cp850,
 }
 
-/// Decode a byte buffer into text, trying UTF-8 -> UTF-16 -> CP850.
+/// Decode a byte buffer into text.
+///
+/// Order: BOM -> BOM-less UTF-16LE -> UTF-8 -> CP850. UTF-16LE really does
+/// come before UTF-8, for the reason spelled out at the heuristic below.
 pub fn decode(bytes: &[u8]) -> (String, TextEncoding) {
     if let Some(rest) = bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]) {
         return (
@@ -56,15 +59,66 @@ pub fn decode(bytes: &[u8]) -> (String, TextEncoding) {
     (cp850::decode(bytes), TextEncoding::Cp850)
 }
 
+/// How much of a file `file_exists` looks at to decide whether it holds
+/// anything. `wb status` runs every check of every exercise, so an existence
+/// check must not pull whole files into memory — and no learner produces four
+/// kilobytes of whitespace before their first real character.
+pub const PEEK_BYTES: usize = 4 * 1024;
+
 /// Read a file as text, tolerating the encodings above. Never reads more than
 /// [`MAX_READ_BYTES`], so a runaway file in `abgabe/` cannot exhaust memory.
 pub fn read(path: &Path) -> io::Result<(String, TextEncoding)> {
+    read_at_most(path, MAX_READ_BYTES)
+}
+
+/// Read at most `limit` bytes and decode them.
+pub fn read_at_most(path: &Path, limit: usize) -> io::Result<(String, TextEncoding)> {
     use std::io::Read;
 
     let file = std::fs::File::open(path)?;
     let mut bytes = Vec::new();
-    file.take(MAX_READ_BYTES as u64).read_to_end(&mut bytes)?;
+    file.take(limit as u64).read_to_end(&mut bytes)?;
+    if bytes.len() == limit {
+        trim_incomplete_utf8_tail(&mut bytes);
+    }
     Ok(decode(&bytes))
+}
+
+/// Drop a trailing sequence that is incomplete only because the read stopped at
+/// the cap.
+///
+/// Without this, a UTF-8 file cut in the middle of a character fails the UTF-8
+/// branch and the **whole** file falls through to CP850: every umlaut in it
+/// turns to mojibake, and the learner's check result depends on where the cap
+/// happened to land in their file. A genuinely non-UTF-8 file is untouched —
+/// its first bad byte reports a length, and only "ran out of input" is trimmed.
+fn trim_incomplete_utf8_tail(bytes: &mut Vec<u8>) {
+    if let Err(problem) = std::str::from_utf8(bytes) {
+        if problem.error_len().is_none() {
+            bytes.truncate(problem.valid_up_to());
+        }
+    }
+}
+
+/// Does this file hold anything a learner would call content?
+///
+/// A byte-order mark is not content: PowerShell writes one before it writes
+/// anything else, so `… | Out-File x.txt` on an empty pipeline leaves a two- or
+/// three-byte file that looks non-empty to `metadata().len()` and is not.
+pub fn holds_content(path: &Path) -> bool {
+    match read_at_most(path, PEEK_BYTES) {
+        // Unreadable is not the same as empty — let the caller's own error
+        // path deal with it rather than claiming the file is blank.
+        Err(_) => true,
+        Ok((text, _)) => {
+            if !text.trim().is_empty() {
+                return true;
+            }
+            // All whitespace so far, but there is more file to come: refuse to
+            // call it empty on the strength of a prefix.
+            std::fs::metadata(path).is_ok_and(|m| m.len() as usize > PEEK_BYTES)
+        }
+    }
 }
 
 fn decode_utf16(bytes: &[u8], little_endian: bool) -> String {
@@ -210,6 +264,35 @@ mod tests {
             text.len() <= MAX_READ_BYTES,
             "read {} bytes from a {written}-byte file — the cap did not hold",
             text.len()
+        );
+    }
+
+    /// The cap can land in the middle of a multi-byte character. If the
+    /// truncated tail is then judged as UTF-8, it fails — and the whole file
+    /// falls through to CP850, turning every umlaut in it into mojibake. The
+    /// learner's check result would depend on where the 8 MiB boundary happens
+    /// to fall in their file.
+    #[test]
+    fn a_cut_inside_a_character_does_not_mojibake_the_whole_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("riesig.txt");
+
+        // Fill so that the byte at the cap is the *first* byte of an 'ä'.
+        let mut bytes = vec![b'a'; MAX_READ_BYTES - 1];
+        bytes.extend_from_slice("ä".as_bytes());
+        bytes.extend_from_slice("Größe: 4 Kerne\n".as_bytes());
+        std::fs::write(&path, &bytes).unwrap();
+
+        let (text, encoding) = read(&path).unwrap();
+        assert_eq!(
+            encoding,
+            TextEncoding::Utf8,
+            "a UTF-8 file must stay UTF-8 however the cap falls"
+        );
+        assert!(
+            text.starts_with("aaa"),
+            "the readable prefix must survive: {:?}",
+            &text[..text.len().min(20)]
         );
     }
 

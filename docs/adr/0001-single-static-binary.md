@@ -22,8 +22,9 @@ Constraints that follow from that:
 ## Decision
 
 Ship a **single statically-linked Rust binary** `wb` (plus content) in a ZIP.
-`x86_64-pc-windows-msvc` is the primary target; Linux and macOS builds exist
-for development and for the beta tester.
+`x86_64-pc-windows-msvc` is the primary target; `x86_64-unknown-linux-gnu` is
+built alongside it for development and for the beta tester. macOS is not built
+today — no target machine needs it (SPEC §2).
 
 ## Consequences
 
@@ -36,7 +37,8 @@ Positive:
 
 Negative / accepted costs:
 
-- Rust must be built per target; the release pipeline carries three targets.
+- Rust must be built per target; the release pipeline carries two targets, one
+  build job per runner OS (`windows-latest`, `ubuntu-latest`).
 - SmartScreen may warn on a freshly downloaded unsigned `.exe`. Learners have
   admin inside their VM, so this is a click, not a blocker — to be verified
   once on a real VM in M3. Code signing stays out of scope for the pilot.

@@ -155,9 +155,11 @@ pub fn run(check: &Check, exercise_dir: &Path) -> CheckOutcome {
                 Ok(meta) if !meta.is_file() => CheckOutcome::failed(Detail::FileMissing {
                     path: path.to_string(),
                 }),
-                Ok(meta) if meta.len() == 0 => CheckOutcome::failed(Detail::FileEmpty {
-                    path: path.to_string(),
-                }),
+                Ok(meta) if meta.len() == 0 || !text::holds_content(&full) => {
+                    CheckOutcome::failed(Detail::FileEmpty {
+                        path: path.to_string(),
+                    })
+                }
                 Ok(_) => CheckOutcome::passed(),
             },
         },

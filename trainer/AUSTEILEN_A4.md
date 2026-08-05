@@ -8,7 +8,7 @@ mindestens 12 pt drucken, Zielgruppe sieht nicht immer gut.)*
 ## 1 · Freigeben, dann entpacken
 
 **Zuerst:** Rechtsklick auf die ZIP-Datei → **Eigenschaften** → ganz unten
-**„Zulassen"** ankreuzen → **OK**.
+**„Zulassen“** ankreuzen → **OK**.
 
 *Vor* dem Entpacken ist Ruhe. Danach fragt Windows bei **jeder** Datei nach.
 
@@ -86,7 +86,7 @@ Fortschritt bleibt auf deinem Rechner.
 |---|---|
 | `.\wb` nicht gefunden | Falscher Ordner → `cd C:\werkbank-geraetetechnik` |
 | Datei lässt sich nicht ausführen | Ordner noch im ZIP → richtig entpacken |
-| Windows warnt vor der Datei | „Weitere Informationen" → „Trotzdem ausführen" |
+| Windows warnt vor der Datei | „Weitere Informationen“ → „Trotzdem ausführen“ |
 | Zugriff verweigert | PowerShell **als Administrator** öffnen |
 | Symbole sehen kaputt aus | `.\wb status --ascii` |
 

@@ -15,8 +15,8 @@ Hilfe benutzt. Genau das brauchen wir.
    ausdrücklich erlaubt.
 3. **Schreib mit, während du arbeitest**, nicht danach. Der Ärger von vor zwei
    Stunden fühlt sich später harmloser an, als er war.
-4. Es gibt keine falsche Rückmeldung. „Das war blöd formuliert" ist wertvoller
-   als „passt eh alles".
+4. Es gibt keine falsche Rückmeldung. „Das war blöd formuliert“ ist wertvoller
+   als „passt eh alles“.
 
 ## Pro Übung
 
@@ -33,7 +33,7 @@ Trag ein, sobald du eine Übung abschließt oder aufgibst.
 | 07 | Tresor zu, Tresor auf | | | |
 | 08 | Generalprobe | | | |
 
-„Geschafft?" bitte ehrlich: **allein** / **mit Suchen im Internet** /
+„Geschafft?“ bitte ehrlich: **allein** / **mit Suchen im Internet** /
 **aufgegeben**.
 
 ## Die wichtigsten vier Fragen

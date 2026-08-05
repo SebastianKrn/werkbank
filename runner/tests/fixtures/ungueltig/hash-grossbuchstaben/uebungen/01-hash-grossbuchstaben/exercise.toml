@@ -1,0 +1,17 @@
+# Deliberately broken fixture: expect_hash is uppercase; hashes are compared as lowercase hex, so it could never match.
+[exercise]
+id = "01-hash-grossbuchstaben"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "frage"
+type = "antwort"
+key = "farbe"
+salt = "ungueltig:01"
+expect_hash = ["A9F1C2D3E4B5A6978899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"]
+hint_de = "Trage die Farbe ein."

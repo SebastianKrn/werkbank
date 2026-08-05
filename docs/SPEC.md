@@ -37,7 +37,7 @@ Single crate `runner/` (workspace-ready if it grows). Binary name `wb`.
 
 - Rust stable, `clap` (derive) for CLI, `serde` + `toml` for config, `regex`, `sha2` for answer hashing, `encoding_rs` for Windows encoding tolerance (detection is a fixed deterministic order, not statistical — `chardetng` was considered and not used), `serde_json` for `--json`/`bericht.json`/`fortschritt.json`. No async, no network deps. Build targets: `x86_64-pc-windows-msvc` (primary) and `x86_64-unknown-linux-gnu` (dev); macOS is not built today.
 - All learner-facing strings live in one `strings_de.rs` module (future i18n by module swap, not a framework).
-- Exit codes: 0 = all checks pass, 1 = some fail, 2 = usage/config error. Machine-readable `--json` flag on `check`/`status` (for tests and future integrations).
+- Exit codes: 0 = every basis check passes, 1 = at least one basis check is still open (bonus/homelab checks never affect the code, see §3), 2 = usage/config error. Machine-readable `--json` flag on `check`/`status` (for tests and future integrations).
 
 ### Commands
 
@@ -115,7 +115,7 @@ Free-text deliverables (e.g. the final diagnosis report) are checked for *presen
 ### Authoring pipeline
 
 - `tools/hash-antwort` (tiny Rust bin or `wb intern hash` hidden subcommand): takes salt + accepted answers, prints `expect_hash` entries. Used by content authors; documented in `trainer/AUTOREN.md`.
-- `wb intern lint` validates all `exercise.toml` files (schema, path escapes, regex compile, dangling IDs). Runs in CI.
+- `wb intern lint` validates all `exercise.toml` files (schema, path escapes, regex compile, dangling IDs) **and** the exercise as a deliverable (ADR 0008): `AUFGABE.md` exists and is non-empty, every checked file is named in it, every answer key is discoverable from `AUFGABE.md` or `material/antworten-vorlage.toml`, and every check reads from `abgabe/`. Runs in CI.
 
 ## 4. Module: Gerätetechnik (pilot content, German)
 
@@ -145,7 +145,7 @@ Each `AUFGABE.md`: goal in one sentence → steps → deliverable definition →
 ## 5. Packaging & Distribution
 
 - The classroom ZIP is produced **only by pushing a `vX.Y.Z[-rcN]` tag** (ADR 0006): `.github/workflows/release.yml` gates on fmt/clippy/tests/content-lint, builds `wb.exe` on windows-latest, then calls `scripts/paket.sh` — the single assembly point, shared by CI and `just`.
-- Result `dist/werkbank-geraetetechnik-vX.Y.Z.zip`: runner binaries (win + linux), `START_HIER.md`, `uebungen/`, `VERSION.txt`, `uebungen/LICENSE`, minus `trainer/`, minus dotfiles. Deterministic content listing in `dist/MANIFEST.txt`, checksums in `dist/SHA256SUMS.txt`.
+- Result `dist/werkbank-geraetetechnik-vX.Y.Z.zip`: runner binaries (win + linux), `START_HIER.md`, `uebungen/`, `VERSION.txt`, `uebungen/LICENSE` (content) and `lizenzen/` (the runner's MIT and Apache-2.0 texts), minus `trainer/`, minus dotfiles. Deterministic content listing in `dist/MANIFEST.txt`, checksums in `dist/SHA256SUMS.txt`.
 - `just package geraetetechnik` on a dev machine **exits 2** unless `--erlaube-ohne-windows` is passed: the Linux box cannot cross-compile `wb.exe`, and a ZIP without it is classroom-useless. Use the waiver for pipeline testing only.
 - `START_HIER.md`: entpacken → Doppelklick/`wb status` → erste Übung. One page, printable (trainer hands it out).
 - Releases via GitHub Releases; ZIP is the unit of delivery to the classroom (USB or download — M0 checklist decides).

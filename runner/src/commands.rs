@@ -12,6 +12,7 @@ use serde_json::json;
 use crate::capture;
 use crate::checks::{self, ExerciseResult};
 use crate::cli::Intern;
+use crate::content;
 use crate::error::{AppError, Result};
 use crate::exercise::{self, Exercise, Level, EXERCISES_DIR};
 use crate::progress::{Progress, STATUS_PASSED};
@@ -78,7 +79,6 @@ pub fn check(
 
     let result = checks::run_all(exercise);
     progress.record(exercise, &result, true);
-    progress.save(&workspace.progress_path())?;
 
     let passed = result.is_passed(exercise);
     if json_output {
@@ -86,6 +86,9 @@ pub fn check(
     } else {
         print_check_text(workspace, &progress, exercise, &result, symbols);
     }
+    // Saved after the feedback, and never at its expense: the exit code
+    // belongs to the checks, not to the filesystem.
+    warn_if_unsaved(&progress, workspace);
     Ok(if passed { 0 } else { 1 })
 }
 
@@ -205,6 +208,12 @@ fn check_json(exercise: &Exercise, result: &ExerciseResult) -> String {
 // ---------------------------------------------------------------------------
 
 pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Result<i32> {
+    // An empty module is a damaged installation, not an achievement. Without
+    // this, `wb status` congratulates a learner whose content never arrived and
+    // sends them to `wb bericht`, which then refuses.
+    if workspace.exercises.is_empty() {
+        return Err(AppError::new(nichts_zu_zeigen(workspace)));
+    }
     let mut progress = Progress::load(&workspace.progress_path());
     let results: Vec<(&Exercise, ExerciseResult)> = workspace
         .exercises
@@ -215,7 +224,6 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
         // `status` looks, it does not count as an attempt.
         progress.record(exercise, result, false);
     }
-    progress.save(&workspace.progress_path())?;
 
     let passed_count = results
         .iter()
@@ -228,6 +236,7 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
 
     if json_output {
         println!("{}", status_json(workspace, &results, passed_count, next));
+        warn_if_unsaved(&progress, workspace);
         return Ok(0);
     }
 
@@ -298,6 +307,7 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
         Some(exercise) => println!("{}", de::status_naechster(&exercise.id)),
         None => println!("{}", de::alles_geschafft()),
     }
+    warn_if_unsaved(&progress, workspace);
     if !workspace.broken.is_empty() {
         println!();
         println!(
@@ -541,6 +551,20 @@ fn lint(path: Option<&Path>, explicit_root: Option<&Path>) -> Result<i32> {
                     continue;
                 }
                 seen_ids.push((loaded.id.clone(), exercise_dir.clone()));
+
+                // Loadable is not the same as fit to hand to a human: an
+                // exercise whose task text and checks disagree passes every
+                // schema rule and still burns the learner.
+                let content_problems = content::audit(&loaded);
+                if !content_problems.is_empty() {
+                    failures += 1;
+                    println!("FAIL {}", exercise_dir.display());
+                    for problem in content_problems {
+                        println!("  - {problem}");
+                    }
+                    continue;
+                }
+
                 let basis = loaded.count_of(Level::Basis);
                 let bonus = loaded.count_of(Level::Bonus);
                 let homelab = loaded.count_of(Level::Homelab);
@@ -591,6 +615,45 @@ fn hash(salt: &str, answers: &[String]) -> Result<i32> {
 // ---------------------------------------------------------------------------
 // shared helpers
 // ---------------------------------------------------------------------------
+
+/// What to say when there is nothing to work with.
+///
+/// "Keine Übungen" is true but unhelpful when the exercises are *there* and
+/// damaged: the folder name is what the trainer needs to fix it, and the
+/// learner needs to hear that it is not their doing.
+fn nichts_zu_zeigen(workspace: &Workspace) -> String {
+    if workspace.broken.is_empty() {
+        return de::keine_uebungen(EXERCISES_DIR);
+    }
+    format!(
+        "{}\n\n{}",
+        de::keine_uebungen(EXERCISES_DIR),
+        de::status_kaputte_uebungen(
+            &workspace
+                .broken
+                .iter()
+                .map(|(path, _)| path.display().to_string())
+                .collect::<Vec<_>>()
+        )
+    )
+}
+
+/// Persist progress, and say so in German if it did not work.
+///
+/// `check` and `status` compute their answer from the files on disk, so a
+/// failed save costs the learner nothing but the memory of it — while
+/// aborting would cost them the answer. `bericht` is deliberately not routed
+/// through here: writing a file the learner hands in *is* its job, so failing
+/// loudly is the honest outcome there.
+fn warn_if_unsaved(progress: &Progress, workspace: &Workspace) {
+    if let Err(problem) = progress.save(&workspace.progress_path()) {
+        println!();
+        println!(
+            "{}",
+            de::fortschritt_nicht_gespeichert(&problem.to_string())
+        );
+    }
+}
 
 /// The exercise a bare `wb check` means: the first one not yet *recorded* as
 /// passed.

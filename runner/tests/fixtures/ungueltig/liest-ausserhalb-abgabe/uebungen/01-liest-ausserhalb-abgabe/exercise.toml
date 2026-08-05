@@ -1,0 +1,15 @@
+# Deliberately broken fixture: the check reads shipped material instead of the
+# learner's own work, so it passes before anybody has done anything.
+[exercise]
+id = "01-liest-ausserhalb-abgabe"
+titel = "Liest ausserhalb der Abgabe"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+[[check]]
+id = "vorlage-da"
+type = "file_exists"
+path = "material/vorlage.txt"
+hint_de = "Die Vorlage muss da sein."

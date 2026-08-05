@@ -16,14 +16,14 @@ id = "datenverlust-belegt"
 type = "file_matches"
 path = "abgabe/datenverlust.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Belege den Schaden: nach Remove-Item C:\\wb\\firma\\vertraege -Recurse -Force schreibe Test-Path C:\\wb\\firma\\vertraege | Out-File \"$a\\datenverlust.txt\" — dort muss False stehen. Prüfe vorher, dass das Backup wirklich existiert."
+hint_de = "Belege den Schaden: nach Remove-Item C:\\wb\\firma\\vertraege -Recurse -Force schreibe Test-Path C:\\wb\\firma\\vertraege | Out-File uebungen\\05-daten-weg-und-zurueck\\abgabe\\datenverlust.txt — dort muss False stehen. Prüfe vorher, dass das Backup wirklich existiert."
 
 [[check]]
 id = "restore-protokolliert"
 type = "file_matches"
 path = "abgabe/restore.log"
 pattern = '(?i)vertrag-001'
-hint_de = "Im Wiederherstellungs-Protokoll fehlt die Vertragsdatei. Hol das Backup daneben zurück: robocopy S:\\backup\\firma\\vertraege C:\\wb\\restore-probe /E /LOG:\"$a\\restore.log\""
+hint_de = "Im Wiederherstellungs-Protokoll fehlt die Vertragsdatei. Hol das Backup daneben zurück: robocopy S:\\backup\\firma\\vertraege C:\\wb\\restore-probe /E /LOG:uebungen\\05-daten-weg-und-zurueck\\abgabe\\restore.log"
 
 [[check]]
 id = "hash-beweis"
@@ -37,7 +37,7 @@ id = "daten-wieder-da"
 type = "file_matches"
 path = "abgabe/wiederhergestellt.txt"
 pattern = '(?i)vertrag-001'
-hint_de = "Stelle das geprüfte Backup an seinen Platz und belege es: Move-Item C:\\wb\\restore-probe C:\\wb\\firma\\vertraege , dann Get-ChildItem C:\\wb\\firma\\vertraege | Out-File \"$a\\wiederhergestellt.txt\""
+hint_de = "Stelle das geprüfte Backup an seinen Platz und belege es: Move-Item C:\\wb\\restore-probe C:\\wb\\firma\\vertraege — dann Get-ChildItem C:\\wb\\firma\\vertraege | Out-File uebungen\\05-daten-weg-und-zurueck\\abgabe\\wiederhergestellt.txt"
 
 [[check]]
 id = "schaden-beschrieben"
@@ -50,7 +50,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Beweise, dass kein Prüfstand übrig ist: Test-Path C:\\wb\\restore-probe | Out-File \"$a\\aufraeumen.txt\" — steht dort True, liegt noch eine doppelte Kopie der Daten herum."
+hint_de = "Beweise, dass kein Prüfstand übrig ist: Test-Path C:\\wb\\restore-probe | Out-File uebungen\\05-daten-weg-und-zurueck\\abgabe\\aufraeumen.txt — steht dort True, liegt noch eine doppelte Kopie der Daten herum."
 
 [[check]]
 id = "beweismittel-benannt"

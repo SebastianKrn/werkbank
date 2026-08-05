@@ -22,13 +22,13 @@ hint_de = "In spiegel-defekt.txt steht noch kein Ausfall. Zieh zuerst die Platte
 id = "daten-gerettet"
 type = "file_exists"
 path = "abgabe/datei-lesbar.txt"
-hint_de = "Zeige, dass die Daten trotz Ausfall lesbar sind: Copy-Item S:\\backup\\firma\\vertraege\\vertrag-001.txt C:\\wb\\rettung.txt , dann Get-Content C:\\wb\\rettung.txt | Out-File \"$a\\datei-lesbar.txt\""
+hint_de = "Zeige, dass die Daten trotz Ausfall lesbar sind: Copy-Item S:\\backup\\firma\\vertraege\\vertrag-001.txt C:\\wb\\rettung.txt — dann Get-Content C:\\wb\\rettung.txt | Out-File uebungen\\06-die-platte-stirbt\\abgabe\\datei-lesbar.txt"
 
 [[check]]
 id = "reparatur-erfasst"
 type = "file_exists"
 path = "abgabe/spiegel-repariert.txt"
-hint_de = "Häng die Platte wieder an (Mount-DiskImage), starte Repair-VirtualDisk und halte den Zustand danach fest: Get-VirtualDisk | Format-List FriendlyName,HealthStatus,OperationalStatus | Out-File \"$a\\spiegel-repariert.txt\""
+hint_de = "Häng die Platte wieder an (Mount-DiskImage), starte Repair-VirtualDisk und halte den Zustand danach fest: Get-VirtualDisk | Format-List FriendlyName,HealthStatus,OperationalStatus | Out-File uebungen\\06-die-platte-stirbt\\abgabe\\spiegel-repariert.txt"
 
 [[check]]
 id = "spiegel-wieder-gesund"
@@ -59,7 +59,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Räume die Rettungskopie weg und beweise es: Remove-Item C:\\wb\\rettung.txt -Force , dann Test-Path C:\\wb\\rettung.txt | Out-File \"$a\\aufraeumen.txt\""
+hint_de = "Räume die Rettungskopie weg und beweise es: Remove-Item C:\\wb\\rettung.txt -Force. Dann Test-Path C:\\wb\\rettung.txt | Out-File uebungen\\06-die-platte-stirbt\\abgabe\\aufraeumen.txt"
 
 [[check]]
 id = "reparatur-beobachtet"

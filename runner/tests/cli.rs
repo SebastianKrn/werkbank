@@ -539,6 +539,24 @@ fn lint_rejects_every_invalid_fixture() {
         ("ohne-basis-check", "no check with stufe `basis`"),
         ("id-passt-nicht", "must match the folder name"),
         ("windows-geraetename", "reserved Windows device name"),
+        ("ohne-aufgabe", "AUFGABE.md is missing"),
+        ("datei-nicht-erklaert", "never mentioned in AUFGABE.md"),
+        (
+            "schluessel-nicht-erklaert",
+            "answer key `werkzeug` appears neither",
+        ),
+        (
+            "liest-ausserhalb-abgabe",
+            "may only read what the learner writes",
+        ),
+        ("gleiche-schluessel", "are the same key"),
+        ("doppelte-check-id", "duplicate check id"),
+        ("hash-kein-sha256", "is not a 64-character hex SHA-256"),
+        ("hash-grossbuchstaben", "must be lowercase"),
+        ("unbekannter-typ", "unknown type"),
+        ("leerer-hinweis", "hint_de is empty"),
+        ("zeit-null", "zeit_minuten must be greater than 0"),
+        ("vertiefung-kein-link", "must be an http(s) URL"),
     ];
     for (case, expected) in cases {
         let mut command = Command::cargo_bin("wb").expect("binary wb");
@@ -649,4 +667,357 @@ fn ascii_mode_avoids_symbols() {
     let text = stdout(&output);
     assert!(text.contains("[  ]"), "{text}");
     assert!(!text.contains('⬜'), "{text}");
+}
+
+// ---------------------------------------------------------------------------
+// Copy-pasteability (the platform that matters is PowerShell)
+// ---------------------------------------------------------------------------
+
+/// PowerShell does not run a program from the current directory — `wb check 01`
+/// answers with "not recognized as a cmdlet", and `START_HIER.md` sends the
+/// learner off to look for the wrong folder. Every command the tool suggests
+/// must therefore be typeable exactly as printed.
+#[test]
+fn every_suggested_command_can_be_pasted_into_the_shell() {
+    let prefix = if cfg!(windows) { ".\\wb" } else { "./wb" };
+    let sandbox = Sandbox::new();
+
+    let mut screens = Vec::new();
+    for args in [
+        vec!["hilfe"],
+        vec!["status"],
+        vec!["check"],
+        vec!["erfasse"],
+        vec!["loesung", "01"],
+    ] {
+        let output = sandbox.wb().args(&args).output().expect("run wb");
+        screens.push((args.join(" "), stdout(&output) + &stderr(&output)));
+    }
+
+    // A string built with `String::from` instead of `format!` prints the
+    // placeholder itself. It slips past the check below — `{WB}` contains no
+    // bare `wb ` — so it is worth its own assertion.
+    for (screen, text) in &screens {
+        assert!(
+            !text.contains("{WB}"),
+            "`wb {screen}` prints an unresolved placeholder:\n{text}"
+        );
+    }
+
+    let mut bare = Vec::new();
+    for (screen, text) in &screens {
+        for (number, line) in text.lines().enumerate() {
+            for (at, _) in line.match_indices("wb ") {
+                let before = &line[..at];
+                if !before.ends_with("./") && !before.ends_with(".\\") {
+                    bare.push(format!("  `wb {screen}` line {}: {line}", number + 1));
+                }
+            }
+        }
+    }
+    bare.dedup();
+    assert!(
+        bare.is_empty(),
+        "these lines tell the learner to type `wb …`, which PowerShell refuses. \
+         Use the `{prefix}` form:\n{}",
+        bare.join("\n")
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Storage failures must not cost the learner their feedback
+// ---------------------------------------------------------------------------
+
+/// Bookkeeping is not the product. If `fortschritt.json` cannot be written —
+/// a tree made read-only after the work was done, or the file held open by
+/// antivirus, backup or sync on Windows — the learner must still see whether
+/// their exercise is green.
+#[cfg(unix)]
+#[test]
+fn a_failed_progress_write_still_shows_the_check_result() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let sandbox = Sandbox::new();
+    sandbox.write(
+        "uebungen/01-erste-schritte/abgabe/notiz.txt",
+        "eins\nzwei\ndrei\n",
+    );
+
+    // Read-only root, and no .werkbank yet, so the save really fails.
+    let root = sandbox.path();
+    let original = std::fs::metadata(root).expect("metadata").permissions();
+    std::fs::set_permissions(root, std::fs::Permissions::from_mode(0o555)).expect("chmod");
+
+    let check = sandbox.wb().args(["check", "01"]).output().expect("check");
+    let status = sandbox.wb().arg("status").output().expect("status");
+
+    std::fs::set_permissions(root, original).expect("restore");
+
+    let check_text = stdout(&check);
+    assert!(
+        check_text.contains("Sehr gut!"),
+        "a solved exercise must still be reported as solved:\n{check_text}\n--- stderr ---\n{}",
+        stderr(&check)
+    );
+    assert_eq!(
+        check.status.code(),
+        Some(0),
+        "the exit code must follow the checks, not the filesystem"
+    );
+
+    let status_text = stdout(&status);
+    assert!(
+        status_text.contains("01-erste-schritte"),
+        "status must still draw the map:\n{status_text}\n--- stderr ---\n{}",
+        stderr(&status)
+    );
+    assert_eq!(status.status.code(), Some(0));
+
+    // The learner is told, once, in German — not left to wonder.
+    for output in [&check, &status] {
+        let all = stdout(output) + &stderr(output);
+        assert!(
+            all.contains("Fortschritt") && all.contains("nicht speichern"),
+            "the learner must learn that progress was not saved:\n{all}"
+        );
+    }
+}
+
+/// The built-in help shows a worked example, and beginners type worked examples
+/// verbatim. It named `01-erste-schritte`, which exists in the test fixture and
+/// in no shipped module.
+#[test]
+fn the_help_example_names_an_exercise_that_actually_exists() {
+    let sandbox = Sandbox::new();
+    let help = stdout(&sandbox.wb().arg("hilfe").output().expect("hilfe"));
+
+    let example = help
+        .lines()
+        .filter(|line| line.contains("z. B.:"))
+        .find_map(|line| line.split("z. B.:").nth(1))
+        .and_then(|rest| rest.split("check ").nth(1))
+        .map(|rest| rest.split_whitespace().next().unwrap_or("").to_string())
+        .filter(|id| !id.is_empty() && !id.starts_with('<'))
+        .expect("the help must show a worked `check` example");
+
+    // The example ships to the classroom, so it has to resolve against the
+    // module that ships — not only against the test fixture.
+    let shipped = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("repo root");
+    for root in [sandbox.path(), shipped] {
+        let mut command = Command::cargo_bin("wb").expect("binary wb");
+        let output = command
+            .args(["check", &example])
+            .arg("--wurzel")
+            .arg(root)
+            .output()
+            .expect("run the example");
+        assert_ne!(
+            output.status.code(),
+            Some(2),
+            "`wb check {example}` comes from the built-in help but does not \
+             resolve in {}:\n{}",
+            root.display(),
+            stderr(&output)
+        );
+    }
+}
+
+/// A beginner who forgets an argument to a real command was told the command
+/// does not exist — and then shown that same command in the help below.
+#[test]
+fn a_missing_argument_is_not_reported_as_an_unknown_command() {
+    let sandbox = Sandbox::new();
+    let output = sandbox.wb().arg("loesung").output().expect("run loesung");
+    assert_eq!(output.status.code(), Some(2));
+    let text = stderr(&output);
+    assert!(
+        !text.contains("Diesen Befehl kenne ich nicht"),
+        "`wb loesung` is a documented command, only its ID is missing:\n{text}"
+    );
+    assert!(
+        text.contains("fehlt"),
+        "the learner must be told what is missing:\n{text}"
+    );
+}
+
+/// Copying an exercise folder as a backup is a reasonable thing for a beginner
+/// to do, and `uebungen/` is where they would put it. The counter must not
+/// double, and `wb check 01` must not become ambiguous — the learner's own
+/// safety measure would otherwise lock them out of the module.
+///
+/// The id-matches-folder-name rule already carries this: the copy cannot load,
+/// so it is reported as unreadable instead of competing for the id. This test
+/// exists to keep that side effect, which nothing else states.
+#[test]
+fn a_copied_exercise_folder_does_not_double_the_module() {
+    let sandbox = Sandbox::new();
+    let source = sandbox.exercise("01-erste-schritte");
+    let copy = sandbox.path().join("uebungen").join("kopie-01");
+    copy_dir(&source, &copy);
+
+    let output = sandbox.wb().arg("status").output().expect("status");
+    let text = stdout(&output);
+    assert!(
+        text.contains("0 von 3 Übungen"),
+        "a copy must not be counted as a fourth exercise:\n{text}"
+    );
+    assert!(
+        text.contains("kopie-01") && text.contains("Trainer"),
+        "and the learner must be told which folder is the problem:\n{text}"
+    );
+
+    let check = sandbox.wb().args(["check", "01"]).output().expect("check");
+    assert_ne!(
+        check.status.code(),
+        Some(2),
+        "`wb check 01` must still resolve:\n{}",
+        stderr(&check)
+    );
+}
+
+/// Antivirus quarantine, a half-finished copy, a sync client that left folders
+/// as placeholders: the module can be empty through no fault of the learner.
+/// Congratulating them and sending them to `wb bericht` — which then refuses —
+/// is the worst possible answer.
+#[test]
+fn an_empty_module_is_not_reported_as_finished() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    std::fs::create_dir_all(dir.path().join("uebungen")).expect("create uebungen");
+
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let output = command
+        .arg("status")
+        .arg("--wurzel")
+        .arg(dir.path())
+        .output()
+        .expect("run status");
+
+    let text = stdout(&output) + &stderr(&output);
+    assert!(
+        !text.contains("geschafft"),
+        "nothing was achieved here:\n{text}"
+    );
+    assert!(
+        text.contains("keine Übungen"),
+        "the learner must be told the module is empty:\n{text}"
+    );
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "an empty module is a broken installation, not a finished one"
+    );
+}
+
+/// "No exercises" is the wrong answer when there are exercises and they are
+/// damaged: the trainer needs the folder name to fix it, and the learner needs
+/// to know it is not their doing.
+#[test]
+fn an_all_damaged_module_names_the_damaged_folders() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let broken = dir.path().join("uebungen").join("01-kaputt");
+    std::fs::create_dir_all(&broken).expect("create exercise");
+    std::fs::write(broken.join("exercise.toml"), "das ist kein toml [[[").expect("write");
+
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let output = command
+        .arg("status")
+        .arg("--wurzel")
+        .arg(dir.path())
+        .output()
+        .expect("run status");
+
+    let text = stdout(&output) + &stderr(&output);
+    assert!(
+        text.contains("01-kaputt"),
+        "the damaged folder must be named:\n{text}"
+    );
+    assert!(
+        text.contains("Trainer"),
+        "and this is a job for the trainer, not the learner:\n{text}"
+    );
+    assert_eq!(output.status.code(), Some(2));
+}
+
+/// Every `wb erfasse <preset>` an exercise tells the learner to run must write
+/// the file that exercise's checks then look for. A rename on either side
+/// produces the most demoralising loop in the product: the learner runs the
+/// documented command, is told "Gespeichert: abgabe/…", runs `wb check`, and is
+/// told the file is not there.
+#[test]
+fn every_documented_capture_writes_the_file_its_exercise_checks_for() {
+    let shipped = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("repo root")
+        .join("uebungen");
+
+    // The preset table, as the learner sees it.
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let listing = stdout(&command.arg("erfasse").output().expect("run erfasse"));
+    let presets: Vec<String> = listing
+        .lines()
+        .filter(|line| line.starts_with("  ") && !line.trim().is_empty())
+        .filter_map(|line| line.split_whitespace().next())
+        .filter(|word| word.chars().all(|c| c.is_ascii_lowercase()))
+        .map(str::to_string)
+        .collect();
+    assert!(
+        presets.len() >= 9,
+        "preset listing not understood:\n{listing}"
+    );
+
+    let mut problems = Vec::new();
+    let mut checked = 0usize;
+    let mut stack = vec![shipped];
+    while let Some(dir) = stack.pop() {
+        for entry in std::fs::read_dir(&dir).expect("read dir").flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                stack.push(path);
+                continue;
+            }
+            if path.file_name().and_then(|n| n.to_str()) != Some("AUFGABE.md") {
+                continue;
+            }
+            let task = std::fs::read_to_string(&path).expect("read AUFGABE.md");
+            let toml = std::fs::read_to_string(path.with_file_name("exercise.toml"))
+                .expect("read exercise.toml");
+            // Only the paths checks actually read. Searching the whole file
+            // would let a hint that merely names the file satisfy the test.
+            let checked_paths: Vec<String> = toml
+                .lines()
+                .map(str::trim)
+                .filter(|line| line.starts_with("path =") || line.starts_with("file ="))
+                .filter_map(|line| line.split('"').nth(1).map(str::to_string))
+                .collect();
+
+            for used in task
+                .match_indices("wb erfasse ")
+                .filter_map(|(at, _)| task[at + "wb erfasse ".len()..].split_whitespace().next())
+                // Prose uses `wb erfasse …` as a placeholder in a table header;
+                // only a plausible preset name is a claim about a preset.
+                .filter(|word| !word.is_empty() && word.chars().all(|c| c.is_ascii_lowercase()))
+            {
+                if !presets.iter().any(|p| p == used) {
+                    problems.push(format!("{}: uses unknown preset `{used}`", path.display()));
+                    continue;
+                }
+                checked += 1;
+                // `ordnerliste` can be pointed at any folder, so its output name
+                // is the only one an exercise may legitimately not check.
+                let expected = format!("abgabe/{used}.txt");
+                if used != "ordnerliste" && !checked_paths.contains(&expected) {
+                    problems.push(format!(
+                        "{}: tells the learner to run `wb erfasse {used}`, but no check \
+                         mentions `{expected}`",
+                        path.display()
+                    ));
+                }
+            }
+        }
+    }
+
+    assert!(checked > 0, "no documented capture found — test is vacuous");
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

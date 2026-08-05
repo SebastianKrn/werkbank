@@ -1,0 +1,17 @@
+# Deliberately broken fixture: expect_hash is not a SHA-256, so the check could never pass.
+[exercise]
+id = "01-hash-kein-sha256"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+
+[[check]]
+id = "frage"
+type = "antwort"
+key = "farbe"
+salt = "ungueltig:01"
+expect_hash = ["nicht-wirklich-ein-hash"]
+hint_de = "Trage die Farbe ein."

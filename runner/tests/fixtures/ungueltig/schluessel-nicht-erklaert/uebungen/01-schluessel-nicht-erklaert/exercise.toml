@@ -1,0 +1,15 @@
+# Deliberately broken fixture: the check requires the key `werkzeug`, but
+# neither AUFGABE.md nor a template ever names it.
+[exercise]
+id = "01-schluessel-nicht-erklaert"
+titel = "Schluessel nicht erklaert"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+[[check]]
+id = "alle-fragen"
+type = "alle_antworten"
+keys = ["werkzeug"]
+hint_de = "Trage deine Antwort ein."

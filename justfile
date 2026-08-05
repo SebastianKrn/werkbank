@@ -38,8 +38,28 @@ lint-inhalt:
     cargo run --quiet --manifest-path {{runner}}/Cargo.toml -- \
         intern lint uebungen
 
-# Everything the pipeline checks
-ci: lint test lint-inhalt
+# Assemble a throwaway ZIP, the way the "Package smoke test" step in
+# .github/workflows/ci.yml does. This is what proves the assembly rules and the
+# forbidden-path tripwire in scripts/paket.sh before freeze day.
+#
+# Linux only, and `--erlaube-ohne-windows` is mandatory here: this box cannot
+# produce wb.exe (ADR 0006), and the step tests the assembly, not the build.
+[doc('Assemble a throwaway ZIP, like the packaging smoke test in CI')]
+[unix]
+paket-test:
+    cargo build --manifest-path {{runner}}/Cargo.toml
+    scripts/paket.sh {{default_modul}} v0.0.0-ci \
+        --wb-linux {{runner}}/target/debug/wb \
+        --erlaube-ohne-windows
+
+# Everything the pipeline checks — with one gap, stated so nobody has to guess:
+# ci.yml also asserts what landed in dist/MANIFEST.txt (eight exercises, the
+# content licence, no trainer material, no solutions, no dotfiles, and eight
+# surviving abgabe/ folders in the archive). Those assertions live only in the
+# workflow. `paket-test` is Linux-only, so this recipe is too.
+[doc('Everything the pipeline checks (see the comment for the one gap)')]
+[unix]
+ci: lint test lint-inhalt paket-test
 
 # Turn accepted answers into expect_hash entries (authoring helper)
 hash salt +antworten:
@@ -57,6 +77,7 @@ hash salt +antworten:
 #     just package geraetetechnik --erlaube-ohne-windows
 #
 # The real pilot ZIP comes from a tag via .github/workflows/release.yml (ADR 0006).
+[doc('Build the learner ZIP locally — needs --erlaube-ohne-windows on this box')]
 [unix]
 package modul=default_modul *args:
     #!/usr/bin/env bash

@@ -1,0 +1,15 @@
+# Deliberately broken fixture: vertiefung entry is not a URL, so the learner is shown a dead pointer.
+[exercise]
+id = "01-vertiefung-kein-link"
+titel = "Ungültig"
+modul = "ungueltig"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+vertiefung = ["siehe Handbuch Seite 12"]
+
+[[check]]
+id = "datei-da"
+type = "file_exists"
+path = "abgabe/eins.txt"
+hint_de = "Lege abgabe/eins.txt an."

@@ -20,6 +20,20 @@
 //!
 //! What *is* mechanically detectable — and what actually hands an answer over —
 //! is a copyable recipe: a documented command with the plaintext in it.
+//!
+//! ## The second tripwire: answer lists in prose
+//!
+//! The paragraph above rejects the rule "no accepted answer anywhere". It does
+//! not rule out a narrower one, and the gap it left was real: `AUTOREN.md`
+//! illustrated a rule with `` `gpt`, `mirror`, `2`, `inkrementell` `` — four
+//! live answers from four different exercises, in one table cell, in a public
+//! repository.
+//!
+//! A single answer-shaped word in a sentence is unavoidable (`spiegel` is also
+//! a capture preset, `New-Item` is a cmdlet the exercise teaches). *Several on
+//! one line* is not prose, it is a list — and a list is what a reader copies.
+//! Measured over every Markdown file in the repo, that rule flags exactly the
+//! leak and nothing else.
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -53,26 +67,6 @@ fn repo_root() -> PathBuf {
         .parent()
         .unwrap()
         .to_path_buf()
-}
-
-fn read_files_recursively(dir: &Path, out: &mut Vec<(PathBuf, String)>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let Ok(meta) = entry.metadata() else { continue };
-        if meta.is_dir() {
-            read_files_recursively(&path, out);
-        } else if matches!(
-            path.extension().and_then(|e| e.to_str()),
-            Some("md" | "txt")
-        ) {
-            if let Ok(text) = std::fs::read_to_string(&path) {
-                out.push((path, text));
-            }
-        }
-    }
 }
 
 /// Every salt shipped with the content, and every hash accepted anywhere.
@@ -118,22 +112,59 @@ fn shipped_salts_and_hashes() -> (Vec<String>, HashSet<String>) {
     (salts, hashes)
 }
 
-/// The quoted arguments of every `intern hash` invocation in a document.
+/// The arguments of every `intern hash` invocation in a document.
+///
+/// Quotes are a shell habit, not a rule: a single-word answer needs none, and
+/// the author who writes it without them is the one this test exists for. So
+/// every token after `intern hash` counts, quoted or not — minus the flags and
+/// their values, which are the only things that are legitimately there.
 fn hash_command_arguments(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     for (index, _) in text.match_indices("intern hash") {
-        // A documented invocation may wrap over continuation lines, so read to
-        // the end of the command rather than the end of the line.
-        let rest = &text[index..];
-        let end = rest
-            .find("\n\n")
-            .or_else(|| rest.find("```"))
-            .unwrap_or(rest.len());
-        let command = &rest[..end];
+        // A command ends at the end of its line — unless the line ends in a
+        // shell continuation, which is how the documented example is written.
+        // Reading further would swallow the prose underneath and accuse it.
+        let rest = &text[index + "intern hash".len()..];
+        let mut command = String::new();
+        for line in rest.lines() {
+            let trimmed = line.trim_end();
+            command.push_str(trimmed);
+            command.push(' ');
+            if !trimmed.ends_with('\\') {
+                break;
+            }
+        }
+        let command = command.as_str();
+
+        let mut skip_next = false;
         for (position, part) in command.split('"').enumerate() {
-            // Odd indices are the quoted spans.
-            if position % 2 == 1 && !part.trim().is_empty() {
-                out.push(part.to_string());
+            if position % 2 == 1 {
+                // A quoted span is one argument, whatever is inside it.
+                if !part.trim().is_empty() {
+                    out.push(part.to_string());
+                }
+                continue;
+            }
+            for token in part.split_whitespace() {
+                if skip_next {
+                    skip_next = false;
+                    continue;
+                }
+                // `--salt wb1:gt:09` and line continuations are not answers.
+                if token == "\\" {
+                    continue;
+                }
+                if let Some((flag, value)) = token.split_once('=') {
+                    if flag.starts_with('-') {
+                        let _ = value;
+                        continue;
+                    }
+                }
+                if token.starts_with('-') {
+                    skip_next = true;
+                    continue;
+                }
+                out.push(token.to_string());
             }
         }
     }
@@ -148,13 +179,13 @@ fn no_documented_hash_command_contains_a_real_answer() {
         "found no salts/hashes in uebungen/ — the tripwire would pass vacuously"
     );
 
-    let mut prose = Vec::new();
-    read_files_recursively(&repo_root().join("docs"), &mut prose);
-    read_files_recursively(&repo_root().join("trainer"), &mut prose);
-    prose.push((
-        PathBuf::from("README.md"),
-        std::fs::read_to_string(repo_root().join("README.md")).unwrap_or_default(),
-    ));
+    // Every Markdown file, not just docs/ and trainer/: the files that ship to
+    // learners — AUFGABE.md, START_HIER.md, answer templates — are exactly
+    // where a documented hashing recipe would do the most damage.
+    let prose: Vec<(PathBuf, String)> = markdown_files()
+        .into_iter()
+        .filter_map(|path| std::fs::read_to_string(&path).ok().map(|text| (path, text)))
+        .collect();
     assert!(!prose.is_empty(), "found no documentation to scan");
 
     let mut leaks = Vec::new();
@@ -180,6 +211,83 @@ fn no_documented_hash_command_contains_a_real_answer() {
          (CLAUDE.md rule 6, ADR 0003):\n{}\n\nUse an invented word such as \
          \"himmelblau\" — never a live answer, and never rely on a decoy salt: \
          the real salts are published in exercise.toml.",
+        leaks.join("\n")
+    );
+}
+
+/// Inline-code spans (`` `like this` ``) on one line, short enough to be an
+/// answer rather than a command line.
+fn inline_code_spans(line: &str) -> Vec<String> {
+    line.split('`')
+        .enumerate()
+        .filter(|(position, part)| position % 2 == 1 && (1..=25).contains(&part.chars().count()))
+        .map(|(_, part)| part.to_string())
+        .collect()
+}
+
+/// Every Markdown file that ships in this repository.
+fn markdown_files() -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    let mut stack = vec![repo_root()];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().to_string();
+            if path.is_dir() {
+                // Build output and version control are not documents.
+                if !matches!(name.as_str(), ".git" | "target" | "dist" | "node_modules") {
+                    stack.push(path);
+                }
+            } else if path.extension().and_then(|e| e.to_str()) == Some("md") {
+                found.push(path);
+            }
+        }
+    }
+    found.sort();
+    found
+}
+
+/// A list of accepted answers is a copyable answer key, whatever the prose
+/// around it claims to be doing.
+#[test]
+fn no_document_lists_several_accepted_answers_on_one_line() {
+    let (salts, hashes) = shipped_salts_and_hashes();
+    assert!(
+        !salts.is_empty() && !hashes.is_empty(),
+        "found no salts/hashes in uebungen/ — the tripwire would pass vacuously"
+    );
+    let files = markdown_files();
+    assert!(!files.is_empty(), "found no Markdown to scan");
+
+    let mut leaks = Vec::new();
+    for path in &files {
+        let Ok(text) = std::fs::read_to_string(path) else {
+            continue;
+        };
+        for (number, line) in text.lines().enumerate() {
+            let found: Vec<String> = inline_code_spans(line)
+                .into_iter()
+                .filter(|span| salts.iter().any(|salt| hashes.contains(&hash(span, salt))))
+                .collect();
+            if found.len() >= 2 {
+                leaks.push(format!(
+                    "  {}:{} lists {} accepted answers: {found:?}",
+                    path.display(),
+                    number + 1,
+                    found.len()
+                ));
+            }
+        }
+    }
+
+    assert!(
+        leaks.is_empty(),
+        "documentation lists accepted answers together (CLAUDE.md rule 6):\n{}\n\n\
+         Illustrate rules with invented words such as \"himmelblau\". One \
+         answer-shaped word in a sentence is fine; a list is an answer key.",
         leaks.join("\n")
     );
 }

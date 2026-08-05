@@ -139,8 +139,14 @@ impl Progress {
             STATUS_OPEN
         }
         .to_string();
-        if passed && entry.bestanden_am.is_none() {
-            entry.bestanden_am = Some(now);
+        // The date belongs to the pass. An exercise can stop passing — a
+        // deleted file, an empty capture, a broken antworten.toml — and a row
+        // that reads "begonnen" while carrying a pass date makes the trainer
+        // doubt the whole sheet.
+        match (passed, entry.bestanden_am.is_some()) {
+            (true, false) => entry.bestanden_am = Some(now),
+            (false, true) => entry.bestanden_am = None,
+            _ => {}
         }
 
         let basis = result.tally(exercise, Level::Basis);
@@ -173,6 +179,64 @@ mod tests {
         std::fs::write(&path, "{ das ist kaputt").unwrap();
         let progress = Progress::load(&path);
         assert!(progress.uebungen.is_empty());
+    }
+
+    /// An exercise can stop passing: the learner deletes a file, an `erfasse`
+    /// preset comes back empty, or an edit breaks `antworten.toml`. The trainer
+    /// reads `bericht.txt`; a row that says "begonnen" and carries a pass date
+    /// makes them doubt the sheet rather than the exercise.
+    #[test]
+    fn a_pass_date_does_not_outlive_the_pass() {
+        let dir = tempfile::tempdir().unwrap();
+        let exercise = passing_exercise(&dir);
+
+        let mut progress = Progress::default();
+        progress.record(&exercise, &all_passed(&exercise), true);
+        assert!(progress.get(&exercise.id).unwrap().is_passed());
+        assert!(progress.get(&exercise.id).unwrap().bestanden_am.is_some());
+
+        progress.record(&exercise, &none_passed(&exercise), true);
+        let entry = progress.get(&exercise.id).unwrap();
+        assert!(!entry.is_passed(), "the exercise no longer passes");
+        assert!(
+            entry.bestanden_am.is_none(),
+            "a pass date on a non-passing exercise contradicts its own status"
+        );
+    }
+
+    fn passing_exercise(dir: &tempfile::TempDir) -> Exercise {
+        let path = dir.path().join("01-test");
+        std::fs::create_dir_all(path.join("abgabe")).unwrap();
+        std::fs::write(
+            path.join("exercise.toml"),
+            r#"
+[exercise]
+id = "01-test"
+titel = "Test"
+modul = "test"
+schwierigkeit = 1
+zeit_minuten = 10
+ki_stufe = "ohne"
+
+[[check]]
+id = "notiz-da"
+type = "file_exists"
+path = "abgabe/notiz.txt"
+hint_de = "Lege abgabe/notiz.txt an."
+"#,
+        )
+        .unwrap();
+        crate::exercise::load(&path).expect("fixture must load")
+    }
+
+    fn all_passed(exercise: &Exercise) -> ExerciseResult {
+        std::fs::write(exercise.dir.join("abgabe/notiz.txt"), "Inhalt\n").unwrap();
+        crate::checks::run_all(exercise)
+    }
+
+    fn none_passed(exercise: &Exercise) -> ExerciseResult {
+        std::fs::remove_file(exercise.dir.join("abgabe/notiz.txt")).unwrap();
+        crate::checks::run_all(exercise)
     }
 
     #[test]

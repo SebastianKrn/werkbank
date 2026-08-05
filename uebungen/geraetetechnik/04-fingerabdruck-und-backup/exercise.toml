@@ -16,14 +16,14 @@ id = "hash-genommen"
 type = "file_matches"
 path = "abgabe/hash-vorher.txt"
 pattern = '(?i)SHA256'
-hint_de = "Nimm den Fingerabdruck: Get-FileHash C:\\wb\\firma\\vertraege\\vertrag-001.txt -Algorithm SHA256 | Format-List | Out-File \"$a\\hash-vorher.txt\""
+hint_de = "Nimm den Fingerabdruck: Get-FileHash C:\\wb\\firma\\vertraege\\vertrag-001.txt -Algorithm SHA256 | Format-List | Out-File uebungen\\04-fingerabdruck-und-backup\\abgabe\\hash-vorher.txt"
 
 [[check]]
 id = "vollbackup-protokolliert"
 type = "file_matches"
 path = "abgabe/backup-voll.log"
 pattern = '(?i)vertrag-001'
-hint_de = "Im Protokoll des Vollbackups fehlt die Vertragsdatei. Lief robocopy mit /E über C:\\wb\\firma? Beispiel: robocopy C:\\wb\\firma S:\\backup\\firma /E /LOG:\"$a\\backup-voll.log\""
+hint_de = "Im Protokoll des Vollbackups fehlt die Vertragsdatei. Lief robocopy mit /E über C:\\wb\\firma? Beispiel: robocopy C:\\wb\\firma S:\\backup\\firma /E /LOG:uebungen\\04-fingerabdruck-und-backup\\abgabe\\backup-voll.log"
 
 [[check]]
 id = "inkrementell-protokolliert"
@@ -37,7 +37,7 @@ id = "schattenkopie-angelegt"
 type = "file_matches"
 path = "abgabe/schattenkopie.txt"
 pattern = '\{[0-9a-fA-F-]{36}\}'
-hint_de = "In schattenkopie.txt fehlt eine Kennung in geschweiften Klammern — es gibt also noch keine Schattenkopie. Lege zuerst eine an (Server: vssadmin create shadow /for=C:), dann: vssadmin list shadows | Out-File \"$a\\schattenkopie.txt\""
+hint_de = "In schattenkopie.txt fehlt eine Kennung in geschweiften Klammern — es gibt also noch keine Schattenkopie. Lege zuerst eine an (Server: vssadmin create shadow /for=C:), dann: vssadmin list shadows | Out-File uebungen\\04-fingerabdruck-und-backup\\abgabe\\schattenkopie.txt"
 
 [[check]]
 id = "zweiter-lauf-benannt"
@@ -62,7 +62,7 @@ id = "aufgeraeumt"
 type = "file_matches"
 path = "abgabe/aufraeumen.txt"
 pattern = '(?i)(False|Falsch)'
-hint_de = "Räume den Arbeitsordner weg und beweise es: Remove-Item C:\\wb\\temp-04 -Recurse -Force , dann Test-Path C:\\wb\\temp-04 | Out-File \"$a\\aufraeumen.txt\""
+hint_de = "Räume den Arbeitsordner weg und beweise es: Remove-Item C:\\wb\\temp-04 -Recurse -Force. Dann Test-Path C:\\wb\\temp-04 | Out-File uebungen\\04-fingerabdruck-und-backup\\abgabe\\aufraeumen.txt"
 
 [[check]]
 id = "hash-aenderung-erkannt"

@@ -39,15 +39,16 @@ Aufgaben: `C:\wb\backup` statt `S:\backup`).
 - Eine VM pro Lernendem: **Windows Server 2022** (die LB-Umgebung) oder
   Windows 11 Pro. Lernende brauchen **Adminrechte in der VM**.
 - Die Aufgaben nennen an jeder abweichenden Stelle einen Windows-11-Weg
-  („Falls du Windows 11 nutzt"). Betroffen: 04 (VSS), 07 (BitLocker-Feature),
-  03/06 (nur Oberfläche).
+  („Falls du Windows 11 nutzt“). Sechs Übungen haben so einen Abschnitt:
+  04 (VSS) und 07 (BitLocker-Feature) mit echten Befehlsunterschieden,
+  03/06/08 nur zur Oberfläche, 05 mit der Zusicherung „läuft unverändert“.
 - **Snapshot-Funktion muss verfügbar und erklärt sein.** Sie ist der didaktische
   Reset-Knopf des ganzen Moduls. Vor jeder eingreifenden Übung: Snapshot.
 - Kein Internet nötig. Die `vertiefung`-Links sind freiwillig.
 - Verteilung: ZIP per USB oder Netzlaufwerk. Nach `C:\` entpacken lassen — nicht
   auf den Desktop, nicht in einen Pfad mit Leerzeichen oder Umlauten.
 - `wb.exe` ist nicht signiert. Beim ersten Start warnt SmartScreen:
-  „Weitere Informationen" → „Trotzdem ausführen". **Einmal vorher selbst
+  „Weitere Informationen“ → „Trotzdem ausführen“. **Einmal vorher selbst
   durchspielen**, damit die Ansage im Unterricht sitzt.
 
 ## 3. Ablaufplan — 4 Einheiten à ca. 100 Minuten
@@ -59,7 +60,7 @@ den Takt.
 
 | Zeit | Was |
 |---|---|
-| 0–15 | Werkbank vorstellen. ZIP entpacken, `.\wb status` **projizieren**. Ablauf zeigen: lesen → arbeiten → `wb check`. Sagen: „Hinweise, keine Lösungen." |
+| 0–15 | Werkbank vorstellen. ZIP entpacken, `.\wb status` **projizieren**. Ablauf zeigen: lesen → arbeiten → `wb check`. Sagen: „Hinweise, keine Lösungen.“ |
 | 15–20 | Snapshot erklären und einmal gemeinsam machen. |
 | 20–50 | Übung 01. Fast alle schaffen sie. Wer früh fertig ist: Bonus + Homelab. |
 | 50–85 | Übung 02. |
@@ -75,14 +76,14 @@ wichtiger als der Inhalt von Übung 01.
 | 0–10 | Spiegel/RAID 1 an der Tafel: zwei Platten, jede Datei doppelt. Kein Video, eine Skizze. |
 | 10–55 | Übung 03. **Die kritische Übung.** Hier bleiben Leute hängen — Zeit einplanen, herumgehen. |
 | 55–95 | Übung 04. |
-| 95–100 | Frage in die Runde: „Ihr habt ein Backup auf dem Spiegel — reicht das?" (Antwort in Einheit 3.) |
+| 95–100 | Frage in die Runde: „Ihr habt ein Backup auf dem Spiegel — reicht das?“ (Antwort in Einheit 3.) |
 
 ### Einheit 3 — Ernstfall (Übungen 05 + 06)
 
 | Zeit | Was |
 |---|---|
 | 0–10 | Rückfrage von letztem Mal auflösen: RAID ≠ Backup. |
-| 10–45 | Übung 05. **Kernübung des Moduls.** Vor dem Löschen laut ansagen: „Backup zuerst prüfen!" |
+| 10–45 | Übung 05. **Kernübung des Moduls.** Vor dem Löschen laut ansagen: „Backup zuerst prüfen!“ |
 | 45–90 | Übung 06. Wenn möglich einen Ausfall **vorne projizieren** — die Gruppe soll sehen, dass `S:` weiterläuft. |
 | 90–100 | Nachbesprechung: Wer hat gemerkt, dass nichts passiert ist? |
 
@@ -118,7 +119,7 @@ hier ist die Kurzfassung für den laufenden Unterricht.
 **Übung 01**
 - Notepad hängt `.txt` an → Datei heißt `szenario.txt.txt`. Erkennen mit
   `Get-ChildItem`.
-- „5 Zeilen" heißt 5 **nicht-leere** Zeilen. Wer alles in eine Zeile schreibt,
+- „5 Zeilen“ heißt 5 **nicht-leere** Zeilen. Wer alles in eine Zeile schreibt,
   bleibt rot.
 - `$a` gilt nur im offenen Fenster. Neues Fenster → Variable neu setzen. Diese
   Frage kommt garantiert.
@@ -133,7 +134,7 @@ hier ist die Kurzfassung für den laufenden Unterricht.
 - `NumberOfCores` vs. `NumberOfLogicalProcessors` — die klassische Verwechslung.
   Kein Fehler im Check (Presence), aber ein gutes Gespräch.
 - `MediaType : Unspecified` in der VM. Kein Defekt, steht in der Aufgabe.
-- Die Frage „welcher Partitionsstil gehört zu UEFI?" ist **nicht** „was steht bei
+- Die Frage „welcher Partitionsstil gehört zu UEFI?“ ist **nicht** „was steht bei
   dir?". Wird verwechselt.
 
 **Übung 03 — hier hängen die meisten**
@@ -146,7 +147,7 @@ hier ist die Kurzfassung für den laufenden Unterricht.
   gezielt das Windows-Storage-Subsystem nehmen.
 
 **Übung 04**
-- robocopy-Exitcode: `0` und `1` sind **Erfolg**. Wer 1 sieht, denkt „Fehler".
+- robocopy-Exitcode: `0` und `1` sind **Erfolg**. Wer 1 sieht, denkt „Fehler“.
 - Beide Läufe ins gleiche Log geschrieben → der zweite Check bleibt rot.
 - `vssadmin create shadow` gibt es nur auf Server. Windows-11-Weg steht in der
   Aufgabe.
@@ -161,7 +162,7 @@ hier ist die Kurzfassung für den laufenden Unterricht.
 **Übung 06**
 - Zu schnell erfasst: Windows braucht 15–30 Sekunden, bis der Ausfall sichtbar
   ist.
-- „Ich habe alles kaputt gemacht" — nein. Genau das ist der Lernmoment.
+- „Ich habe alles kaputt gemacht“ — nein. Genau das ist der Lernmoment.
 - `InService` heißt: Reparatur läuft noch. Warten, dann neu erfassen.
 
 **Übung 07**
@@ -183,9 +184,9 @@ hier ist die Kurzfassung für den laufenden Unterricht.
 ## 6. Heterogene Gruppe: die drei Stufen
 
 Jede Übung hat **eine** Aufgabe und drei Tiefen — es gibt bewusst keine
-„leichte" und „schwere" Variante:
+„leichte“ und „schwere“ Variante:
 
-- **Basis** — Pflicht, LB-relevant. Nur Basis entscheidet über „bestanden".
+- **Basis** — Pflicht, LB-relevant. Nur Basis entscheidet über „bestanden“.
 - **Bonus** — Vertiefung für Schnelle. Blockiert nie.
 - **Homelab** — für Leute mit eigener Hardware (in der Pilotgruppe gibt es
   welche). Auch das blockiert nie.
@@ -213,7 +214,7 @@ Wie man ihn liest:
 
 - **Viele Versuche bei einer Übung** = jemand hat gekämpft. Nachfragen, nicht
   bewerten. Das ist die wichtigste Information im ganzen Bericht.
-- **Basis grün heißt „hat es getan", nicht „hat es verstanden."** Freitext und
+- **Basis grün heißt „hat es getan“, nicht „hat es verstanden.“** Freitext und
   Reflexionsantworten sind Trainerarbeit — `wb` prüft dort nur, dass etwas
   dasteht (ADR 0005).
 - Der Integritäts-Hash erkennt **beiläufiges** Nachbearbeiten der
@@ -239,8 +240,8 @@ Wie man ihn liest:
 | Symptom | Sofortmaßnahme |
 |---|---|
 | `wb.exe` startet nicht | Ordner noch im ZIP; richtig entpacken. |
-| SmartScreen blockiert | „Weitere Informationen" → „Trotzdem ausführen". |
-| „Zugriff verweigert" | PowerShell als Administrator. |
+| SmartScreen blockiert | „Weitere Informationen“ → „Trotzdem ausführen“. |
+| „Zugriff verweigert“ | PowerShell als Administrator. |
 | `wb` findet keine Übungen | Falscher Ordner. `cd C:\werkbank-geraetetechnik`. |
 | Laufwerk `S:` verschwunden | VHDX nach Neustart anhängen (`Mount-DiskImage`). |
 | Speicherpool im Eimer | Snapshot zurück. Schneller als jede Reparatur. |

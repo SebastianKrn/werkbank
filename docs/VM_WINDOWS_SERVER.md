@@ -284,11 +284,11 @@ einem Fehler in Übung 05 nicht wieder bei Windows-Installation anfangen.
 
 **In der VM, mit Edge**, auf die Release-Seite gehen:
 
-<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2>
+<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc3>
 
 Zwei Dateien herunterladen:
 
-- `werkbank-geraetetechnik-v0.1.0-rc2.zip`
+- `werkbank-geraetetechnik-v0.1.0-rc3.zip`
 - `SHA256SUMS.txt`
 
 > **Nicht über einen geteilten Ordner, nicht über die Zwischenablage, nicht per
@@ -300,7 +300,7 @@ Zwei Dateien herunterladen:
 
 ```powershell
 cd $HOME\Downloads
-$datei    = "werkbank-geraetetechnik-v0.1.0-rc2.zip"
+$datei    = "werkbank-geraetetechnik-v0.1.0-rc3.zip"
 $erwartet = ((Select-String -Path .\SHA256SUMS.txt -Pattern $datei).Line -split '\s+')[0]
 $ist      = (Get-FileHash $datei -Algorithm SHA256).Hash
 if ($ist -ieq $erwartet) { "OK - Prüfsumme stimmt" }
@@ -353,9 +353,11 @@ aber das Netzwerk deiner VM ist dort schon fertig konfiguriert.
 2. **Übung 06 und 07 sind für eine Maschine gefährlich, die du nur über das
    Netz erreichst.** Du simulierst einen Plattenausfall und verschlüsselst ein
    Laufwerk. Geht dabei etwas schief, sitzt du nicht davor.
-3. **Das Protokoll verlangt, das Netzwerk zu trennen** (alles muss offline
-   funktionieren). Auf einer Maschine, die du über das Netz bedienst, geht das
-   nicht.
+3. **Der Offline-Betrieb bliebe dort für immer unprüfbar.** Das Protokoll hat
+   heute keinen Schritt, der das Netzwerk trennt — „läuft ohne Internet" steht
+   bisher nur in SPEC §2 („Security constraints") und ADR 0001. Auf der lokalen
+   VM kannst du die Netzwerkkarte jederzeit abhängen und es nachholen. Auf einer
+   Maschine, die du ausschließlich über das Netz bedienst, kannst du das nie.
 4. **Die LB läuft auf einer lokalen QEMU-VM.** Der Contabo-Server ist eine
    andere Umgebung.
 

@@ -66,7 +66,7 @@ Speicherpool später nicht an. Darum 5 GB.
 notepad "$a\datentraeger.txt"
 ```
 
-Du suchst zwei Einträge mit `CanPool : True` — „darf in einen Speicherpool".
+Du suchst zwei Einträge mit `CanPool : True` — „darf in einen Speicherpool“.
 Wenn dort `False` steht, ist die Platte schon in Benutzung oder noch nicht
 angesteckt.
 
@@ -134,22 +134,7 @@ Copy-Item "uebungen\03-zwei-platten-ein-spiegel\material\antworten-vorlage.toml"
 notepad "$a\antworten.toml"
 ```
 
-### 9. Prüfen
-
-```powershell
-.\wb check 03
-```
-
-## Falls du Windows 11 nutzt
-
-Die Befehle sind **identisch** — Speicherpools gibt es auf Windows 11 genauso.
-Zwei Unterschiede:
-
-- In der Oberfläche heißt es „Speicherplätze" (Systemsteuerung), nicht
-  „Speicherpools" wie im Server-Manager. Wir arbeiten hier ohnehin mit Befehlen.
-- Wenn `New-VirtualDisk` über die Größe klagt, ergänze `-ProvisioningType Thin`.
-
-## Aufräumen
+### 9. Aufräumen
 
 Die Testdatei war Arbeitsmaterial:
 
@@ -160,6 +145,23 @@ Test-Path S:\test.txt | Out-File "$a\aufraeumen.txt"
 
 **Pool, Spiegel und Laufwerk S: bleiben stehen.** Du brauchst sie in den
 Übungen 04, 05 und 06. Abgebaut wird alles in Übung 08 — mit Beweis.
+
+### 10. Prüfen
+
+Erst aufräumen, dann prüfen — `wb` schaut auch auf das Aufräumen:
+
+```powershell
+.\wb check 03
+```
+
+## Falls du Windows 11 nutzt
+
+Die Befehle sind **identisch** — Speicherpools gibt es auf Windows 11 genauso.
+Zwei Unterschiede:
+
+- In der Oberfläche heißt es „Speicherplätze“ (Systemsteuerung), nicht
+  „Speicherpools“ wie im Server-Manager. Wir arbeiten hier ohnehin mit Befehlen.
+- Wenn `New-VirtualDisk` über die Größe klagt, ergänze `-ProvisioningType Thin`.
 
 ## Abgabe
 
@@ -174,7 +176,7 @@ Im Ordner `abgabe`:
 ## KI-Stufe: danach
 
 **Zuerst selbst, mit dieser Anleitung.** Danach ist eine gute KI-Frage:
-„Was ist der Unterschied zwischen Storage Spaces und einem Hardware-RAID?"
+„Was ist der Unterschied zwischen Storage Spaces und einem Hardware-RAID?“
 Diese Frage stellt man erst sinnvoll, wenn man einen Spiegel einmal gebaut hat.
 
 ## Reflexion

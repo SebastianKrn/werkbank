@@ -42,7 +42,7 @@ notepad "$a\hash-vorher.txt"
 ```
 
 Die runden Klammern bedeuten: „führe das innen zuerst aus, nimm dann davon die
-Eigenschaft `.Hash`". So bekommst du nur die 64 Zeichen, ohne Tabelle drumherum.
+Eigenschaft `.Hash`“. So bekommst du nur die 64 Zeichen, ohne Tabelle drumherum.
 
 Trag diesen Wert bei `hash_vorher` in die Antworten ein (Schritt 6).
 
@@ -79,7 +79,7 @@ notepad "$a\hash-nachher.txt"
 
 Vergleiche die beiden Dateien `hash-vorher.txt` und `hash-nachher.txt`. Sind die
 64 Zeichen gleich? Dann ist die Datei **byte-genau** dieselbe. Nicht „sieht
-gleich aus" — dieselbe.
+gleich aus“ — dieselbe.
 
 PowerShell kann auch selbst vergleichen:
 
@@ -109,7 +109,19 @@ Copy-Item "uebungen\05-daten-weg-und-zurueck\material\antworten-vorlage.toml" "$
 notepad "$a\antworten.toml"
 ```
 
-### 7. Prüfen
+### 7. Aufräumen
+
+```powershell
+Test-Path C:\wb\restore-probe | Out-File "$a\aufraeumen.txt"
+```
+
+Wenn du Schritt 5 gemacht hast, steht dort `False` — der Prüfstand ist weg,
+weil du ihn verschoben hast. Steht `True`, liegt noch eine doppelte Kopie
+deiner Daten auf der Platte. Genau das findet ein Prüfer.
+
+### 8. Prüfen
+
+Erst aufräumen, dann prüfen — `wb` schaut auch auf das Aufräumen:
 
 ```powershell
 .\wb check 05
@@ -120,16 +132,6 @@ notepad "$a\antworten.toml"
 Diese Übung läuft auf Windows 11 unverändert. `robocopy`, `Get-FileHash`,
 `Move-Item` und `Test-Path` sind überall gleich.
 
-## Aufräumen
-
-```powershell
-Test-Path C:\wb\restore-probe | Out-File "$a\aufraeumen.txt"
-```
-
-Wenn du Schritt 5 gemacht hast, steht dort `False` — der Prüfstand ist weg,
-weil du ihn verschoben hast. Steht `True`, liegt noch eine doppelte Kopie
-deiner Daten auf der Platte. Genau das findet ein Prüfer.
-
 ## Abgabe
 
 Im Ordner `abgabe`:
@@ -138,7 +140,7 @@ Im Ordner `abgabe`:
 - `datenverlust.txt` — enthält `False`
 - `restore.log` — das Protokoll der Wiederherstellung
 - `wiederhergestellt.txt` — die Dateien sind wieder da
-- `antworten.toml` — mit `hash_vorher` und `hash_nachher`
+- `antworten.toml` — mit `hash_vorher`, `hash_nachher` und `was_war_weg`
 - `aufraeumen.txt` — enthält `False`
 
 ## KI-Stufe: ohne

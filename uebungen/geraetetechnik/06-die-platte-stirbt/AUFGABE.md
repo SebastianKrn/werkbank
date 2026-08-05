@@ -62,11 +62,11 @@ Get-PhysicalDisk | Format-List FriendlyName,HealthStatus,OperationalStatus |
 notepad "$a\spiegel-defekt.txt"
 ```
 
-Was du jetzt siehst, ist die Sprache, in der Windows „eine Platte fehlt" sagt:
+Was du jetzt siehst, ist die Sprache, in der Windows „eine Platte fehlt“ sagt:
 
 | Meldung | Bedeutung |
 |---|---|
-| `HealthStatus : Warning` | „Achtung, aber ich lebe." |
+| `HealthStatus : Warning` | „Achtung, aber ich lebe.“ |
 | `OperationalStatus : Degraded` oder `Incomplete` | Der Spiegel läuft nur noch einfach — kein Schutz mehr. |
 | `OperationalStatus : Lost Communication` (bei der Platte) | Diese Platte antwortet nicht mehr. |
 
@@ -122,19 +122,7 @@ Copy-Item "uebungen\06-die-platte-stirbt\material\antworten-vorlage.toml" "$a\an
 notepad "$a\antworten.toml"
 ```
 
-### 7. Prüfen
-
-```powershell
-.\wb check 06
-```
-
-## Falls du Windows 11 nutzt
-
-Alle Befehle sind identisch. Ein Unterschied: Windows 11 zeigt für einen
-beeinträchtigten Speicherplatz zusätzlich eine Meldung in den Einstellungen an —
-die Befehle sagen dasselbe, nur früher.
-
-## Aufräumen
+### 7. Aufräumen
 
 Die Rettungskopie war für den Notfall. Der Notfall ist vorbei:
 
@@ -146,6 +134,20 @@ Test-Path C:\wb\rettung.txt | Out-File "$a\aufraeumen.txt"
 **Der Spiegel bleibt stehen** — aber gesund. Einen beeinträchtigten Spiegel
 stehen zu lassen, wäre der schlimmste Fehler dieser Übung: Fällt die zweite
 Platte aus, sind die Daten weg.
+
+### 8. Prüfen
+
+Erst aufräumen, dann prüfen — `wb` schaut auch auf das Aufräumen:
+
+```powershell
+.\wb check 06
+```
+
+## Falls du Windows 11 nutzt
+
+Alle Befehle sind identisch. Ein Unterschied: Windows 11 zeigt für einen
+beeinträchtigten Speicherplatz zusätzlich eine Meldung in den Einstellungen an —
+die Befehle sagen dasselbe, nur früher.
 
 ## Abgabe
 
@@ -161,7 +163,7 @@ Im Ordner `abgabe`:
 
 **Zuerst selbst.** Danach eine sehr gute Frage an eine KI: „Was passiert bei
 Storage Spaces, wenn ich eine defekte Platte ersetze — muss ich sie dem Pool
-hinzufügen?" Prüfe die Antwort an deinem eigenen System nach. Bei Speicherplätzen
+hinzufügen?“ Prüfe die Antwort an deinem eigenen System nach. Bei Speicherplätzen
 erzählen KIs oft Halbwahrheiten, weil sich das Verhalten zwischen
 Windows-Versionen geändert hat.
 
