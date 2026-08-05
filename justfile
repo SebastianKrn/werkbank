@@ -44,6 +44,7 @@ lint-inhalt:
 #
 # Linux only, and `--erlaube-ohne-windows` is mandatory here: this box cannot
 # produce wb.exe (ADR 0006), and the step tests the assembly, not the build.
+[doc('Assemble a throwaway ZIP, like the packaging smoke test in CI')]
 [unix]
 paket-test:
     cargo build --manifest-path {{runner}}/Cargo.toml
@@ -56,6 +57,7 @@ paket-test:
 # content licence, no trainer material, no solutions, no dotfiles, and eight
 # surviving abgabe/ folders in the archive). Those assertions live only in the
 # workflow. `paket-test` is Linux-only, so this recipe is too.
+[doc('Everything the pipeline checks (see the comment for the one gap)')]
 [unix]
 ci: lint test lint-inhalt paket-test
 
@@ -75,6 +77,7 @@ hash salt +antworten:
 #     just package geraetetechnik --erlaube-ohne-windows
 #
 # The real pilot ZIP comes from a tag via .github/workflows/release.yml (ADR 0006).
+[doc('Build the learner ZIP locally — needs --erlaube-ohne-windows on this box')]
 [unix]
 package modul=default_modul *args:
     #!/usr/bin/env bash
