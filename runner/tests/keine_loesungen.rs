@@ -69,26 +69,6 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
-fn read_files_recursively(dir: &Path, out: &mut Vec<(PathBuf, String)>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let Ok(meta) = entry.metadata() else { continue };
-        if meta.is_dir() {
-            read_files_recursively(&path, out);
-        } else if matches!(
-            path.extension().and_then(|e| e.to_str()),
-            Some("md" | "txt")
-        ) {
-            if let Ok(text) = std::fs::read_to_string(&path) {
-                out.push((path, text));
-            }
-        }
-    }
-}
-
 /// Every salt shipped with the content, and every hash accepted anywhere.
 /// Salts are collected repo-wide on purpose: a doc that pairs a real answer
 /// with a *decoy* salt is still a leak, because the real salt is public.
@@ -132,22 +112,59 @@ fn shipped_salts_and_hashes() -> (Vec<String>, HashSet<String>) {
     (salts, hashes)
 }
 
-/// The quoted arguments of every `intern hash` invocation in a document.
+/// The arguments of every `intern hash` invocation in a document.
+///
+/// Quotes are a shell habit, not a rule: a single-word answer needs none, and
+/// the author who writes it without them is the one this test exists for. So
+/// every token after `intern hash` counts, quoted or not — minus the flags and
+/// their values, which are the only things that are legitimately there.
 fn hash_command_arguments(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     for (index, _) in text.match_indices("intern hash") {
-        // A documented invocation may wrap over continuation lines, so read to
-        // the end of the command rather than the end of the line.
-        let rest = &text[index..];
-        let end = rest
-            .find("\n\n")
-            .or_else(|| rest.find("```"))
-            .unwrap_or(rest.len());
-        let command = &rest[..end];
+        // A command ends at the end of its line — unless the line ends in a
+        // shell continuation, which is how the documented example is written.
+        // Reading further would swallow the prose underneath and accuse it.
+        let rest = &text[index + "intern hash".len()..];
+        let mut command = String::new();
+        for line in rest.lines() {
+            let trimmed = line.trim_end();
+            command.push_str(trimmed);
+            command.push(' ');
+            if !trimmed.ends_with('\\') {
+                break;
+            }
+        }
+        let command = command.as_str();
+
+        let mut skip_next = false;
         for (position, part) in command.split('"').enumerate() {
-            // Odd indices are the quoted spans.
-            if position % 2 == 1 && !part.trim().is_empty() {
-                out.push(part.to_string());
+            if position % 2 == 1 {
+                // A quoted span is one argument, whatever is inside it.
+                if !part.trim().is_empty() {
+                    out.push(part.to_string());
+                }
+                continue;
+            }
+            for token in part.split_whitespace() {
+                if skip_next {
+                    skip_next = false;
+                    continue;
+                }
+                // `--salt wb1:gt:09` and line continuations are not answers.
+                if token == "\\" {
+                    continue;
+                }
+                if let Some((flag, value)) = token.split_once('=') {
+                    if flag.starts_with('-') {
+                        let _ = value;
+                        continue;
+                    }
+                }
+                if token.starts_with('-') {
+                    skip_next = true;
+                    continue;
+                }
+                out.push(token.to_string());
             }
         }
     }
@@ -162,13 +179,13 @@ fn no_documented_hash_command_contains_a_real_answer() {
         "found no salts/hashes in uebungen/ — the tripwire would pass vacuously"
     );
 
-    let mut prose = Vec::new();
-    read_files_recursively(&repo_root().join("docs"), &mut prose);
-    read_files_recursively(&repo_root().join("trainer"), &mut prose);
-    prose.push((
-        PathBuf::from("README.md"),
-        std::fs::read_to_string(repo_root().join("README.md")).unwrap_or_default(),
-    ));
+    // Every Markdown file, not just docs/ and trainer/: the files that ship to
+    // learners — AUFGABE.md, START_HIER.md, answer templates — are exactly
+    // where a documented hashing recipe would do the most damage.
+    let prose: Vec<(PathBuf, String)> = markdown_files()
+        .into_iter()
+        .filter_map(|path| std::fs::read_to_string(&path).ok().map(|text| (path, text)))
+        .collect();
     assert!(!prose.is_empty(), "found no documentation to scan");
 
     let mut leaks = Vec::new();

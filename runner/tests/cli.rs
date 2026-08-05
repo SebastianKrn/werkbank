@@ -823,3 +823,38 @@ fn a_missing_argument_is_not_reported_as_an_unknown_command() {
         "the learner must be told what is missing:\n{text}"
     );
 }
+
+/// Copying an exercise folder as a backup is a reasonable thing for a beginner
+/// to do, and `uebungen/` is where they would put it. The counter must not
+/// double, and `wb check 01` must not become ambiguous — the learner's own
+/// safety measure would otherwise lock them out of the module.
+///
+/// The id-matches-folder-name rule already carries this: the copy cannot load,
+/// so it is reported as unreadable instead of competing for the id. This test
+/// exists to keep that side effect, which nothing else states.
+#[test]
+fn a_copied_exercise_folder_does_not_double_the_module() {
+    let sandbox = Sandbox::new();
+    let source = sandbox.exercise("01-erste-schritte");
+    let copy = sandbox.path().join("uebungen").join("kopie-01");
+    copy_dir(&source, &copy);
+
+    let output = sandbox.wb().arg("status").output().expect("status");
+    let text = stdout(&output);
+    assert!(
+        text.contains("0 von 3 Übungen"),
+        "a copy must not be counted as a fourth exercise:\n{text}"
+    );
+    assert!(
+        text.contains("kopie-01") && text.contains("Trainer"),
+        "and the learner must be told which folder is the problem:\n{text}"
+    );
+
+    let check = sandbox.wb().args(["check", "01"]).output().expect("check");
+    assert_ne!(
+        check.status.code(),
+        Some(2),
+        "`wb check 01` must still resolve:\n{}",
+        stderr(&check)
+    );
+}
