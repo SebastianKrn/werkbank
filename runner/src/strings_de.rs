@@ -157,7 +157,7 @@ So arbeitest du:
 Befehle:
 {}Zeigt alle Übungen und wo du stehst.
 {}Prüft die Übung, an der du gerade bist.
-{}Prüft eine bestimmte Übung, z. B.: {WB} check 01-erste-schritte
+{}Prüft eine bestimmte Übung, z. B.: {WB} check 01
 {}Speichert eine Systemausgabe in deine Abgabe,
   {:<SPALTE$}z. B.: {WB} erfasse systeminfo
 {}Zeigt, welche Ausgaben es gibt.
@@ -188,6 +188,17 @@ Gut zu wissen:
 
 pub fn unbekannter_befehl() -> String {
     format!("Diesen Befehl kenne ich nicht.\n\nTippe \"{WB} hilfe\", dann siehst du alle Befehle.")
+}
+
+/// The command exists, something after it does not. Saying „kenne ich nicht"
+/// here sends the learner looking for the wrong mistake — and the command they
+/// just typed is printed in the help two lines further down.
+pub fn befehl_unvollstaendig() -> String {
+    format!(
+        "Zu diesem Befehl fehlt noch eine Angabe.\n\n\
+         Beispiel:  {WB} loesung 01\n\
+         Welche Angaben ein Befehl braucht, steht unten."
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -241,6 +252,18 @@ pub fn uebung_kaputt(pfad: &str, probleme: &[String]) -> String {
 
 pub fn schreibfehler(pfad: &str, problem: &str) -> String {
     format!("Ich kann \"{pfad}\" nicht schreiben.\nGrund: {problem}")
+}
+
+/// `wb check` and `wb status` keep their result when only the bookkeeping
+/// fails: the learner has done the work either way, and a beginner who is
+/// shown a write error instead of „Sehr gut!" learns nothing from it.
+pub fn fortschritt_nicht_gespeichert(problem: &str) -> String {
+    format!(
+        "Hinweis: Deinen Fortschritt konnte ich nicht speichern.\n\
+         Das Ergebnis oben stimmt trotzdem — gemerkt wird es diesmal nur nicht.\n\
+         Grund: {problem}\n\
+         Sag deinem Trainer Bescheid, wenn das öfter vorkommt."
+    )
 }
 
 // ---------------------------------------------------------------------------

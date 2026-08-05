@@ -79,7 +79,6 @@ pub fn check(
 
     let result = checks::run_all(exercise);
     progress.record(exercise, &result, true);
-    progress.save(&workspace.progress_path())?;
 
     let passed = result.is_passed(exercise);
     if json_output {
@@ -87,6 +86,9 @@ pub fn check(
     } else {
         print_check_text(workspace, &progress, exercise, &result, symbols);
     }
+    // Saved after the feedback, and never at its expense: the exit code
+    // belongs to the checks, not to the filesystem.
+    warn_if_unsaved(&progress, workspace);
     Ok(if passed { 0 } else { 1 })
 }
 
@@ -216,7 +218,6 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
         // `status` looks, it does not count as an attempt.
         progress.record(exercise, result, false);
     }
-    progress.save(&workspace.progress_path())?;
 
     let passed_count = results
         .iter()
@@ -229,6 +230,7 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
 
     if json_output {
         println!("{}", status_json(workspace, &results, passed_count, next));
+        warn_if_unsaved(&progress, workspace);
         return Ok(0);
     }
 
@@ -299,6 +301,7 @@ pub fn status(workspace: &Workspace, json_output: bool, symbols: Symbols) -> Res
         Some(exercise) => println!("{}", de::status_naechster(&exercise.id)),
         None => println!("{}", de::alles_geschafft()),
     }
+    warn_if_unsaved(&progress, workspace);
     if !workspace.broken.is_empty() {
         println!();
         println!(
@@ -606,6 +609,23 @@ fn hash(salt: &str, answers: &[String]) -> Result<i32> {
 // ---------------------------------------------------------------------------
 // shared helpers
 // ---------------------------------------------------------------------------
+
+/// Persist progress, and say so in German if it did not work.
+///
+/// `check` and `status` compute their answer from the files on disk, so a
+/// failed save costs the learner nothing but the memory of it — while
+/// aborting would cost them the answer. `bericht` is deliberately not routed
+/// through here: writing a file the learner hands in *is* its job, so failing
+/// loudly is the honest outcome there.
+fn warn_if_unsaved(progress: &Progress, workspace: &Workspace) {
+    if let Err(problem) = progress.save(&workspace.progress_path()) {
+        println!();
+        println!(
+            "{}",
+            de::fortschritt_nicht_gespeichert(&problem.to_string())
+        );
+    }
+}
 
 /// The exercise a bare `wb check` means: the first one not yet *recorded* as
 /// passed.

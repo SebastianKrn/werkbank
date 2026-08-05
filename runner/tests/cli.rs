@@ -705,3 +705,121 @@ fn every_suggested_command_can_be_pasted_into_the_shell() {
         bare.join("\n")
     );
 }
+
+// ---------------------------------------------------------------------------
+// Storage failures must not cost the learner their feedback
+// ---------------------------------------------------------------------------
+
+/// Bookkeeping is not the product. If `fortschritt.json` cannot be written —
+/// a tree made read-only after the work was done, or the file held open by
+/// antivirus, backup or sync on Windows — the learner must still see whether
+/// their exercise is green.
+#[cfg(unix)]
+#[test]
+fn a_failed_progress_write_still_shows_the_check_result() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let sandbox = Sandbox::new();
+    sandbox.write(
+        "uebungen/01-erste-schritte/abgabe/notiz.txt",
+        "eins\nzwei\ndrei\n",
+    );
+
+    // Read-only root, and no .werkbank yet, so the save really fails.
+    let root = sandbox.path();
+    let original = std::fs::metadata(root).expect("metadata").permissions();
+    std::fs::set_permissions(root, std::fs::Permissions::from_mode(0o555)).expect("chmod");
+
+    let check = sandbox.wb().args(["check", "01"]).output().expect("check");
+    let status = sandbox.wb().arg("status").output().expect("status");
+
+    std::fs::set_permissions(root, original).expect("restore");
+
+    let check_text = stdout(&check);
+    assert!(
+        check_text.contains("Sehr gut!"),
+        "a solved exercise must still be reported as solved:\n{check_text}\n--- stderr ---\n{}",
+        stderr(&check)
+    );
+    assert_eq!(
+        check.status.code(),
+        Some(0),
+        "the exit code must follow the checks, not the filesystem"
+    );
+
+    let status_text = stdout(&status);
+    assert!(
+        status_text.contains("01-erste-schritte"),
+        "status must still draw the map:\n{status_text}\n--- stderr ---\n{}",
+        stderr(&status)
+    );
+    assert_eq!(status.status.code(), Some(0));
+
+    // The learner is told, once, in German — not left to wonder.
+    for output in [&check, &status] {
+        let all = stdout(output) + &stderr(output);
+        assert!(
+            all.contains("Fortschritt") && all.contains("nicht speichern"),
+            "the learner must learn that progress was not saved:\n{all}"
+        );
+    }
+}
+
+/// The built-in help shows a worked example, and beginners type worked examples
+/// verbatim. It named `01-erste-schritte`, which exists in the test fixture and
+/// in no shipped module.
+#[test]
+fn the_help_example_names_an_exercise_that_actually_exists() {
+    let sandbox = Sandbox::new();
+    let help = stdout(&sandbox.wb().arg("hilfe").output().expect("hilfe"));
+
+    let example = help
+        .lines()
+        .filter(|line| line.contains("z. B.:"))
+        .find_map(|line| line.split("z. B.:").nth(1))
+        .and_then(|rest| rest.split("check ").nth(1))
+        .map(|rest| rest.split_whitespace().next().unwrap_or("").to_string())
+        .filter(|id| !id.is_empty() && !id.starts_with('<'))
+        .expect("the help must show a worked `check` example");
+
+    // The example ships to the classroom, so it has to resolve against the
+    // module that ships — not only against the test fixture.
+    let shipped = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("repo root");
+    for root in [sandbox.path(), shipped] {
+        let mut command = Command::cargo_bin("wb").expect("binary wb");
+        let output = command
+            .args(["check", &example])
+            .arg("--wurzel")
+            .arg(root)
+            .output()
+            .expect("run the example");
+        assert_ne!(
+            output.status.code(),
+            Some(2),
+            "`wb check {example}` comes from the built-in help but does not \
+             resolve in {}:\n{}",
+            root.display(),
+            stderr(&output)
+        );
+    }
+}
+
+/// A beginner who forgets an argument to a real command was told the command
+/// does not exist — and then shown that same command in the help below.
+#[test]
+fn a_missing_argument_is_not_reported_as_an_unknown_command() {
+    let sandbox = Sandbox::new();
+    let output = sandbox.wb().arg("loesung").output().expect("run loesung");
+    assert_eq!(output.status.code(), Some(2));
+    let text = stderr(&output);
+    assert!(
+        !text.contains("Diesen Befehl kenne ich nicht"),
+        "`wb loesung` is a documented command, only its ID is missing:\n{text}"
+    );
+    assert!(
+        text.contains("fehlt"),
+        "the learner must be told what is missing:\n{text}"
+    );
+}

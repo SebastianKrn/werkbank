@@ -115,6 +115,46 @@ fn file_exists_empty_file_does_not_count() {
     );
 }
 
+/// PowerShell writes a byte-order mark before it writes anything else, so
+/// `… | Out-File x.txt` on an empty pipeline leaves a file that is two or three
+/// bytes long and contains nothing. Six of the shipped basis checks are a bare
+/// `file_exists`, and exercise 06 rescues a file from a degraded mirror —
+/// precisely the step whose command is expected to be able to produce nothing.
+/// A green tick there would tell the learner they saved data they did not save.
+#[test]
+fn file_exists_rejects_a_file_that_holds_only_a_byte_order_mark() {
+    for (name, bom) in [
+        ("utf16le", &[0xFFu8, 0xFE][..]),
+        ("utf16be", &[0xFE, 0xFF][..]),
+        ("utf8", &[0xEF, 0xBB, 0xBF][..]),
+    ] {
+        let fixture = Fixture::new(FILE_EXISTS);
+        fixture.write_bytes("abgabe/notiz.txt", bom);
+        let outcome = fixture.run_first();
+        assert!(
+            !outcome.passed,
+            "a bare {name} BOM is an empty file, not a deliverable"
+        );
+        assert_eq!(
+            outcome.detail,
+            Some(Detail::FileEmpty {
+                path: "abgabe/notiz.txt".into()
+            }),
+            "{name}"
+        );
+    }
+}
+
+/// Whitespace is not a deliverable either — an `Out-File` that produced only a
+/// newline is the same empty rescue as above.
+#[test]
+fn file_exists_rejects_a_file_that_holds_only_whitespace() {
+    let fixture = Fixture::new(FILE_EXISTS);
+    fixture.write("abgabe/notiz.txt", "\r\n   \r\n");
+    let outcome = fixture.run_first();
+    assert!(!outcome.passed);
+}
+
 #[test]
 fn file_exists_passes() {
     let fixture = Fixture::new(FILE_EXISTS);
