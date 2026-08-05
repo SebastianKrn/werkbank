@@ -939,3 +939,85 @@ fn an_all_damaged_module_names_the_damaged_folders() {
     );
     assert_eq!(output.status.code(), Some(2));
 }
+
+/// Every `wb erfasse <preset>` an exercise tells the learner to run must write
+/// the file that exercise's checks then look for. A rename on either side
+/// produces the most demoralising loop in the product: the learner runs the
+/// documented command, is told "Gespeichert: abgabe/…", runs `wb check`, and is
+/// told the file is not there.
+#[test]
+fn every_documented_capture_writes_the_file_its_exercise_checks_for() {
+    let shipped = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("repo root")
+        .join("uebungen");
+
+    // The preset table, as the learner sees it.
+    let mut command = Command::cargo_bin("wb").expect("binary wb");
+    let listing = stdout(&command.arg("erfasse").output().expect("run erfasse"));
+    let presets: Vec<String> = listing
+        .lines()
+        .filter(|line| line.starts_with("  ") && !line.trim().is_empty())
+        .filter_map(|line| line.split_whitespace().next())
+        .filter(|word| word.chars().all(|c| c.is_ascii_lowercase()))
+        .map(str::to_string)
+        .collect();
+    assert!(
+        presets.len() >= 9,
+        "preset listing not understood:\n{listing}"
+    );
+
+    let mut problems = Vec::new();
+    let mut checked = 0usize;
+    let mut stack = vec![shipped];
+    while let Some(dir) = stack.pop() {
+        for entry in std::fs::read_dir(&dir).expect("read dir").flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                stack.push(path);
+                continue;
+            }
+            if path.file_name().and_then(|n| n.to_str()) != Some("AUFGABE.md") {
+                continue;
+            }
+            let task = std::fs::read_to_string(&path).expect("read AUFGABE.md");
+            let toml = std::fs::read_to_string(path.with_file_name("exercise.toml"))
+                .expect("read exercise.toml");
+            // Only the paths checks actually read. Searching the whole file
+            // would let a hint that merely names the file satisfy the test.
+            let checked_paths: Vec<String> = toml
+                .lines()
+                .map(str::trim)
+                .filter(|line| line.starts_with("path =") || line.starts_with("file ="))
+                .filter_map(|line| line.split('"').nth(1).map(str::to_string))
+                .collect();
+
+            for used in task
+                .match_indices("wb erfasse ")
+                .filter_map(|(at, _)| task[at + "wb erfasse ".len()..].split_whitespace().next())
+                // Prose uses `wb erfasse …` as a placeholder in a table header;
+                // only a plausible preset name is a claim about a preset.
+                .filter(|word| !word.is_empty() && word.chars().all(|c| c.is_ascii_lowercase()))
+            {
+                if !presets.iter().any(|p| p == used) {
+                    problems.push(format!("{}: uses unknown preset `{used}`", path.display()));
+                    continue;
+                }
+                checked += 1;
+                // `ordnerliste` can be pointed at any folder, so its output name
+                // is the only one an exercise may legitimately not check.
+                let expected = format!("abgabe/{used}.txt");
+                if used != "ordnerliste" && !checked_paths.contains(&expected) {
+                    problems.push(format!(
+                        "{}: tells the learner to run `wb erfasse {used}`, but no check \
+                         mentions `{expected}`",
+                        path.display()
+                    ));
+                }
+            }
+        }
+    }
+
+    assert!(checked > 0, "no documented capture found — test is vacuous");
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
