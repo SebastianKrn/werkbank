@@ -31,12 +31,15 @@ change.
 
 ## Decision
 
-**One public repository** (`stoicera/werkbank`) holding 1–3, plus **one private
-repository** (`werkbank-loesungen`) holding solutions, mirroring exercise IDs.
+**One public repository** (written here in July 2026 as `stoicera/werkbank`;
+the repo is `SebastianKrn/werkbank` — see Corrections above) holding 1–3, plus
+**one private repository** (`werkbank-loesungen`) holding solutions, mirroring
+exercise IDs.
 
-- `trainer/` lives in the public repo but is **excluded from the learner ZIP**
-  by `just package`, together with dotfiles. The ZIP is the security boundary
-  that matters in the classroom, not repository visibility.
+- `trainer/` lives in the public repo but is **excluded from the learner ZIP**,
+  together with dotfiles. The exclusion was written here as a `just package`
+  step and lives today in `scripts/paket.sh` (ADR 0006). The ZIP is the security
+  boundary that matters in the classroom, not repository visibility.
 - Solutions are the one thing that never enters the public repo in any form —
   see ADR 0003.
 - Licences split by directory: `runner/` MIT OR Apache-2.0, `uebungen/` and
@@ -56,9 +59,10 @@ Positive:
 
 Negative / accepted costs:
 
-- Exclusion is enforced by the packaging recipe, not by access control. If
-  `just package` is wrong, trainer material ships. The manifest exists to make
-  that visible, and M3's test protocol checks a built ZIP.
+- Exclusion is enforced by the packaging step, not by access control. If that
+  step is wrong, trainer material ships. The manifest exists to make that
+  visible, M3's test protocol checks a built ZIP, and `scripts/paket.sh` fails
+  the build outright on a forbidden path (the tripwire named in Corrections).
 - Contributors see trainer material they may not need. Acceptable: it is not
   secret, only not-for-learners.
 - Two repositories still have to be kept in sync by hand for solutions. This is

@@ -103,8 +103,18 @@ cd werkbank-geraetetechnik
 ls -l wb.exe                          # muss da sein, ~2 MB
 cat VERSION.txt                       # muss v0.1.0-rc3 sagen
 ./wb status                           # 8 Übungen, Fortschritt 0 von 8
-grep -rl "trainer/" . || echo "kein Trainer-Material im ZIP - gut"
+
+# Dieselbe Stolperdraht-Regel wie in scripts/paket.sh, nur auf das ausgepackte
+# ZIP angewandt: geprüft werden Pfadnamen, nicht Dateiinhalte. Ein sauberes ZIP
+# gibt hier gar nichts aus.
+find . | grep -Ei 'trainer/|loesung|lösung'
 ```
+
+> **Warum `find` und nicht `grep -r`?** `grep -r "trainer/" .` durchsucht
+> *Inhalte*. `uebungen/LICENSE` erwähnt `trainer/` in einem Satz über die
+> Lizenzen und liegt in jedem ZIP — der Befehl schlug also bei jedem Release
+> an und war ein Fehlalarm am Freeze-Tag. Verboten ist der *Pfad*, nicht das
+> Wort.
 
 Prüfliste:
 
@@ -112,7 +122,7 @@ Prüfliste:
 - [ ] `wb.exe` liegt im ZIP
 - [ ] `VERSION.txt` nennt den Tag, den du gepusht hast
 - [ ] `./wb status` zeigt acht Übungen
-- [ ] Kein `trainer/`-Ordner, keine `LOESUNG.md`
+- [ ] Der `find`-Befehl bleibt stumm — kein `trainer/`-Ordner, keine `LOESUNG.md`
 - [ ] Auf der Release-Seite steht bei `-rc` **Pre-release**
 
 Release-Seite:

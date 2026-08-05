@@ -23,7 +23,7 @@ Design thesis (validated at 42 Wels by counterexample): beginners in health-rela
 
 ## Stack
 
-Rust stable, single crate `runner/` (binary `wb`): clap (derive), serde + toml, regex, sha2, encoding_rs/chardetng. No async, no network crates. Cross-compile: windows-msvc (primary), linux-gnu, macos-aarch64. Content: Markdown + TOML under `uebungen/`. Build orchestration: `just`. CI: GitHub Actions (windows-latest is the platform that matters).
+Rust stable, single crate `runner/` (binary `wb`): clap (derive), serde + toml, regex, sha2, encoding_rs. No async, no network crates. Cross-compile: windows-msvc (primary), linux-gnu (dev); macOS is not built. Content: Markdown + TOML under `uebungen/`. Build orchestration: `just`. CI: GitHub Actions (windows-latest is the platform that matters).
 
 ## Engineering standards
 

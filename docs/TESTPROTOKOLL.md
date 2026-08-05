@@ -112,11 +112,12 @@ Alles im Ordner `C:\werkbank-geraetetechnik`.
 | B5 | `.\wb check 01` (bevor du irgendetwas gemacht hast) | Scheitert freundlich, benennt was fehlt, gibt einen Hinweis und **keine Lösung** | |
 | B6 | `.\wb loesung 01` | Didaktische Absage, verweist auf etwas Nützliches | |
 | B7 | `type VERSION.txt` | Steht `v0.1.0-rc2` — dasselbe wie auf der Release-Seite | |
+| B8 | `notepad uebungen\01-dein-server-deine-firma\AUFGABE.md` | **Das erste, was ein Lernender liest.** Überschrift `Übung 01 — Dein Server, deine Firma`, die Anführungszeichen um „Windows PowerShell (Administrator)“ und jedes `ä ö ü ß` stehen sauber da. Die Datei ist UTF-8 ohne BOM — erkennt Notepad das nicht, sieht der Einstieg zerhackt aus, bevor ein einziger Befehl gelaufen ist | |
 
-Zeigt B2 `Ã¼` oder Kästchen: **das ist ein Fund, keine Schönheitsfrage.** Wer
-zerhackte deutsche Wörter liest, verliert sofort das Vertrauen ins Werkzeug.
+Zeigt B2 oder B8 `Ã¼` oder Kästchen: **das ist ein Fund, keine Schönheitsfrage.**
+Wer zerhackte deutsche Wörter liest, verliert sofort das Vertrauen ins Werkzeug.
 
-- [ ] B1–B7 erledigt
+- [ ] B1–B8 erledigt
 
 ---
 
@@ -127,7 +128,7 @@ Datei öffnen**. Ein Preset, das mit Rückgabewert 0 endet und dabei eine
 Fehlermeldung in die Datei schreibt, ist genau der Fehler, den wir hier suchen.
 Der Rückgabewert allein sagt nichts.
 
-### C.1 — Die sieben, die ohne Vorbereitung laufen
+### C.1 — Die acht, die ohne Vorbereitung laufen
 
 ```powershell
 cd C:\werkbank-geraetetechnik
@@ -360,15 +361,25 @@ Damit die nächste Arbeitssitzung nichts neu herleiten muss:
 
 ## Anhang — Windows 11, später
 
-Die Übungen 04 und 07 haben je einen Abschnitt „Falls du Windows 11 nutzt"
-(VSS in 04, BitLocker-Feature in 07). Diese beiden Hinweise sind **nicht**
-geprüft, solange du nur auf Server 2022 testest.
+**Sechs Übungen** haben einen Abschnitt „Falls du Windows 11 nutzt": 03, 04,
+05, 06, 07 und 08. Keiner davon ist geprüft, solange du nur auf Server 2022
+testest.
+
+Nicht alle sechs wiegen gleich schwer:
+
+| Übung | Was der Abschnitt sagt | Gewicht |
+|---|---|---|
+| 04 | `vssadmin create shadow` gibt es nur auf Server-Systemen; auf Windows 11 führt ein **anderer Befehl** zur Schattenkopie | **echter Unterschied** |
+| 07 | BitLocker ist auf Windows 11 Pro/Enterprise eingebaut, auf Home gar nicht da | **echter Unterschied** |
+| 03, 06, 08 | Befehle identisch, nur die Oberfläche benennt Dinge anders | Wortlaut |
+| 05 | läuft unverändert | Zusicherung |
 
 **Das ist bewusst so verschoben.** Die LB läuft auf Windows Server 2022; das
 ist der Weg, an dem der Pilot hängt. Die Windows-11-Hinweise betreffen nur
 Lernende, die freiwillig auf einer anderen VM arbeiten.
 
 Wenn du sie prüfen willst, brauchst du eine zweite VM (Windows 11 **Pro** — in
-Home fehlt BitLocker) und musst darin nur die Übungen 04 und 07 laufen lassen,
-ca. 90 Minuten. Bis dahin gilt: die beiden Abschnitte sind ungeprüft, und das
-gehört in `docs/MILESTONES.md`.
+Home fehlt BitLocker). Die beiden echten Unterschiede stecken in 04 und 07;
+dafür reichen ca. 90 Minuten. Die vier übrigen Abschnitte prüfst du nebenbei
+mit, wenn du 03, 05, 06 und 08 dort ohnehin durchspielst. Bis dahin gilt: alle
+sechs Abschnitte sind ungeprüft, und das gehört in `docs/MILESTONES.md`.

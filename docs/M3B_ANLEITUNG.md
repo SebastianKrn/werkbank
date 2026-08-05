@@ -237,7 +237,7 @@ Damit es niemand für vergessen hält:
 
 | Nicht gemacht | Warum |
 |---|---|
-| Windows-11-Gegenprobe für die Übungen 04 und 07 | Die LB läuft auf Server 2022. Die Windows-11-Hinweise betreffen nur Lernende, die freiwillig anders arbeiten. Anhang im Testprotokoll, ca. 90 min, wenn du es willst. |
+| Windows-11-Gegenprobe für die sechs Übungen mit „Falls du Windows 11 nutzt" (03–08) | Die LB läuft auf Server 2022. Die Windows-11-Hinweise betreffen nur Lernende, die freiwillig anders arbeiten. Echte Befehlsunterschiede stehen nur in 04 (VSS) und 07 (BitLocker) — dafür ca. 90 min. Anhang im Testprotokoll, wenn du es willst. |
 | Vorbeugende Windows-Korrekturen vor dem Protokoll | Ohne Beobachtung geraten. Raten macht genau die Beweise kaputt, für die das Protokoll existiert. |
 | Zweites Modul, Plattformfunktionen, Monetarisierung | Gesperrt bis zum M4-Gate. |
 

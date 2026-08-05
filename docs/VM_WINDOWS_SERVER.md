@@ -353,9 +353,11 @@ aber das Netzwerk deiner VM ist dort schon fertig konfiguriert.
 2. **Übung 06 und 07 sind für eine Maschine gefährlich, die du nur über das
    Netz erreichst.** Du simulierst einen Plattenausfall und verschlüsselst ein
    Laufwerk. Geht dabei etwas schief, sitzt du nicht davor.
-3. **Das Protokoll verlangt, das Netzwerk zu trennen** (alles muss offline
-   funktionieren). Auf einer Maschine, die du über das Netz bedienst, geht das
-   nicht.
+3. **Der Offline-Betrieb bliebe dort für immer unprüfbar.** Das Protokoll hat
+   heute keinen Schritt, der das Netzwerk trennt — „läuft ohne Internet" steht
+   bisher nur in SPEC §2 („Security constraints") und ADR 0001. Auf der lokalen
+   VM kannst du die Netzwerkkarte jederzeit abhängen und es nachholen. Auf einer
+   Maschine, die du ausschließlich über das Netz bedienst, kannst du das nie.
 4. **Die LB läuft auf einer lokalen QEMU-VM.** Der Contabo-Server ist eine
    andere Umgebung.
 

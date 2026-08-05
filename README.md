@@ -155,9 +155,11 @@ exercise, three depths, so a mixed group works from the same material.
   against symlinks when running.
 - **Solutions never live in this repo.** Expected answers exist only as salted
   hashes; plaintext lives in the private `werkbank-loesungen` repository.
-- **Windows encodings are tolerated.** Files are decoded UTF-8 → UTF-16LE →
-  CP850, deterministically, so `systeminfo > datei.txt` on a German console
-  works.
+- **Windows encodings are tolerated.** Files are decoded BOM → BOM-less UTF-16LE
+  → UTF-8 → CP850, deterministically, so `systeminfo > datei.txt` on a German
+  console works. UTF-16LE has to be ruled out *before* UTF-8, because ASCII in
+  UTF-16LE is also valid UTF-8 — the other order turns PowerShell 5.1 output
+  into text full of NUL characters.
 
 Decisions with their trade-offs are recorded in `docs/adr/`.
 
@@ -168,8 +170,13 @@ just build          # or: cargo build --manifest-path runner/Cargo.toml
 just test           # unit + integration tests
 just lint           # fmt --check + clippy -D warnings
 just lint-inhalt    # validate exercise content
-just ci             # everything the pipeline checks
+just paket-test     # assemble a throwaway ZIP (Linux only)
+just ci             # all of the above
 ```
+
+`just ci` covers what the pipeline runs, minus one thing: CI additionally
+asserts the contents of `dist/MANIFEST.txt` after packaging. Those assertions
+live in `.github/workflows/ci.yml` only.
 
 Requires stable Rust. `just` is convenience only — CI runs the same cargo
 commands directly.

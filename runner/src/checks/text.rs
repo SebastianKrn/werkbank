@@ -29,7 +29,10 @@ pub enum TextEncoding {
     Cp850,
 }
 
-/// Decode a byte buffer into text, trying UTF-8 -> UTF-16 -> CP850.
+/// Decode a byte buffer into text.
+///
+/// Order: BOM -> BOM-less UTF-16LE -> UTF-8 -> CP850. UTF-16LE really does
+/// come before UTF-8, for the reason spelled out at the heuristic below.
 pub fn decode(bytes: &[u8]) -> (String, TextEncoding) {
     if let Some(rest) = bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]) {
         return (

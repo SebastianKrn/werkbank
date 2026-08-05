@@ -69,7 +69,7 @@ Sicherheitsgrenze (SPEC §2), keine Stilfrage.
 | maschinenabhängig (Kernzahl, RAM, Firmware-Typ, Seriennummer, eigener Hashwert) | `alle_antworten` — nur Vorhandensein |
 | Freitext, Begründung, Reflexion | `alle_antworten` — Bewertung macht der Trainer |
 | zwei eigene Werte, die übereinstimmen müssen | `werte_gleich` |
-| „hat der Lernende die Arbeit wirklich getan" | `file_matches` auf ein Capture |
+| „hat der Lernende die Arbeit wirklich getan“ | `file_matches` auf ein Capture |
 
 Warum so streng: Eine gehashte Erwartung auf einen maschinenabhängigen Wert
 lässt **korrekte** Arbeit rot werden. Das ist der Vertrauensbruch, den dieses
@@ -83,8 +83,11 @@ Produkt sich nicht leisten kann.
 
 ## 5. Regex-Muster, die auf echten Windows-Systemen halten
 
-Der Runner liest Dateien tolerant (UTF-8 → UTF-16LE → CP850). Um die
-Lokalisierung muss sich das Muster selbst kümmern.
+Der Runner liest Dateien tolerant, in dieser festen Reihenfolge: BOM → UTF-16LE
+ohne BOM → UTF-8 → CP850. UTF-16LE kommt vor UTF-8, weil reiner ASCII-Text in
+UTF-16LE auch gültiges UTF-8 ist — andersherum käme die Ausgabe von
+PowerShell 5.1 voller NUL-Zeichen an. Um die Lokalisierung muss sich das Muster
+selbst kümmern.
 
 - **Eigenschaftsnamen bleiben englisch.** `NumberOfCores`, `PartitionStyle`,
   `RealTimeProtectionEnabled` — daran darf man sich festhalten.
@@ -98,7 +101,7 @@ Lokalisierung muss sich das Muster selbst kümmern.
   `(?m)^\s*0\s*$` für eine gezählte Null. Locale-fest und nicht zufällig
   erfüllbar.
 - **Keine Negation.** Die verwendete Regex-Bibliothek kennt kein Lookaround.
-  „Ordner ist weg" wird positiv bewiesen:
+  „Ordner ist weg“ wird positiv bewiesen:
   `Test-Path … | Out-File abgabe\aufraeumen.txt` → `(?i)(False|Falsch)`.
 - **PowerShell-Booleans sind kulturunabhängig** (`True`/`False`). `|Falsch` im
   Muster ist reine Vorsicht.
@@ -141,7 +144,7 @@ typische Fehler, didaktische Absicht.
 
 Verboten in `werkbank` (CLAUDE.md Regel 6): Klartext-Antworten in Kommentaren,
 in Tests, in Fixtures, in `trainer/`, in Beispieldateien unter `material/`.
-Auch nicht „auskommentiert".
+Auch nicht „auskommentiert“.
 
 ## 8. AUFGABE.md — Aufbau und Sprache
 
@@ -158,7 +161,7 @@ Reihenfolge, die die Übungen 01–07 dieses Moduls einhalten:
 9. **Reflexion** — eine Frage, keine Aufgabe
 10. **Bonus** / **Homelab** — freiwillig, klar gekennzeichnet
 
-Übung 08 („Generalprobe") weicht bewusst ab: sie ist die Prüfungssimulation und
+Übung 08 („Generalprobe“) weicht bewusst ab: sie ist die Prüfungssimulation und
 gliedert sich in `Teil 1/2/3` plus `Abschluss` statt in `Schritte`/`Aufräumen`.
 Das ist die einzige gewollte Ausnahme — neue Übungen folgen dem Aufbau oben.
 
@@ -170,8 +173,8 @@ Sprache:
   Speicherpool, Schattenkopie, Hash.
 - Domänenbegriffe bleiben deutsch: Übung, Abgabe, Fortschritt, Bericht,
   Vertiefung.
-- **Nie beschämend.** Kein „eigentlich trivial", kein „ganz einfach". Statt
-  „falsch" lieber „noch nicht" — und immer den nächsten Schritt nennen.
+- **Nie beschämend.** Kein „eigentlich trivial“, kein „ganz einfach“. Statt
+  „falsch“ lieber „noch nicht“ — und immer den nächsten Schritt nennen.
 - Anfänger tippen keine langen Pfade. Deshalb `$a` in jeder Übung, und deshalb
   liegt in `material/` eine `antworten-vorlage.toml` zum Kopieren: das verhindert
   TOML-Syntaxfehler, den häufigsten mechanischen Frust.
