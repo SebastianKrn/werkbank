@@ -17,8 +17,8 @@ nicht zerlegt, oder dass ein Anfänger an SmartScreen vorbeikommt.
 | **Wer** | Sebastian |
 | **Dauer** | 2–3 Stunden |
 | **Maschine** | frische Windows-Server-2022-VM — Aufbau in `docs/VM_WINDOWS_SERVER.md` |
-| **Testobjekt** | `werkbank-geraetetechnik-v0.1.0-rc2.zip` |
-| **Bezugsquelle** | <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2> |
+| **Testobjekt** | `werkbank-geraetetechnik-v0.1.0-rc3.zip` |
+| **Bezugsquelle** | <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc3> |
 
 **So benutzt du diese Datei:** kopier sie **aus dem Repo heraus** nach
 `~/pruefung-2026-08-TT.md` und füll die Kopie aus. Die Datei hier bleibt leer —
@@ -111,7 +111,7 @@ Alles im Ordner `C:\werkbank-geraetetechnik`.
 | B4 | `.\wb hilfe` | Vollständig deutsch, kein englisches Wort rutscht durch | |
 | B5 | `.\wb check 01` (bevor du irgendetwas gemacht hast) | Scheitert freundlich, benennt was fehlt, gibt einen Hinweis und **keine Lösung** | |
 | B6 | `.\wb loesung 01` | Didaktische Absage, verweist auf etwas Nützliches | |
-| B7 | `type VERSION.txt` | Steht `v0.1.0-rc2` — dasselbe wie auf der Release-Seite | |
+| B7 | `type VERSION.txt` | Steht `v0.1.0-rc3` — dasselbe wie auf der Release-Seite | |
 | B8 | `notepad uebungen\01-dein-server-deine-firma\AUFGABE.md` | **Das erste, was ein Lernender liest.** Überschrift `Übung 01 — Dein Server, deine Firma`, die Anführungszeichen um „Windows PowerShell (Administrator)“ und jedes `ä ö ü ß` stehen sauber da. Die Datei ist UTF-8 ohne BOM — erkennt Notepad das nicht, sieht der Einstieg zerhackt aus, bevor ein einziger Befehl gelaufen ist | |
 
 Zeigt B2 oder B8 `Ã¼` oder Kästchen: **das ist ein Fund, keine Schönheitsfrage.**

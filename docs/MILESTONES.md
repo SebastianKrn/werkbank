@@ -68,6 +68,58 @@ Open at the end of M2 (carried into M3):
 
 Found while writing the protocol, unfixed by design: **seven of nine capture presets have never been executed anywhere.** Tests run only `ordnerliste` and `ipconfig`; `bitlocker` and `schutz` are `unix: None` and cannot run on the Linux dev box at all. Protocol Part C exists to close this. No pre-emptive fixes were written — guessing at Windows behaviour without evidence is how the protocol gets invalidated before it runs.
 
+### M3a′ — QA sprint before the dry runs (Claude-Code session 4) — **done 2026-08-05**
+
+Unplanned, and the reason M3b now starts against a new release candidate. The
+session audited the whole repo along seven independent lenses, verified every
+finding adversarially, and fixed what does not need a Windows VM. 53 findings
+survived verification; 10 were refuted and are recorded as refuted rather than
+silently dropped.
+
+What it changed, by weight:
+
+1. [x] **Two defects a learner would have hit on day one.** Every command the
+   runner suggested was a bare `wb check 01`, which PowerShell refuses — and
+   `START_HIER.md`'s troubleshooting table then blames the wrong folder. And
+   `AUFGABE.md` of exercise 08 told the learner to write a personal answer into
+   a hash-checked basis key, so the capstone could not be passed by following
+   its own text. The staged solve run could not catch that: it fills in correct
+   answers instead of following the task.
+2. [x] **Four accepted answers were live in `trainer/AUTOREN.md`**, side by side
+   in one table cell, illustrating a rule. The existing tripwire only read
+   `intern hash` command arguments. A second one now rejects several accepted
+   answers on one line, measured to flag exactly that and nothing else.
+3. [x] **`wb intern lint` checks the exercise, not just the schema** (ADR 0008).
+   It previously answered "all valid" to a deleted `AUFGABE.md`. Found an
+   unearnable bonus check in the test fixture on its first run.
+4. [x] **Runner robustness**: a failed progress write no longer eats the check
+   feedback; `file_exists` no longer accepts a BOM-only file as content; the
+   8 MiB read cap no longer mojibakes a whole file when it splits a character;
+   an empty or damaged module is no longer reported as finished; `bestanden_am`
+   no longer outlives the pass.
+5. [x] **Pipeline**: the version guard no longer lets `v0.1.0-RC2` publish as a
+   full release; CI now runs the `wb.exe` that ships; the packaging tripwire now
+   catches a symlink; the waived Linux-only ZIP is named so it cannot be
+   mistaken for a release; the ZIP is reproducible; the runner's licences ship.
+6. [x] **Content**: 19 hints referenced `$a`, a variable undefined in a fresh
+   PowerShell window — the learner's evidence file would land in the drive root.
+   Cleanup now precedes the final check in exercises 01–07.
+7. [x] **Documentation**: ten factual errors corrected, each verified against
+   the thing it describes — including a `RELEASE.md` verification command that
+   raised a false rule-6 alarm on every clean release.
+
+Tests: 99 → 120. `just ci` now includes the packaging smoke test.
+
+Deliberately **not** done, unchanged from the M3a decision: no speculative fixes
+to Windows behaviour (regex patterns against PowerShell output, preset commands,
+`manage-bde`). Guessing there destroys the evidence the protocol exists to
+collect. Findings of that kind were turned into sharper protocol steps instead.
+
+Still open and still human (carried into M3b): exercise 08's `protokoll.txt`
+minimum may be satisfiable by `Start-Transcript`'s own header, and exercise 03's
+`spiegel-gesund` may match an unrelated storage pool. Both need a real VM to
+settle — Part D and Part C of the protocol.
+
 ### M3b — Dry runs (human) — **next**
 
 > **Operator runbook: `docs/M3B_ANLEITUNG.md`** (German). That file is the
@@ -78,7 +130,7 @@ Nothing here can be done by a coding session. Each item needs a person, a real
 Windows VM, or another human being. They are strictly in order: item 2 is
 worthless if item 1 found a blocker.
 
-1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against the current pre-release ZIP (v0.1.0-rc2 — rc1 predates the hardening review and is superseded). Build the VM per `docs/VM_WINDOWS_SERVER.md`; instrument is `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut the next rc per `docs/RELEASE.md`, re-run Parts A and B against it.
+1. [ ] **Test protocol run.** Sebastian, ~2–3 h, on a fresh Windows Server 2022 VM against **`v0.1.0-rc3`, which has to be cut first** — rc2 predates the QA sprint above and would measure defects that no longer exist, in strings that no longer ship. Build the VM per `docs/VM_WINDOWS_SERVER.md`; instrument is `docs/TESTPROTOKOLL.md` (copy it, fill in the copy, do not commit it). Part C first — it covers the seven capture presets that have never been executed anywhere. Fix everything found, cut `v0.1.0-rc4` per `docs/RELEASE.md`, re-run Parts A and B against it.
 2. [ ] **External beta.** 42-friend, solo and remote. Send exactly three things: the release link, `trainer/BETA_FEEDBACK.md`, and the instruction to ask nobody. Answering one question by hand destroys the measurement. Blocked on item 1 being clean.
 3. [ ] **Dry-teach.** Sebastian teaches one exercise to Raphael as role play; handbook gaps fixed in `trainer/HANDBUCH_GERAETETECHNIK.md`. Combine with Raphael's outstanding 30-min curriculum review (open since M2).
 4. [ ] **Freeze.** Bump `runner/Cargo.toml` to `0.1.0` if it moved, tag `v0.1.0`, verify the published ZIP, print `trainer/AUSTEILEN_A4.md` one-pagers. The tag is the whole freeze procedure — see `docs/RELEASE.md` and ADR 0006.
@@ -94,7 +146,7 @@ Known coverage gap remaining after PR #3: the `wb erfasse ordnerliste` walk is
 junction-tested only on Unix (`wb check` **is** covered on windows-latest since
 `1a584a0`). Protocol Part F closes it.
 
-Current pre-release: **v0.1.0-rc2** (2026-07-27), <https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2> — built from main after the hardening review (PR #3), pipeline test-gated on both platforms. No human has yet run it on Windows.
+Published pre-release: **v0.1.0-rc2** (2026-07-27) — **superseded**, do not test it. The QA sprint of 2026-08-05 changed learner-facing strings and content after it was built. The test object is `v0.1.0-rc3`, to be cut from main per `docs/RELEASE.md` as the first step of M3b. No human has yet run any build on Windows.
 
 DoD: beta tester finished ≥ 6/8 exercises without mechanical help; ZIP frozen ≥ 3 days before pilot date (and the pilot itself completes before the LB date).
 

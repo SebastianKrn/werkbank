@@ -2,7 +2,8 @@
 
 **Wofür:** Du brauchst diese Anleitung zweimal in M3b.
 
-1. Nach dem Testprotokoll, wenn du Blocker behoben hast → **`v0.1.0-rc3`**
+1. Vor dem Testprotokoll, damit geprüft wird, was heute in `main` steht → **`v0.1.0-rc3`**
+1. Nach dem Testprotokoll, wenn du Blocker behoben hast → **`v0.1.0-rc4`**
 2. Beim Freeze, wenn alles sauber ist → **`v0.1.0`**
 
 **Dauer:** 5 Minuten Arbeit, danach 8–12 Minuten Warten auf die Pipeline.

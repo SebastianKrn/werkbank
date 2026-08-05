@@ -284,11 +284,11 @@ einem Fehler in Übung 05 nicht wieder bei Windows-Installation anfangen.
 
 **In der VM, mit Edge**, auf die Release-Seite gehen:
 
-<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc2>
+<https://github.com/SebastianKrn/werkbank/releases/tag/v0.1.0-rc3>
 
 Zwei Dateien herunterladen:
 
-- `werkbank-geraetetechnik-v0.1.0-rc2.zip`
+- `werkbank-geraetetechnik-v0.1.0-rc3.zip`
 - `SHA256SUMS.txt`
 
 > **Nicht über einen geteilten Ordner, nicht über die Zwischenablage, nicht per
@@ -300,7 +300,7 @@ Zwei Dateien herunterladen:
 
 ```powershell
 cd $HOME\Downloads
-$datei    = "werkbank-geraetetechnik-v0.1.0-rc2.zip"
+$datei    = "werkbank-geraetetechnik-v0.1.0-rc3.zip"
 $erwartet = ((Select-String -Path .\SHA256SUMS.txt -Pattern $datei).Line -split '\s+')[0]
 $ist      = (Get-FileHash $datei -Algorithm SHA256).Hash
 if ($ist -ieq $erwartet) { "OK - Prüfsumme stimmt" }
