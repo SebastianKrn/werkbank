@@ -20,6 +20,20 @@
 //!
 //! What *is* mechanically detectable — and what actually hands an answer over —
 //! is a copyable recipe: a documented command with the plaintext in it.
+//!
+//! ## The second tripwire: answer lists in prose
+//!
+//! The paragraph above rejects the rule "no accepted answer anywhere". It does
+//! not rule out a narrower one, and the gap it left was real: `AUTOREN.md`
+//! illustrated a rule with `` `gpt`, `mirror`, `2`, `inkrementell` `` — four
+//! live answers from four different exercises, in one table cell, in a public
+//! repository.
+//!
+//! A single answer-shaped word in a sentence is unavoidable (`spiegel` is also
+//! a capture preset, `New-Item` is a cmdlet the exercise teaches). *Several on
+//! one line* is not prose, it is a list — and a list is what a reader copies.
+//! Measured over every Markdown file in the repo, that rule flags exactly the
+//! leak and nothing else.
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -180,6 +194,83 @@ fn no_documented_hash_command_contains_a_real_answer() {
          (CLAUDE.md rule 6, ADR 0003):\n{}\n\nUse an invented word such as \
          \"himmelblau\" — never a live answer, and never rely on a decoy salt: \
          the real salts are published in exercise.toml.",
+        leaks.join("\n")
+    );
+}
+
+/// Inline-code spans (`` `like this` ``) on one line, short enough to be an
+/// answer rather than a command line.
+fn inline_code_spans(line: &str) -> Vec<String> {
+    line.split('`')
+        .enumerate()
+        .filter(|(position, part)| position % 2 == 1 && (1..=25).contains(&part.chars().count()))
+        .map(|(_, part)| part.to_string())
+        .collect()
+}
+
+/// Every Markdown file that ships in this repository.
+fn markdown_files() -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    let mut stack = vec![repo_root()];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().to_string();
+            if path.is_dir() {
+                // Build output and version control are not documents.
+                if !matches!(name.as_str(), ".git" | "target" | "dist" | "node_modules") {
+                    stack.push(path);
+                }
+            } else if path.extension().and_then(|e| e.to_str()) == Some("md") {
+                found.push(path);
+            }
+        }
+    }
+    found.sort();
+    found
+}
+
+/// A list of accepted answers is a copyable answer key, whatever the prose
+/// around it claims to be doing.
+#[test]
+fn no_document_lists_several_accepted_answers_on_one_line() {
+    let (salts, hashes) = shipped_salts_and_hashes();
+    assert!(
+        !salts.is_empty() && !hashes.is_empty(),
+        "found no salts/hashes in uebungen/ — the tripwire would pass vacuously"
+    );
+    let files = markdown_files();
+    assert!(!files.is_empty(), "found no Markdown to scan");
+
+    let mut leaks = Vec::new();
+    for path in &files {
+        let Ok(text) = std::fs::read_to_string(path) else {
+            continue;
+        };
+        for (number, line) in text.lines().enumerate() {
+            let found: Vec<String> = inline_code_spans(line)
+                .into_iter()
+                .filter(|span| salts.iter().any(|salt| hashes.contains(&hash(span, salt))))
+                .collect();
+            if found.len() >= 2 {
+                leaks.push(format!(
+                    "  {}:{} lists {} accepted answers: {found:?}",
+                    path.display(),
+                    number + 1,
+                    found.len()
+                ));
+            }
+        }
+    }
+
+    assert!(
+        leaks.is_empty(),
+        "documentation lists accepted answers together (CLAUDE.md rule 6):\n{}\n\n\
+         Illustrate rules with invented words such as \"himmelblau\". One \
+         answer-shaped word in a sentence is fine; a list is an answer key.",
         leaks.join("\n")
     );
 }

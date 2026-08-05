@@ -65,7 +65,7 @@ Sicherheitsgrenze (SPEC §2), keine Stilfrage.
 
 | Die richtige Antwort ist … | dann |
 |---|---|
-| für alle gleich, ein bis zwei Wörter (`gpt`, `mirror`, `2`, `inkrementell`) | `antwort` mit Hashes |
+| für alle gleich, ein bis zwei Wörter aus festem Vokabular (erfundenes Beispiel: `himmelblau`) | `antwort` mit Hashes |
 | maschinenabhängig (Kernzahl, RAM, Firmware-Typ, Seriennummer, eigener Hashwert) | `alle_antworten` — nur Vorhandensein |
 | Freitext, Begründung, Reflexion | `alle_antworten` — Bewertung macht der Trainer |
 | zwei eigene Werte, die übereinstimmen müssen | `werte_gleich` |
@@ -74,6 +74,12 @@ Sicherheitsgrenze (SPEC §2), keine Stilfrage.
 Warum so streng: Eine gehashte Erwartung auf einen maschinenabhängigen Wert
 lässt **korrekte** Arbeit rot werden. Das ist der Vertrauensbruch, den dieses
 Produkt sich nicht leisten kann.
+
+> **Beispiele hier sind immer erfunden.** Bis 2026-08-05 standen in der Zeile
+> oben vier echte akzeptierte Antworten aus vier Übungen — nebeneinander, in
+> einem öffentlichen Repo. Einzeln fällt so ein Wort niemandem auf; als Liste
+> ist es ein Lösungsblatt. Der Test
+> `no_document_lists_several_accepted_answers_on_one_line` hält das jetzt fest.
 
 ## 5. Regex-Muster, die auf echten Windows-Systemen halten
 
